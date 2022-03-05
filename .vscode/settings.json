@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "pathsong.h": "c",
+        "juceheader.h": "c",
+        "playercomponent.h": "c",
+        "energysliderlookandfeel.h": "c",
+        "playertitleplayingcomponent.h": "c",
+        "jsonparser.h": "c",
+        "codafront.h": "c"
+    }
+}
