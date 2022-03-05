@@ -2,6 +2,8 @@
 
 using namespace juce;
 
+#include "Path.h"
+
 class TableComponent : public Component, public TableListBoxModel
 
 {
@@ -330,7 +332,8 @@ private:
     // this loads the embedded database XML file into memory
     void loadData()
     {
-        demoData = parseXML(File("C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/tabledata.xml"));
+        //demoData = parseXML(File("C:/Users/Desktop/Coda2022/lsd_repo/Coda2022/tabledata.xml"));
+        demoData = parseXML(File(ABS_PATH + (juce::String) "tabledata.xml"));
 
         dataList = demoData->getChildByName("DATA");
         columnList = demoData->getChildByName("COLUMNS");

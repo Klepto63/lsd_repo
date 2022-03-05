@@ -19,6 +19,7 @@ typedef struct
 	String pathImage;
 	int stem_nb;
 	String pathSong;
+	String folder;
 	s_stem stem[STEM_MAX_NB];
 }s_metadata;
 

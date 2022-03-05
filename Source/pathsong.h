@@ -15,5 +15,4 @@ const juce::String PathSong_song2 = ABS_PATH_SONGS + (juce::String) "song2/song2
 const juce::String PathImage_song1 = ABS_PATH_SONGS + (juce::String)"song1/song1.png";
 const juce::String PathImage_song2 = ABS_PATH_SONGS + (juce::String)"song2/song2.png";
 
-
 #endif

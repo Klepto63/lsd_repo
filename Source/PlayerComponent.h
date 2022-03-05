@@ -9,6 +9,8 @@
 #include "JsonParser.h"
 #include "Path.h"
 
+#include "vstProcessor.h"
+
 using namespace juce;
 
 //==============================================================================
@@ -128,9 +130,25 @@ public:
 	    mixerAudioSource.addInputSource(&audio3, false);
 	    mixerAudioSource.addInputSource(&audio4, false);
         formatManager.registerBasicFormats();
-        
         //transportSource.addChangeListener(this);
         //mixerAudioSource.addChangeListener(this);
+
+
+		//vstformatManager->addDefaultFormats();
+
+
+        //AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon, "Couldn't create plugin", "error");
+
+        //auto vstHost = new PluginListComponent((juce::AudioPluginFormatManager&) vstformatManager, (juce::KnownPluginList&) list_, NULL, NULL, true);
+
+		//new PluginListComponent (manager_->formatManager, *manager_->list_, deadMansPedalFile, manager_->props_->getUserSettings(), true), true);
+
+		//		ScopedPointer<XmlElement> pluginList(userSettings->getXmlValue("pluginList"));
+ 		//if (nullptr != pluginList)
+ 		//{
+    	//	gKnownPlugins.recreateFromXml(*pluginList);
+ 		//}
+
 
         setAudioChannels(2, 2);
         startTimer(20);
@@ -210,6 +228,9 @@ private:
     juce::AudioTransportSource  audio4;
     juce::MixerAudioSource mixerAudioSource;
 
+
+	//juce::KnownPluginList* list_;
+	//juce::AudioPluginFormatManager* vstformatManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerComponent)
 };

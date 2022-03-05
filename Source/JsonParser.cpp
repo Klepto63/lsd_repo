@@ -7,19 +7,22 @@ int librairy_size;
 
 int jsonParserLoad(int idx, s_metadata* metadata)
 {
+
 	if (idx < librairy_size) //todo checker si on a trouve les data dans le json
 	{
+		juce::String pathh  = ABS_PATH_SONGS +  jsonFile["library"][idx]["folder"];
+		metadata->folder	= jsonFile["library"][idx]["folder"];
 		metadata->id		= jsonFile["library"][idx]["id"];
 		metadata->composer  = jsonFile["library"][idx]["composer"];
 		metadata->title		= jsonFile["library"][idx]["title"];
-		metadata->pathImage = jsonFile["library"][idx]["image"];
-		metadata->pathSong  = jsonFile["library"][idx]["path"];
+		metadata->pathImage = pathh + jsonFile["library"][idx]["image"];
+		metadata->pathSong  = pathh + jsonFile["library"][idx]["path"];
 		metadata->stem_nb	= jsonFile["library"][idx]["stem_nb"];
-
+		
 		for (int i = 0; i < metadata->stem_nb; i++)
 		{
-			metadata->stem[i].name = jsonFile["library"][idx]["stems"][i]["name"];
-			metadata->stem[i].path = jsonFile["library"][idx]["stems"][i]["path"];
+			metadata->stem[i].name = pathh + jsonFile["library"][idx]["stems"][i]["name"];
+			metadata->stem[i].path = pathh + jsonFile["library"][idx]["stems"][i]["path"];
 		}
 
 		return 0;

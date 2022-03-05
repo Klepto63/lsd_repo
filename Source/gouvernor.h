@@ -24,6 +24,7 @@ public:
         hyperlinkButton.setButtonText("Studio-Coda.com");
         hyperlinkButton.setURL(URL("www.studio-coda.fr"));
         addAndMakeVisible(&playerComponent);
+		leftBarComponent.setState(LB_NO_CONNECTED);
         addAndMakeVisible(&leftBarComponent);
         addAndMakeVisible(&sceneComponent);
 
@@ -78,6 +79,7 @@ public:
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override
     {
+
     }
 
 

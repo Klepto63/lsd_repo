@@ -5,7 +5,7 @@
 
 #include <map>
 #include <JuceHeader.h>
-
+#include "Path.h"
 
 
 class SceneComponent : public juce::AnimatedAppComponent
@@ -44,8 +44,8 @@ public:
 
     void load_background()
     {
-        background  = ImageFileFormat::loadFrom(File::File("C:/Users/Alex/Desktop/Coda2022/songs/cropped_/01_1035x508.png"));
-        instrument1 = ImageFileFormat::loadFrom(File::File("C:/Users/Alex/Desktop/Coda2022/songs/raw_/harpi_a.png"));
+        background  = ImageFileFormat::loadFrom(File::File(ABS_PATH_SONGS + (juce::String)"/song1/scene/1.png" ));
+        //instrument1 = ImageFileFormat::loadFrom(File::File("C:/Users/Alex/Desktop/Coda2022/songs/raw_/harpi_a.png"));
     }
 
     void drawScene(juce::Graphics& g)
@@ -65,8 +65,8 @@ public:
 //                          int sx, int sy, int sw, int sh,
 //                          const bool fillAlphaChannelWithCurrentBrush) const
 //
-        auto w = getLocalBounds().toFloat().getWidth();
-        auto h = getLocalBounds().toFloat().getHeight();
+        //auto w = getLocalBounds().toFloat().getWidth();
+        //auto h = getLocalBounds().toFloat().getHeight();
 
         //g.drawLine(0, 0.5*h, w, 0.5*h);
         //g.drawLine(0.5*w, 0, 0.5*w, h);

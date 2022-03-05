@@ -24,9 +24,9 @@ void PlayerComponent::sliderDragEnded(Slider* slider)
     {
         float v = musicSlider.getValue();
         audio1.setPosition(v * audio1.getLengthInSeconds() / 10);
-        audio2.setPosition(v * audio2.getLengthInSeconds() / 10);
-        audio3.setPosition(v * audio3.getLengthInSeconds() / 10);
-        audio4.setPosition(v * audio4.getLengthInSeconds() / 10);        
+        //audio2.setPosition(v * audio2.getLengthInSeconds() / 10);
+        //audio3.setPosition(v * audio3.getLengthInSeconds() / 10);
+        //audio4.setPosition(v * audio4.getLengthInSeconds() / 10);        
         musicSliderBlockTimer = false;
     }
 }
@@ -165,7 +165,7 @@ void PlayerComponent::resized()
     playButton.setBounds((getWidth() - PLAY_BUTTON_SIZE) * 0.5f , 45 - 0.5* PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE); //aussi resized a updatePlayerButtonImage()
     prevButton.setBounds((getWidth() - NEXT_BUTTON_SIZE) * 0.5f - NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
     nextButton.setBounds((getWidth() - NEXT_BUTTON_SIZE) * 0.5f + NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
-    musicSlider.setBounds(0.5 * (getWidth() - MUSIC_SLIDER_SIZE), 55, MUSIC_SLIDER_SIZE, 45);
+    musicSlider.setBounds(0.5 * (getWidth() - MUSIC_SLIDER_SIZE), 58, MUSIC_SLIDER_SIZE, 42);
     lengthLabel.setBounds(0.5 * (getWidth() + MUSIC_SLIDER_SIZE), 59, getWidth() - 20, 40);
     currentPositionLabel.setBounds(0.5 * (getWidth() - MUSIC_SLIDER_SIZE)-40, 59, getWidth() - 20, 40);
 
@@ -216,6 +216,7 @@ void PlayerComponent::updateLoopState(bool shouldLoop)
     {
         readerSource_audio1->setLooping(shouldLoop);
     }
+	/*
     if (readerSource_audio2.get() != nullptr)
     {
         readerSource_audio2->setLooping(shouldLoop);
@@ -227,7 +228,8 @@ void PlayerComponent::updateLoopState(bool shouldLoop)
     if (readerSource_audio4.get() != nullptr)
     {
         readerSource_audio4->setLooping(shouldLoop);
-    }        
+    } 
+	*/       
 }
 
 void PlayerComponent::loadAndPlay(int idx)
@@ -238,26 +240,26 @@ void PlayerComponent::loadAndPlay(int idx)
         playerTitlePlayingComponent.loadSongData(md);
         currentIdxPlaying = idx; //todo optimiser
         auto* reader_audio1 = formatManager.createReaderFor(File(md.stem[0].path));
-        auto* reader_audio2 = formatManager.createReaderFor(File(md.stem[1].path));
-        auto* reader_audio3 = formatManager.createReaderFor(File(md.stem[2].path));
-        auto* reader_audio4 = formatManager.createReaderFor(File(md.stem[3].path));
+        //auto* reader_audio2 = formatManager.createReaderFor(File(md.stem[1].path));
+        //auto* reader_audio3 = formatManager.createReaderFor(File(md.stem[2].path));
+        //auto* reader_audio4 = formatManager.createReaderFor(File(md.stem[3].path));
         if (reader_audio1 != nullptr)
         {
             //std::unique_ptr<PositionableAudioSource> tmpSource(new AudioFormatReaderSource(reader, true));
             std::unique_ptr<juce::AudioFormatReaderSource> newSource1(new juce::AudioFormatReaderSource(reader_audio1, true));
-            std::unique_ptr<juce::AudioFormatReaderSource> newSource2(new juce::AudioFormatReaderSource(reader_audio2, true));  
-            std::unique_ptr<juce::AudioFormatReaderSource> newSource3(new juce::AudioFormatReaderSource(reader_audio3, true));  
-            std::unique_ptr<juce::AudioFormatReaderSource> newSource4(new juce::AudioFormatReaderSource(reader_audio4, true));  
+            //std::unique_ptr<juce::AudioFormatReaderSource> newSource2(new juce::AudioFormatReaderSource(reader_audio2, true));  
+            //std::unique_ptr<juce::AudioFormatReaderSource> newSource3(new juce::AudioFormatReaderSource(reader_audio3, true));  
+            //std::unique_ptr<juce::AudioFormatReaderSource> newSource4(new juce::AudioFormatReaderSource(reader_audio4, true));  
             audio1.setSource(newSource1.get(), 0, nullptr, reader_audio1->sampleRate);
-            audio2.setSource(newSource2.get(), 0, nullptr, reader_audio2->sampleRate);
-            audio3.setSource(newSource3.get(), 0, nullptr, reader_audio3->sampleRate);
-            audio4.setSource(newSource4.get(), 0, nullptr, reader_audio4->sampleRate);
+            //audio2.setSource(newSource2.get(), 0, nullptr, reader_audio2->sampleRate);
+            //audio3.setSource(newSource3.get(), 0, nullptr, reader_audio3->sampleRate);
+            //audio4.setSource(newSource4.get(), 0, nullptr, reader_audio4->sampleRate);
             playButton.setEnabled(true);
             energySlider.setEnabled(true);
             readerSource_audio1.reset(newSource1.release());
-            readerSource_audio2.reset(newSource2.release());
-            readerSource_audio3.reset(newSource3.release());
-            readerSource_audio4.reset(newSource4.release());
+            //readerSource_audio2.reset(newSource2.release());
+            //readerSource_audio3.reset(newSource3.release());
+            //readerSource_audio4.reset(newSource4.release());
 
             changeState(Starting);
             CBScenes.setVisible(true);
@@ -300,9 +302,9 @@ void PlayerComponent::changeState(TransportState newState)
             updatePlayerButtonImage(true);
 
             audio1.start();
-            audio2.start();
-            audio3.start();
-            audio4.start();
+            //audio2.start();
+            //audio3.start();
+            //audio4.start();
 
 
             lengthDuration_s = audio1.getLengthInSeconds();
@@ -318,9 +320,9 @@ void PlayerComponent::changeState(TransportState newState)
         case Stopping:
             updatePlayerButtonImage(false);
             audio1.stop();
-            audio2.stop();
-            audio3.stop();
-            audio4.stop();            
+            //audio2.stop();
+            //audio3.stop();
+            //audio4.stop();            
             break;
         }
     }

@@ -61,18 +61,25 @@ public:
                                                           .findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
-            setUsingNativeTitleBar (false);
+            setUsingNativeTitleBar (true);
 
             setResizable(false, false);
-            setContentOwned(new PopUpEnterComponent(2), true);
-            //setContentOwned(new MainContentComponent(), true);
-
-         
+            //setContentOwned(new PopUpEnterComponent(2), true);
+            setContentOwned(new MainContentComponent(), true);
+            centreWithSize (getWidth(), getHeight());
+            setVisible (true);
+			
             //setResizeLimits(1000,600, 1500,1200);  //original(1200, 800);
 
-            centreWithSize (getWidth(), getHeight());
+         
+            //Time::waitForMillisecondCounter(Time::getMillisecondCounter() + 100);
 
-            setVisible (true);
+			auto* dw = new PopUpEnterComponent(POPUP_WELCOME);
+            dw->setVisible(true);
+			dw->setOpaque(true);
+            dw->addToDesktop(1,0); //StyleFlags
+            dw->setAlwaysOnTop(true);
+    		if (dw != nullptr) dw->setCentreRelative(0.5, 0.5);
         }
 
         void closeButtonPressed() override
@@ -96,6 +103,7 @@ public:
 
 private:
     std::unique_ptr<MainWindow> mainWindow;
+	Array<Component::SafePointer<Component>> windows;
 };
 
 //==============================================================================

@@ -7,31 +7,40 @@
 
 using namespace juce;
 
-class PopUpEnterComponent  : public juce::Component
+typedef enum
+{
+    POPUP_WELCOME = 1,					//OK
+    POPUP_CONNECT_PRESQUEL = 2,			//CANCEL  USE_FAKE	CONNECT
+	POPUP_MOUSE_MODE = 3,
+	POPUP_LOOKING_FOR_PRESQUEL = 4		// CANCEL		NEXT (blurred)
+}ENUM_POPUP;
+
+class PopUpEnterComponent  : public Component //todo timer
 {
 public:
-
     PopUpEnterComponent(int idx);
     ~PopUpEnterComponent() override;
     void paint (juce::Graphics&) override;
     void resized() override;
     void showPopupWindows(void);
-
+	
 private:
 
     int popupIdx = 1;
+    TextButton BUTTON_A;
+    TextButton BUTTON_B;
+	TextButton BUTTON_C;
+	TextButton BUTTON_D;
 
-    TextButton ConnectPresquelButton;
-    TextButton EnterWithoutPresquelButton;
-
-    SafePointer<DialogWindow> dialogWindow;
-
+    
+    
+    void ButtonA_callback(void);
+    void ButtonB_callback(void);
+    void ButtonC_callback(void);
+    void ButtonD_callback(void);
+    void constructPopUp(int idx);
     CustomLookAndFeel customLookAndFeel;
-
-
-    void enterWithNoPresquel(void);
-    void enterWithPresquel(void);
-
+    SafePointer<DialogWindow> dialogWindow;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PopUpEnterComponent)
 };
 
