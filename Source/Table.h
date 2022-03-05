@@ -2,6 +2,8 @@
 
 using namespace juce;
 
+#include "JuceHeader.h"
+#include "codaFront.h"
 #include "Path.h"
 
 class TableComponent : public Component, public TableListBoxModel

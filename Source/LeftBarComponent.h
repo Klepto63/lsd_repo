@@ -5,6 +5,7 @@
 #include <JuceHeader.h>
 #include "codaFront.h"
 #include "PopUpEnterComponent.h"
+#include "openGLscene.h"
 
 using namespace juce;
 
@@ -129,11 +130,6 @@ private:
 			dw->setCentreRelative(0.5, 0.5);
 		}
 
-
-
-
-
-
             //windowInstance++;
             //this->setVisible(false); supprime le component ici la left bar
         //Time::waitForMillisecondCounter(Time::getMillisecondCounter() + 1000);
@@ -145,6 +141,9 @@ private:
     Array<Component::SafePointer<Component>> windows;
 	PopUpEnterComponent* dw = 0;
     juce::TextButton ConnectCodaButton;
+
+	openGLMaskComponent maskComponent;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LeftBarComponent)
 };
 

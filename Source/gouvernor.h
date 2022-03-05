@@ -24,7 +24,7 @@ public:
         hyperlinkButton.setButtonText("Studio-Coda.com");
         hyperlinkButton.setURL(URL("www.studio-coda.fr"));
         addAndMakeVisible(&playerComponent);
-		leftBarComponent.setState(LB_NO_CONNECTED);
+		leftBarComponent.setState(LB_PREQUEL_MODE);
         addAndMakeVisible(&leftBarComponent);
         addAndMakeVisible(&sceneComponent);
 
