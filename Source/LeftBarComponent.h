@@ -6,6 +6,7 @@
 #include "codaFront.h"
 #include "PopUpEnterComponent.h"
 #include "openGLscene.h"
+#include "EnergySliderLookAndFeel.h"
 
 using namespace juce;
 
@@ -33,10 +34,36 @@ public:
 			ConnectCodaButton.setEnabled(true);
 			ConnectCodaButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
 			ConnectCodaButton.setButtonText("Connect");
+			ConnectCodaButton.setVisible(true);
 			break;
 		}
 		case LB_PREQUEL_MODE:
 		{
+			Slider1.setLookAndFeel(&openGlAngleSliderLookAndFeel);
+        	Slider1.setSliderStyle(Slider::LinearHorizontal);
+			Slider1.hideTextBox(true);
+        	Slider1.setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
+        	Slider1.setColour(0x1001300, Colour(THUMB_COLOR_OPENGL));      //thumbColor (la boule)
+        	Slider1.setColour(0x1001310, Colour(LIGNE_COLOR_OPENGL));      //ligneColor
+			Slider1.setValue(5, dontSendNotification);
+        	Slider1.setRange(0, 10);
+
+			Slider2.setLookAndFeel(&openGlAngleSliderLookAndFeel);
+        	Slider2.setSliderStyle(Slider::LinearVertical);
+			Slider2.hideTextBox(true);
+        	Slider2.setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
+        	Slider2.setColour(0x1001300, Colour(THUMB_COLOR_OPENGL));      //thumbColor (la boule)
+        	Slider2.setColour(0x1001310, Colour(LIGNE_COLOR_OPENGL));      //ligneColor			
+			Slider2.setValue(5, dontSendNotification);
+        	Slider2.setRange(0, 10);
+
+			addAndMakeVisible(&Slider1);
+			addAndMakeVisible(&Slider2);
+
+
+			addAndMakeVisible(&maskComponent);
+			maskComponent.set_CodaIsConnected(false);
+
 			break;
 		}
 		case LB_FAKE_MODE:
@@ -66,6 +93,17 @@ public:
 		}
 		case LB_PREQUEL_MODE:
 		{
+			int w = 130;
+			int h = 130;
+			int Y = 35;
+
+			int h_slider = 15;
+
+			maskComponent.setBounds((int)((getWidth() - w) * 0.5f), Y, w, h);
+			w = w + 10; //rallongement bar
+			int Y2 = Y + h + 0.7f*h_slider;
+			Slider1.setBounds((int)((getWidth() - w) * 0.5f),Y2,w,h_slider);
+			Slider2.setBounds( (int)((getWidth() - w) * 0.5f) + w+	h_slider, Y, h_slider, w);
 			break;
 		}
 		case LB_FAKE_MODE:
@@ -75,9 +113,6 @@ public:
 		default:
 			break;
 		}
-
-
-
 
 
 	}
@@ -136,13 +171,16 @@ private:
         //showPopupWindows();
     }
 
-	int state = 1;
+	int state = 2;
     int windowInstance = 0; //nombre de pop ouvert simultanné
     Array<Component::SafePointer<Component>> windows;
 	PopUpEnterComponent* dw = 0;
-    juce::TextButton ConnectCodaButton;
 
+    TextButton ConnectCodaButton;
 	openGLMaskComponent maskComponent;
+	OpenGlAngleSliderLookAndFeel openGlAngleSliderLookAndFeel;
+	Slider Slider1;
+	Slider Slider2;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LeftBarComponent)
 };

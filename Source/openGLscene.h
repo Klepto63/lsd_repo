@@ -334,11 +334,19 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WavefrontObjFile)
 };
 
+
+using namespace juce::gl;
+
 class openGLMaskComponent : public juce::OpenGLAppComponent
 {
 public:
     openGLMaskComponent()
     {
+  
+        angleAlpha = 0;
+        angleTeta = 0;
+        anglePhi = 0;
+
         setSize(800, 600);
         CodaIsConnected = false;
     }
@@ -372,7 +380,7 @@ public:
 
     juce::Matrix3D<float> getViewMatrix() const
     {
-        juce::Matrix3D<float> viewMatrix({ 0.0f, 0.0f, -10.0f });  
+        juce::Matrix3D<float> viewMatrix({ 0.0f, 0.0f, -7.0f });        //distance à l'objet  
         juce::Matrix3D<float> rotationMatrix;
 
         if (!CodaIsConnected)
@@ -399,7 +407,7 @@ public:
         auto desktopScale = (float)openGLContext.getRenderingScale();
         juce::OpenGLHelpers::clear(juce::Colours::black);
 
-        juce::glEnable(juce::GL_BLEND);
+        glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glViewport(0,
@@ -418,8 +426,8 @@ public:
         shape->draw(openGLContext, *attributes);
 
         // Reset the element buffers so child Components draw correctly
-        openGLContext.extensions.glBindBuffer(juce::GL_ARRAY_BUFFER, 0);
-        openGLContext.extensions.glBindBuffer(juce::GL_ELEMENT_ARRAY_BUFFER, 0);
+        openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, 0);
+        openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     void paint(juce::Graphics& g) override
@@ -604,10 +612,10 @@ private:
 
             int numTries = 0;
 
-            while (!dir.getChildFile("Resources").exists() && numTries++ < 15)
+            while (!dir.getChildFile("Assets").exists() && numTries++ < 15)
                 dir = dir.getParentDirectory();
 
-            if (shapeFile.load(dir.getChildFile("Resources").getChildFile("face.obj")).wasOk())
+            if (shapeFile.load(dir.getChildFile("Assets").getChildFile("face.obj")).wasOk())
                 for (auto* s : shapeFile.shapes)
                     vertexBuffers.add(new VertexBuffer(context, *s));
         }
@@ -633,20 +641,20 @@ private:
                 numIndices = aShape.mesh.indices.size();
 
                 openGLContext.extensions.glGenBuffers(1, &vertexBuffer);
-                openGLContext.extensions.glBindBuffer(juce::GL_ARRAY_BUFFER, vertexBuffer);
+                openGLContext.extensions.glBindBuffer(juce::gl::GL_ARRAY_BUFFER, vertexBuffer);
 
                 juce::Array<Vertex> vertices;
                 createVertexListFromMesh(aShape.mesh, vertices, juce::Colours::green);
 
-                openGLContext.extensions.glBufferData(juce::GL_ARRAY_BUFFER,
-                    static_cast<juce::GLsizeiptr> (static_cast<size_t> (vertices.size()) * sizeof(Vertex)),
-                    vertices.getRawDataPointer(), juce::GL_STATIC_DRAW);
+                openGLContext.extensions.glBufferData(GL_ARRAY_BUFFER,
+                    static_cast<GLsizeiptr> (static_cast<size_t> (vertices.size()) * sizeof(Vertex)),
+                    vertices.getRawDataPointer(), GL_STATIC_DRAW);
 
                 openGLContext.extensions.glGenBuffers(1, &indexBuffer);
-                openGLContext.extensions.glBindBuffer(juce::GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-                openGLContext.extensions.glBufferData(juce::GL_ELEMENT_ARRAY_BUFFER,
-                    static_cast<juce::GLsizeiptr> (static_cast<size_t> (numIndices) * sizeof(juce::uint32)),
-                    aShape.mesh.indices.getRawDataPointer(), juce::GL_STATIC_DRAW);
+                openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+                openGLContext.extensions.glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                    static_cast<GLsizeiptr> (static_cast<size_t> (numIndices) * sizeof(juce::uint32)),
+                    aShape.mesh.indices.getRawDataPointer(), GL_STATIC_DRAW);
             }
 
             ~VertexBuffer()
@@ -657,8 +665,8 @@ private:
 
             void bind()
             {
-                openGLContext.extensions.glBindBuffer(juce::GL_ARRAY_BUFFER, vertexBuffer);
-                openGLContext.extensions.glBindBuffer(juce::GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+                openGLContext.extensions.glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+                openGLContext.extensions.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
             }
 
             GLuint vertexBuffer, indexBuffer;

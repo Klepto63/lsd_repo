@@ -1,13 +1,7 @@
 #pragma once
-
-
-
 #include <JuceHeader.h>
 
-#include "codaFront.h"
-
 using namespace juce;
-
 
 
 class EnergySliderLookAndFeel : public LookAndFeel_V1
@@ -63,4 +57,30 @@ public:
 private:
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EnergySliderLookAndFeel)
+};
+
+
+
+
+class OpenGlAngleSliderLookAndFeel : public LookAndFeel_V1
+{
+
+
+        public:
+
+                OpenGlAngleSliderLookAndFeel()
+                {
+
+                }
+
+                ~OpenGlAngleSliderLookAndFeel()
+                {
+
+                }
+
+ 
+        private:
+
+                JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OpenGlAngleSliderLookAndFeel)
+        
 };

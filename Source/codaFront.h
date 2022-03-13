@@ -24,7 +24,7 @@
 //------------------------------------- GOUVERNOR
 #define WP2_COLOR     0xff111111
 
-//--------------------------------------- SLIDER
+//--------------------------------------- SLIDER MUSIC
 #define BACKGROUND_COLOR 0xff535353
 #define THUMB_COLOR      0xc8ffffff
 #define LIGNE_COLOR      0xff1db954
@@ -50,14 +50,16 @@
 //#define WP_PLAYER   0xff0000ff
 
 //--------------------- LEFTBAR
-#define WP_LEFTBAR 0xff000000
+#define WP_LEFTBAR 0xFF000000
 
 #define TABLE_X0 500
 #define TABLE_Y0 150
 #define TABLE_X1 650
 #define TABLE_Y1 500
 
-
+//--------------------------------------- SLIDER OPENGL
+#define THUMB_COLOR_OPENGL 0xc8ffffff
+#define LIGNE_COLOR_OPENGL 0x550099aa
 
 namespace CodaBinaryFont
 {

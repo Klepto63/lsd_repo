@@ -20,9 +20,11 @@ public:
         addAndMakeVisible(&tableComponent);
         tableComponent.setComponentID("table");
         tableComponent.addMouseListener(this, true);
-        addAndMakeVisible(&hyperlinkButton);
-        hyperlinkButton.setButtonText("Studio-Coda.com");
-        hyperlinkButton.setURL(URL("www.studio-coda.fr"));
+
+        //addAndMakeVisible(&hyperlinkButton);
+        //hyperlinkButton.setButtonText("Studio-Coda.com");
+        //hyperlinkButton.setURL(URL("www.studio-coda.fr"));
+
         addAndMakeVisible(&playerComponent);
 		leftBarComponent.setState(LB_PREQUEL_MODE);
         addAndMakeVisible(&leftBarComponent);
@@ -56,7 +58,7 @@ public:
         int h_playbar = 100; //largeur playbar like spotify
         int h_table = 200;
         int l_leftbar = 300;
-        hyperlinkButton.setBounds(10, 50,100, 20);
+        //hyperlinkButton.setBounds(10, 50,100, 20);
         playerComponent.setBounds(0, Height - h_playbar, Width, h_playbar);
         tableComponent.setBounds(l_leftbar - 8, Height - h_playbar - h_table, Width-l_leftbar +17, 210);
         leftBarComponent.setBounds(0,0, l_leftbar, Height - h_playbar);
@@ -89,7 +91,7 @@ private:
     int currentIdSong;
     //todo boutton BUY PRESQUEL
 
-    juce::HyperlinkButton hyperlinkButton;
+    //juce::HyperlinkButton hyperlinkButton;
 
     SceneComponent   sceneComponent;
     TableComponent   tableComponent;
