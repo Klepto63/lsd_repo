@@ -47,6 +47,7 @@ public:
         	Slider1.setColour(0x1001310, Colour(LIGNE_COLOR_OPENGL));      //ligneColor
 			Slider1.setValue(5, dontSendNotification);
         	Slider1.setRange(0, 10);
+			
 
 			Slider2.setLookAndFeel(&openGlAngleSliderLookAndFeel);
         	Slider2.setSliderStyle(Slider::LinearVertical);
@@ -93,9 +94,9 @@ public:
 		}
 		case LB_PREQUEL_MODE:
 		{
-			int w = 130;
-			int h = 130;
-			int Y = 35;
+			int w = 160;
+			int h = 160;
+			int Y = 40;
 
 			int h_slider = 15;
 

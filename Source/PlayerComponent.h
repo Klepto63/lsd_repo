@@ -13,15 +13,99 @@
 
 using namespace juce;
 
+
+//==============================================================================
+class ProcessorBase  : public juce::AudioProcessor
+{
+public:
+    //==============================================================================
+    ProcessorBase()
+        : AudioProcessor (BusesProperties().withInput ("Input", juce::AudioChannelSet::stereo())
+                                           .withOutput ("Output", juce::AudioChannelSet::stereo()))
+    {}
+
+    //==============================================================================
+    void prepareToPlay (double, int) override {}
+    void releaseResources() override {}
+    void processBlock (juce::AudioSampleBuffer&, juce::MidiBuffer&) override {}
+
+    //==============================================================================
+    juce::AudioProcessorEditor* createEditor() override          { return nullptr; }
+    bool hasEditor() const override                              { return false; }
+
+    //==============================================================================
+    const juce::String getName() const override                  { return {}; }
+    bool acceptsMidi() const override                            { return false; }
+    bool producesMidi() const override                           { return false; }
+    double getTailLengthSeconds() const override                 { return 0; }
+
+    //==============================================================================
+    int getNumPrograms() override                                { return 0; }
+    int getCurrentProgram() override                             { return 0; }
+    void setCurrentProgram (int) override                        {}
+    const juce::String getProgramName (int) override             { return {}; }
+    void changeProgramName (int, const juce::String&) override   {}
+
+    //==============================================================================
+    void getStateInformation (juce::MemoryBlock&) override       {}
+    void setStateInformation (const void*, int) override         {}
+
+private:
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorBase)
+};
+
+
+
+
+//==============================================================================
+class OscillatorProcessor  : public ProcessorBase
+{
+public:
+    OscillatorProcessor()
+    {
+        oscillator.setFrequency (440.0f);
+        oscillator.initialise ([] (float x) { return std::sin (x); });
+    }
+
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override
+    {
+        juce::dsp::ProcessSpec spec { sampleRate, static_cast<juce::uint32> (samplesPerBlock) };
+        oscillator.prepare (spec);
+    }
+
+    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+    {
+        juce::dsp::AudioBlock<float> block (buffer);
+        juce::dsp::ProcessContextReplacing<float> context (block);
+        oscillator.process (context);
+    }
+
+    void reset() override
+    {
+        oscillator.reset();
+    }
+
+    const juce::String getName() const override { return "Oscillator"; }
+
+private:
+    juce::dsp::Oscillator<float> oscillator;
+};
+
+
+
 //==============================================================================
 class PlayerComponent : public juce::AudioAppComponent,
     public  juce::ChangeListener,
     public  juce::Timer,
     private juce::Slider::Listener
 {
+
+	using AudioGraphIOProcessor = AudioProcessorGraph::AudioGraphIOProcessor;
+	using Node = AudioProcessorGraph::Node;	
+
 public:
-    PlayerComponent()
-        : state(Stopped)
+    PlayerComponent() : mainProcessor (new juce::AudioProcessorGraph()), state(Stopped)
     {
         currentIdxPlaying = 0;
         currentVolume = 85;
@@ -150,6 +234,26 @@ public:
  		//}
 
 
+
+
+
+
+        auto inputDevice  = juce::MidiInput::getDefaultDevice();
+        auto outputDevice = juce::MidiOutput::getDefaultDevice();
+        mainProcessor->enableAllBuses();
+
+        deviceManager.initialiseWithDefaultDevices (0, 2);                          // [1]
+        deviceManager.addAudioCallback (&mainProcessorPlayer);                                   // [2]
+        deviceManager.setMidiInputDeviceEnabled (inputDevice.identifier, true);
+        deviceManager.addMidiInputDeviceCallback (inputDevice.identifier, &mainProcessorPlayer); // [3]
+        deviceManager.setDefaultMidiOutputDevice (outputDevice.identifier);
+
+        initialiseGraph();
+
+        mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
+
+
+
         setAudioChannels(2, 2);
         startTimer(20);
     }
@@ -190,6 +294,7 @@ private:
         Stopping
     };
 
+
     void changeState(TransportState newState);
     void updatePlayerButtonImage(bool playing);
     void updateVolumeButtonImage(bool isMuted, int sliderVolume);
@@ -198,6 +303,7 @@ private:
     void nextButtonClicked(void);
     void prevButtonClicked(void);
     void CBScenesChanged(void);
+    void initialiseGraph();
 
     //==========================================================================
 
@@ -231,6 +337,14 @@ private:
 
 	//juce::KnownPluginList* list_;
 	//juce::AudioPluginFormatManager* vstformatManager;
+
+
+	std::unique_ptr <juce::AudioProcessorGraph> mainProcessor;
+    juce::AudioDeviceManager deviceManager;
+    juce::AudioProcessorPlayer mainProcessorPlayer; //An AudioIODeviceCallback object which streams audio through an AudioProcessor.
+    Node::Ptr audioInputNode;
+    Node::Ptr audioOutputNode;
+    Node::Ptr slot1Node;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerComponent)
 };

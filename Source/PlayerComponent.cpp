@@ -441,3 +441,56 @@ void PlayerComponent::prevButtonClicked(void)
         loadAndPlay(--currentIdxPlaying);
     }
 }
+
+/*
+Processors can be added to the graph as "nodes" using addNode(), and once added,
+ you can connect any of their input or output channels to other nodes using addConnection().
+ */
+void PlayerComponent::initialiseGraph(void)
+{
+    mainProcessor->clear();
+
+    //in and out of the graph
+    audioInputNode  = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioInputNode));
+    audioOutputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioOutputNode));
+
+    //
+
+
+
+    for (int channel = 0; channel < 2; ++channel)     //connect_audio_node input/output
+            mainProcessor->addConnection ({ { audioInputNode->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
+
+
+
+
+    //connect node
+    juce::ReferenceCountedArray<Node> slots;
+    slots.add (slot1Node);
+
+    //sle1Node = oscilloscope
+    //slots.set (0, mainProcessor->addNode (std::make_unique<OscillatorProcessor>()));
+    auto  slot   = slots.getUnchecked (0); //useless mais pour tester
+    if (slot != nullptr)
+    {
+        if (slot->getProcessor()->getName() == "Oscillator")
+        {
+            int toto = 5;
+            toto++;
+        }
+    }
+
+
+    juce::ReferenceCountedArray<Node> activeSlots;
+
+
+    //gestion du byas
+    //for (int i = 0; i < 3; ++i)
+    //{
+    //    auto  slot   = slots   .getUnchecked (i);
+    //    auto& bypass = bypasses.getReference (i);
+    //
+    //    if (slot != nullptr)
+    //        slot->setBypassed (bypass->getToggleState());
+    //}
+}
