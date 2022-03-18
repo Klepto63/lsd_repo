@@ -64,8 +64,8 @@ class OscillatorProcessor  : public ProcessorBase
 public:
     OscillatorProcessor()
     {
-        oscillator.setFrequency (440.0f);
-        oscillator.initialise ([] (float x) { return std::sin (x); });
+        oscillator.setFrequency (480.0f);
+        oscillator.initialise ([] (float x) { return (0.028f* std::sin (x)); });
     }
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
@@ -276,7 +276,8 @@ public:
     void updateLoopState(bool shouldLoop);
     bool isPlaying(void);
     void loadAndPlay(int idx);
-
+    void initialiseGraph();
+    void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error);
 private:
 
     int     currentIdxPlaying;
@@ -303,7 +304,7 @@ private:
     void nextButtonClicked(void);
     void prevButtonClicked(void);
     void CBScenesChanged(void);
-    void initialiseGraph();
+
 
     //==========================================================================
 
@@ -335,8 +336,8 @@ private:
     juce::MixerAudioSource mixerAudioSource;
 
 
-	//juce::KnownPluginList* list_;
-	//juce::AudioPluginFormatManager* vstformatManager;
+	juce::KnownPluginList* list_;
+	juce::AudioPluginFormatManager vstformatManager;
 
 
 	std::unique_ptr <juce::AudioProcessorGraph> mainProcessor;
@@ -344,7 +345,11 @@ private:
     juce::AudioProcessorPlayer mainProcessorPlayer; //An AudioIODeviceCallback object which streams audio through an AudioProcessor.
     Node::Ptr audioInputNode;
     Node::Ptr audioOutputNode;
-    Node::Ptr slot1Node;
+
+    juce::ReferenceCountedArray<Node> slots;
+    juce::ReferenceCountedArray<Node> activeSlots;    
+    Node::Ptr slot1Node;    //osci
+    Node::Ptr slot2Node;    //dearVr
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerComponent)
 };

@@ -442,6 +442,63 @@ void PlayerComponent::prevButtonClicked(void)
     }
 }
 
+
+
+static std::unique_ptr<ScopedDPIAwarenessDisabler> makeDPIAwarenessDisablerForPlugin (const PluginDescription& desc)
+{
+    //pas de resize de plugin
+    return nullptr;
+}
+
+
+void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> instance,  const String& error)
+{
+    if (instance == nullptr)
+    {
+        AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon,TRANS("Error loading pluging"), error);
+    }
+    else
+    {
+        instance->enableAllBuses();
+
+        //connect to graph
+        //if (auto node = graph.addNode (std::move (instance)))
+        //{
+            //NODE MIDDLE
+
+
+        //for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
+        //{
+        //    mainProcessor->addConnection({ { slots.getUnchecked(0)->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
+        //}
+
+        
+
+
+
+        
+        auto VR3Node = mainProcessor->addNode(std::move(instance));
+        for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
+        {
+            mainProcessor->addConnection({ { slots.getUnchecked(0)->nodeID,  channel }, { VR3Node->nodeID, channel } });
+        }
+
+        for (int channel = 0; channel < 2; ++channel)     //connect_audio_node input/output
+        {
+            mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
+        }
+        
+
+
+
+            //node->properties.set ("x", pos.x);
+            //node->properties.set ("y", pos.y);
+            //changed();
+        //}
+
+    }
+}
+
 /*
 Processors can be added to the graph as "nodes" using addNode(), and once added,
  you can connect any of their input or output channels to other nodes using addConnection().
@@ -450,38 +507,138 @@ void PlayerComponent::initialiseGraph(void)
 {
     mainProcessor->clear();
 
-    //in and out of the graph
+    //NODE IN OUT 
     audioInputNode  = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioInputNode));
     audioOutputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioOutputNode));
 
-    //
 
 
 
-    for (int channel = 0; channel < 2; ++channel)     //connect_audio_node input/output
-            mainProcessor->addConnection ({ { audioInputNode->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
+    slots.add(slot1Node);
+    slots.add(slot2Node);
+    slots.set(0, mainProcessor->addNode(std::make_unique<OscillatorProcessor>()));
 
-
-
-
-    //connect node
-    juce::ReferenceCountedArray<Node> slots;
-    slots.add (slot1Node);
-
-    //sle1Node = oscilloscope
-    //slots.set (0, mainProcessor->addNode (std::make_unique<OscillatorProcessor>()));
-    auto  slot   = slots.getUnchecked (0); //useless mais pour tester
+    auto  slot = slots.getUnchecked(0); //useless mais pour tester
     if (slot != nullptr)
     {
         if (slot->getProcessor()->getName() == "Oscillator")
         {
-            int toto = 5;
-            toto++;
+            //config node
+            slot->getProcessor()->setPlayConfigDetails(mainProcessor->getMainBusNumInputChannels(),
+                mainProcessor->getMainBusNumOutputChannels(),
+                mainProcessor->getSampleRate(),
+                mainProcessor->getBlockSize());
         }
     }
 
 
-    juce::ReferenceCountedArray<Node> activeSlots;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //https://forum.juce.com/t/connect-to-a-vst-plugin/20929/6
+
+    OwnedArray<PluginDescription> pluginDescriptions;
+    KnownPluginList plist;
+    //AudioPluginFormatManager pluginFormatManager;
+    vstformatManager.addDefaultFormats();
+    for (int i = 0; i < vstformatManager.getNumFormats(); ++i)
+    {
+        plist.scanAndAddFile("C:/Users/Alex/Desktop/Coda2022/lsd_repo/dearVRpro.vst3", true, pluginDescriptions,  *vstformatManager.getFormat(i));
+    }
+    jassert (pluginDescriptions.size() > 0);
+    String msg ("Oh no!");
+    std::shared_ptr<ScopedDPIAwarenessDisabler> dpiDisabler = makeDPIAwarenessDisablerForPlugin(*pluginDescriptions[0]);
+ 
+    vstformatManager.createPluginInstanceAsync(         *pluginDescriptions[0],
+                                                            48000,
+                                                            1024,
+                                                                [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
+                                                                {
+                                                                    addPluginCallback(std::move(instance), error);
+                                                                }
+                                                            );
+     
+    //auto instance=  vstformatManager.createPluginInstance(*pluginDescriptions[0],
+    //                                                     mainProcessor->getSampleRate(),
+    //                                                     mainProcessor->getBlockSize(),
+    //                                                     msg
+    //                                                     );
+  //
+//
+
+    //auto editor = instance->createEditor();
+    //auto bc = editor->getConstrainer();
+    //editor->setBounds(0, 0, bc->getMinimumWidth(), bc->getMinimumHeight());
+    //addAndMakeVisible (editor);
+
+
+    //String message;
+    //KnownPluginList plugList;
+    //AudioPluginFormatManager pluginFormatManager;
+    //OwnedArray<juce::PluginDescription> typesFound;
+    //juce::VSTPluginFormat format;
+    //String pluginLoadError;
+    //
+    //message << "C:/Users/Alex/Desktop/Coda2022/lsd_repo/FruityPhaser.dll";
+    //pluginFormatManager.addDefaultFormats();
+    //plugList.scanAndAddFile(message, true, typesFound, format); // error happens here
+    //auto test = pluginFormatManager.createPluginInstance(*typesFound[0], 44100, 512, pluginLoadError);
+
+
+
+
+
+
+
+
+    //// Load VST //
+    //PluginDescription PlugDesc;
+    //PlugDesc.pluginFormatName = String("VST");
+    ////PlugDesc.fileOrIdentifier = String("C:/Users/Alex/Desktop/Coda2022/lsd_repo/dearVRpro.vst3");
+    //PlugDesc.fileOrIdentifier = String("C:/Users/Alex/Desktop/Coda2022/lsd_repo/FruityPhaser.dll");
+    //std::shared_ptr<ScopedDPIAwarenessDisabler> dpiDisabler = makeDPIAwarenessDisablerForPlugin(PlugDesc);
+    //vstformatManager->createPluginInstanceAsync(PlugDesc,
+    //                                            mainProcessor->getSampleRate(),
+    //                                            mainProcessor->getBlockSize(),
+    //                                            [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
+    //                                            {
+    //                                            addPluginCallback(std::move(instance), error);
+    //                                            }
+    //);
+//
+
+
+    //CONNECT
+
+    //clear
+    //for (auto connection : mainProcessor->getConnections())
+    //    mainProcessor->removeConnection (connection);
+
+
+
+
 
 
     //gestion du byas
