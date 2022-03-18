@@ -14,6 +14,209 @@
 using namespace juce;
 
 
+
+//==============================================================================
+/**
+    A desktop window containing a plugin's GUI.
+*/
+class PluginWindow  : public DocumentWindow
+{
+public:
+    enum class Type
+    {
+        normal = 0,
+        generic,
+        programs,
+        audioIO,
+        debug,
+        numTypes
+    };
+
+    PluginWindow (AudioProcessorGraph::Node* n, Type t, OwnedArray<PluginWindow>& windowList)
+       : DocumentWindow (n->getProcessor()->getName(),
+                         LookAndFeel::getDefaultLookAndFeel().findColour (ResizableWindow::backgroundColourId),
+                         DocumentWindow::minimiseButton | DocumentWindow::closeButton),
+         activeWindowList (windowList),
+         node (n), type (t)
+    {
+        setSize (400, 300);
+
+        if (auto* ui = createProcessorEditor (*node->getProcessor(), type))
+        {
+            setContentOwned (ui, true);
+            setResizable (ui->isResizable(), false);
+        }
+
+       #if JUCE_IOS || JUCE_ANDROID
+        auto screenBounds = Desktop::getInstance().getDisplays().getTotalBounds (true).toFloat();
+        auto scaleFactor = jmin ((screenBounds.getWidth() - 50) / getWidth(), (screenBounds.getHeight() - 50) / getHeight());
+
+        if (scaleFactor < 1.0f)
+            setSize ((int) (getWidth() * scaleFactor), (int) (getHeight() * scaleFactor));
+
+        setTopLeftPosition (20, 20);
+       #else
+        setTopLeftPosition (node->properties.getWithDefault (getLastXProp (type), Random::getSystemRandom().nextInt (500)),
+                            node->properties.getWithDefault (getLastYProp (type), Random::getSystemRandom().nextInt (500)));
+       #endif
+
+        node->properties.set (getOpenProp (type), true);
+
+        setVisible (true);
+    }
+
+    ~PluginWindow() override
+    {
+        clearContentComponent();
+    }
+
+    void moved() override
+    {
+        node->properties.set (getLastXProp (type), getX());
+        node->properties.set (getLastYProp (type), getY());
+    }
+
+    void closeButtonPressed() override
+    {
+        node->properties.set (getOpenProp (type), false);
+        activeWindowList.removeObject (this);
+    }
+
+    static String getLastXProp (Type type)    { return "uiLastX_" + getTypeName (type); }
+    static String getLastYProp (Type type)    { return "uiLastY_" + getTypeName (type); }
+    static String getOpenProp  (Type type)    { return "uiopen_"  + getTypeName (type); }
+    OwnedArray<PluginWindow>& activeWindowList;
+    const AudioProcessorGraph::Node::Ptr node;
+    const Type type;
+
+    BorderSize<int> getBorderThickness() override
+    {
+       #if JUCE_IOS || JUCE_ANDROID
+        const int border = 10;
+        return { border, border, border, border };
+       #else
+        return DocumentWindow::getBorderThickness();
+       #endif
+    }
+
+private:
+    float getDesktopScaleFactor() const override     { return 1.0f; }
+
+    static AudioProcessorEditor* createProcessorEditor (AudioProcessor& processor,
+                                                        PluginWindow::Type type)
+    {
+        if (type == PluginWindow::Type::normal)
+        {
+            if (processor.hasEditor())
+                if (auto* ui = processor.createEditorIfNeeded())
+                    return ui;
+
+            type = PluginWindow::Type::generic;
+        }
+
+        if (type == PluginWindow::Type::generic)  return new GenericAudioProcessorEditor (processor);
+        if (type == PluginWindow::Type::programs) return new ProgramAudioProcessorEditor (processor);
+        //if (type == PluginWindow::Type::audioIO)  return new IOConfigurationWindow (processor);
+        //if (type == PluginWindow::Type::debug)    return new PluginDebugWindow (processor);
+
+        jassertfalse;
+        return {};
+    }
+
+    static String getTypeName (Type type)
+    {
+        switch (type)
+        {
+            case Type::normal:     return "Normal";
+            case Type::generic:    return "Generic";
+            case Type::programs:   return "Programs";
+            case Type::audioIO:    return "IO";
+            case Type::debug:      return "Debug";
+            case Type::numTypes:
+            default:               return {};
+        }
+    }
+
+    //==============================================================================
+    struct ProgramAudioProcessorEditor  : public AudioProcessorEditor
+    {
+        ProgramAudioProcessorEditor (AudioProcessor& p)  : AudioProcessorEditor (p)
+        {
+            setOpaque (true);
+            addAndMakeVisible (panel);
+            Array<PropertyComponent*> programs;
+            auto numPrograms = p.getNumPrograms();
+            int totalHeight = 0;
+            for (int i = 0; i < numPrograms; ++i)
+            {
+                auto name = p.getProgramName (i).trim();
+                if (name.isEmpty())
+                    name = "Unnamed";
+                auto pc = new PropertyComp (name, p);
+                programs.add (pc);
+                totalHeight += pc->getPreferredHeight();
+            }
+            panel.addProperties (programs);
+            setSize (400, jlimit (25, 400, totalHeight));
+        }
+        void paint (Graphics& g) override
+        {
+            g.fillAll (Colours::grey);
+        }
+        void resized() override
+        {
+            panel.setBounds (getLocalBounds());
+        }
+    private:
+        struct PropertyComp  : public PropertyComponent,
+                               private AudioProcessorListener
+        {
+            PropertyComp (const String& name, AudioProcessor& p)  : PropertyComponent (name), owner (p)
+            {
+                owner.addListener (this);
+            }
+            ~PropertyComp() override
+            {
+                owner.removeListener (this);
+            }
+            void refresh() override {}
+            void audioProcessorChanged (AudioProcessor*, const ChangeDetails&) override {}
+            void audioProcessorParameterChanged (AudioProcessor*, int, float) override {}
+            AudioProcessor& owner;
+            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PropertyComp)
+        };
+        PropertyPanel panel;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProgramAudioProcessorEditor)
+    };
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginWindow)
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //==============================================================================
 class ProcessorBase  : public juce::AudioProcessor
 {
@@ -207,7 +410,6 @@ public:
         setSize(200, 200);
 
 
-
     	// Adding the two primary audio sources to the mixer
 	    mixerAudioSource.addInputSource(&audio1, false);
 	    mixerAudioSource.addInputSource(&audio2, false);
@@ -234,8 +436,13 @@ public:
  		//}
 
 
-
-
+        
+		addAndMakeVisible(&DebugButton);
+		DebugButton.onClick = [this] { DebugButtonCallback(); };
+		DebugButton.setEnabled(true);
+		DebugButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		DebugButton.setButtonText("Debug");
+		DebugButton.setVisible(true);
 
 
         auto inputDevice  = juce::MidiInput::getDefaultDevice();
@@ -261,6 +468,8 @@ public:
     {
         shutdownAudio();
     }
+
+
 
     void sliderDragStarted(Slider* slider);
     void sliderDragEnded(Slider* slider);
@@ -296,6 +505,46 @@ private:
     };
 
 
+
+    void DebugButtonCallback(void)
+    {
+        AudioProcessorGraph::Node* node;
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
+        if(node != nullptr)
+        {
+
+            if (auto* processor = node->getProcessor())
+                {
+                    if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                    {
+                        auto description = plugin->getPluginDescription();
+
+                       //if (! plugin->hasEditor() && description.pluginFormatName == "Internal")
+                       //{
+                       //    getCommandManager().invokeDirectly (CommandIDs::showAudioSettings, false);
+                       //    return nullptr;
+                       //}
+                        
+                        //auto localDpiDisabler = makeDPIAwarenessDisablerForPlugin (description);
+                        activePluginWindows.add (new PluginWindow (node, PluginWindow::Type::normal, activePluginWindows));
+                        //activePluginWindows.add(new PluginWindow(node, PluginWindow::Type::generic, activePluginWindows));
+                    }
+                }
+
+
+
+        }
+
+
+
+        //show dear
+        //auto NodeDearVr = mainProcessor->getNode(4);
+        //auto editor = NodeDearVr->createEditor();
+        //auto bc = editor->getConstrainer();
+        //editor->setBounds(0, 0, bc->getMinimumWidth(), bc->getMinimumHeight());
+        //addAndMakeVisible (editor);
+    }
+
     void changeState(TransportState newState);
     void updatePlayerButtonImage(bool playing);
     void updateVolumeButtonImage(bool isMuted, int sliderVolume);
@@ -322,6 +571,8 @@ private:
     TransportState state;
     juce::ComboBox   CBScenes;
 
+    juce::TextButton DebugButton;
+
 
     juce::AudioFormatManager formatManager;
 
@@ -345,6 +596,8 @@ private:
     juce::AudioProcessorPlayer mainProcessorPlayer; //An AudioIODeviceCallback object which streams audio through an AudioProcessor.
     Node::Ptr audioInputNode;
     Node::Ptr audioOutputNode;
+
+    OwnedArray<PluginWindow> activePluginWindows;
 
     juce::ReferenceCountedArray<Node> slots;
     juce::ReferenceCountedArray<Node> activeSlots;    

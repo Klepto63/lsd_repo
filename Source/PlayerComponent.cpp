@@ -176,6 +176,8 @@ void PlayerComponent::resized()
 
     CBScenes.setBounds(185, 15,100,22);//22);
 
+    DebugButton.setBounds(200,20,60,30);
+
 }
 
 void PlayerComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -473,10 +475,7 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
         //}
 
         
-
-
-
-        
+   
         auto VR3Node = mainProcessor->addNode(std::move(instance));
         for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
         {
@@ -485,7 +484,7 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
 
         for (int channel = 0; channel < 2; ++channel)     //connect_audio_node input/output
         {
-            mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
+          //  mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
         }
         
 
@@ -518,7 +517,7 @@ void PlayerComponent::initialiseGraph(void)
     slots.add(slot2Node);
     slots.set(0, mainProcessor->addNode(std::make_unique<OscillatorProcessor>()));
 
-    auto  slot = slots.getUnchecked(0); //useless mais pour tester
+    auto slot = slots.getUnchecked(0); //useless mais pour tester
     if (slot != nullptr)
     {
         if (slot->getProcessor()->getName() == "Oscillator")
