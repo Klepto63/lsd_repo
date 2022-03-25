@@ -31,6 +31,13 @@ public:
         addAndMakeVisible(&sceneComponent);
 
 
+        addAndMakeVisible(&FakeCodaSlider);
+        FakeCodaSlider.hideTextBox(true);
+        FakeCodaSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+        FakeCodaSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); 
+        FakeCodaSlider.setColour(0x1001300, Colour(THUMB_COLOR));      
+        FakeCodaSlider.setColour(0x1001310, Colour(LIGNE_COLOR));      
+
         setSize(1300, 800);
     }
 
@@ -65,6 +72,7 @@ public:
         sceneComponent.setBounds(l_leftbar,0,Width-265, Height - h_playbar - 192); //1035x50
 
 
+        FakeCodaSlider.setBounds(100,Height - 0.5*h_playbar, 200,20);
     }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
@@ -84,7 +92,13 @@ public:
 
     }
 
-
+    void sliderValueChanged(Slider* slider)
+    {
+        if (slider == &FakeCodaSlider)
+        {
+            playerComponent.setAngle(slider->getValue());
+        }
+    }
 
 private:
 
@@ -99,7 +113,7 @@ private:
     LeftBarComponent leftBarComponent;
 
     
- 
+    Slider FakeCodaSlider;
 
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;

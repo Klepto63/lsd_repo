@@ -106,6 +106,28 @@ void PlayerComponent::paint(juce::Graphics& g)
     g.fillAll(Colour(WP_PLAYER));
 }
 
+void PlayerComponent::setAngle(float f)
+{
+    AudioProcessorGraph::Node* node;
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
+    if(node != nullptr)
+    {
+        if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                {
+                    /*
+                    cartesian   0
+                    azimuth     1    
+                    elevation   2
+                    distance    3
+                    */
+                    plugin->setParameter(1,f);
+                }
+            }
+    }
+}
+
 void PlayerComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
     /*
@@ -177,7 +199,7 @@ void PlayerComponent::resized()
     CBScenes.setBounds(185, 15,100,22);//22);
 
     DebugButton.setBounds(200,20,60,30);
-
+    DebugButton2.setBounds(300,20,60,30);
 }
 
 void PlayerComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -462,34 +484,25 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
     else
     {
         instance->enableAllBuses();
-
         //connect to graph
         //if (auto node = graph.addNode (std::move (instance)))
         //{
             //NODE MIDDLE
-
-
         //for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
         //{
         //    mainProcessor->addConnection({ { slots.getUnchecked(0)->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
         //}
 
-        
-   
         auto VR3Node = mainProcessor->addNode(std::move(instance));
         for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
         {
             mainProcessor->addConnection({ { slots.getUnchecked(0)->nodeID,  channel }, { VR3Node->nodeID, channel } });
         }
-
         for (int channel = 0; channel < 2; ++channel)     //connect_audio_node input/output
         {
           //  mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
         }
         
-
-
-
             //node->properties.set ("x", pos.x);
             //node->properties.set ("y", pos.y);
             //changed();
@@ -510,9 +523,6 @@ void PlayerComponent::initialiseGraph(void)
     audioInputNode  = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioInputNode));
     audioOutputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioOutputNode));
 
-
-
-
     slots.add(slot1Node);
     slots.add(slot2Node);
     slots.set(0, mainProcessor->addNode(std::make_unique<OscillatorProcessor>()));
@@ -530,34 +540,7 @@ void PlayerComponent::initialiseGraph(void)
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //https://forum.juce.com/t/connect-to-a-vst-plugin/20929/6
-
     OwnedArray<PluginDescription> pluginDescriptions;
     KnownPluginList plist;
     //AudioPluginFormatManager pluginFormatManager;
@@ -579,6 +562,8 @@ void PlayerComponent::initialiseGraph(void)
                                                                 }
                                                             );
      
+
+
     //auto instance=  vstformatManager.createPluginInstance(*pluginDescriptions[0],
     //                                                     mainProcessor->getSampleRate(),
     //                                                     mainProcessor->getBlockSize(),
@@ -606,12 +591,6 @@ void PlayerComponent::initialiseGraph(void)
     //auto test = pluginFormatManager.createPluginInstance(*typesFound[0], 44100, 512, pluginLoadError);
 
 
-
-
-
-
-
-
     //// Load VST //
     //PluginDescription PlugDesc;
     //PlugDesc.pluginFormatName = String("VST");
@@ -628,16 +607,10 @@ void PlayerComponent::initialiseGraph(void)
     //);
 //
 
-
     //CONNECT
-
     //clear
     //for (auto connection : mainProcessor->getConnections())
     //    mainProcessor->removeConnection (connection);
-
-
-
-
 
 
     //gestion du byas

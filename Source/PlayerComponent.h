@@ -444,6 +444,12 @@ public:
 		DebugButton.setButtonText("Debug");
 		DebugButton.setVisible(true);
 
+		addAndMakeVisible(&DebugButton2);
+		DebugButton2.onClick = [this] { DebugButton2Callback(); };
+		DebugButton2.setEnabled(true);
+		DebugButton2.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		DebugButton2.setButtonText("Debug2");
+		DebugButton2.setVisible(true);
 
         auto inputDevice  = juce::MidiInput::getDefaultDevice();
         auto outputDevice = juce::MidiOutput::getDefaultDevice();
@@ -471,6 +477,7 @@ public:
 
 
 
+    void setAngle(float f);
     void sliderDragStarted(Slider* slider);
     void sliderDragEnded(Slider* slider);
     void sliderValueChanged(Slider* slider);
@@ -512,31 +519,22 @@ private:
         node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
         if(node != nullptr)
         {
-
             if (auto* processor = node->getProcessor())
                 {
                     if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
                     {
                         auto description = plugin->getPluginDescription();
-
                        //if (! plugin->hasEditor() && description.pluginFormatName == "Internal")
                        //{
                        //    getCommandManager().invokeDirectly (CommandIDs::showAudioSettings, false);
                        //    return nullptr;
                        //}
-                        
                         //auto localDpiDisabler = makeDPIAwarenessDisablerForPlugin (description);
                         activePluginWindows.add (new PluginWindow (node, PluginWindow::Type::normal, activePluginWindows));
                         //activePluginWindows.add(new PluginWindow(node, PluginWindow::Type::generic, activePluginWindows));
                     }
                 }
-
-
-
         }
-
-
-
         //show dear
         //auto NodeDearVr = mainProcessor->getNode(4);
         //auto editor = NodeDearVr->createEditor();
@@ -544,6 +542,40 @@ private:
         //editor->setBounds(0, 0, bc->getMinimumWidth(), bc->getMinimumHeight());
         //addAndMakeVisible (editor);
     }
+
+    void DebugButton2Callback(void)
+    {
+        AudioProcessorGraph::Node* node;
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
+        if(node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
+                {
+                    if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                    {
+                        auto description = plugin->getPluginDescription();
+                        auto parameters = plugin->getParameters();
+                        auto test = plugin->getNumParameters();
+
+                        int ii = 0;
+                        for (int i= 0; i < test; i++)
+                        {
+                            auto test2 = plugin->getHostedParameter(i);
+                            auto test3 = test2->getName(20);
+                            ii++;
+                   
+     
+                        }
+
+
+                        activePluginWindows.add (new PluginWindow (node, PluginWindow::Type::generic, activePluginWindows));
+
+                    }
+                }
+        }
+
+    }    
+
 
     void changeState(TransportState newState);
     void updatePlayerButtonImage(bool playing);
@@ -572,6 +604,8 @@ private:
     juce::ComboBox   CBScenes;
 
     juce::TextButton DebugButton;
+    juce::TextButton DebugButton2;
+
 
 
     juce::AudioFormatManager formatManager;
