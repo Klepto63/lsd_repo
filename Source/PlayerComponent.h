@@ -193,12 +193,6 @@ private:
 
 
 
-
-
-
-
-
-
 //==============================================================================
 class ProcessorBase  : public juce::AudioProcessor
 {
@@ -242,7 +236,6 @@ private:
 
 
 
-
 //==============================================================================
 class OscillatorProcessor  : public ProcessorBase
 {
@@ -282,11 +275,6 @@ public:
 private:
     juce::dsp::Oscillator<float> oscillator;
 };
-
-
-
-
-
 
 
 
@@ -363,25 +351,14 @@ public:
             switch (state)
             {
             case Stopped:
-                //updatePlayerButtonImage(false);
                 audioX.setPosition(0.0);
                 break;
             case Starting:
-                //updatePlayerButtonImage(true);
                 audioX.start();
-
-                //lengthDuration_s = audio1.getLengthInSeconds();
-                //minutes = ((int)(lengthDuration_s / 60));
-                //seconds = lengthDuration_s - (60 * minutes);
-                //LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
-                //lengthLabel.setText(LengthString, juce::dontSendNotification);
-                //musicSlider.setValue(0, dontSendNotification);
                 break;
             case Playing:
-                //updatePlayerButtonImage(true);
                 break;
             case Stopping:
-                //updatePlayerButtonImage(false);
                 audioX.stop();          
                 break;
             }
@@ -396,7 +373,6 @@ public:
         }
         return false;
     }
-
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override
     {
@@ -428,20 +404,44 @@ public:
     }
 
 
+    double getLength_s()
+    {
+        return audioX.getLengthInSeconds();
+    }
+
     const juce::String getName() const override { return "Player"; }
     const int getId() const {return id;} 
 
 private:
+    TransportState state;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource_audioX;
     juce::AudioTransportSource audioX;
     juce::AudioFormatManager formatManager;
-    TransportState state;
     int currentVolume = 85;
-
 
     int id = 0;
     juce::dsp::Oscillator<float> oscillator;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -467,6 +467,16 @@ class PlayerComponent : public juce::AudioAppComponent,
 
 	using AudioGraphIOProcessor = AudioProcessorGraph::AudioGraphIOProcessor;
 	using Node = AudioProcessorGraph::Node;	
+
+
+    enum Master_TransportState
+    {
+        Master_Stopped,
+        Master_Starting,
+        Master_Playing,
+        Master_Stopping
+    };
+
 
 public:
     PlayerComponent() : mainProcessor (new juce::AudioProcessorGraph())
@@ -636,8 +646,6 @@ public:
         shutdownAudio();
     }
 
-
-
     void setAngle(float f);
     void sliderDragStarted(Slider* slider);
     void sliderDragEnded(Slider* slider);
@@ -651,22 +659,26 @@ public:
     void resized() override;
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void timerCallback() override;
-    void updateLoopState(bool shouldLoop);
-    //bool isPlaying(void);
-    //void loadAndPlay(int idx);
+
+
+    void Master_loadAndPlay(int idx);
+    void Master_changeState(Master_TransportState Master_newState);
+
+
     void initialiseGraph();
     void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error);
+
+
+
+
 private:
+    Master_TransportState  Master_state;
+    int             currentIdxPlaying;
+    int             volumeBeforeMute;
+    bool            isMuted;
+    bool            musicSliderBlockTimer; //gestion drag drop timer
 
-    int     currentIdxPlaying;
-    int     volumeBeforeMute;
-    bool    isMuted;
     
-    bool    musicSliderBlockTimer; //gestion drag drop timer
-
- 
-
-
 
     void DebugButtonCallback(void)
     {
@@ -700,27 +712,6 @@ private:
 
     void DebugButton2Callback(void)
     {
-
-        AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=osc
-        if (node != nullptr)
-        {
-            if (auto* processor = node->getProcessor())
-            {
-                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
-                {
-                    //if (plugin->getName() == "Oscillator")
-                    //{
-                    //    plugin->setMyFrequency(520);
-                    //}
-                    plugin->loadAndPlay(0,0);
-                }
-            }
-        }
-
-
-
-
 
 
 
@@ -791,7 +782,6 @@ private:
 
 	juce::KnownPluginList* list_;
 	juce::AudioPluginFormatManager vstformatManager;
-
 
 
 	std::unique_ptr <juce::AudioProcessorGraph> mainProcessor;

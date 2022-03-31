@@ -236,123 +236,102 @@ void PlayerComponent::timerCallback()
     */
 }
 
-void PlayerComponent::updateLoopState(bool shouldLoop)
+void PlayerComponent::Master_loadAndPlay(int idx)
 {
-    /*
-    if (readerSource_audioX.get() != nullptr)
+    s_metadata md;
+    if (!jsonParserLoad(idx, &md))
     {
-        readerSource_audio1->setLooping(shouldLoop);
+        playerTitlePlayingComponent.loadSongData(md);
+        currentIdxPlaying = idx; //todo optimiser   
+        AudioProcessorGraph::Node* node;
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+        if (node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                {
+                    plugin->loadAndPlay(idx,0);
+                    playButton.setEnabled(true);
+                    energySlider.setEnabled(true);  
+                    Master_changeState(Master_Starting);    
+                    CBScenes.setVisible(true);                                  
+                }
+            }
+        }
     }
-    */
-	/*
-    if (readerSource_audio2.get() != nullptr)
+    else
     {
-        readerSource_audio2->setLooping(shouldLoop);
+        //song not found
     }
-    if (readerSource_audio3.get() != nullptr)
-    {
-        readerSource_audio3->setLooping(shouldLoop);
-    }
-    if (readerSource_audio4.get() != nullptr)
-    {
-        readerSource_audio4->setLooping(shouldLoop);
-    } 
-	*/       
 }
 
-//void PlayerComponent::loadAndPlay(int idx)
-//{
-    //s_metadata md;
-    //if (!jsonParserLoad(idx, &md))
-    //{
-    //    playerTitlePlayingComponent.loadSongData(md);
-    //    currentIdxPlaying = idx; //todo optimiser
-    //    auto* reader_audio1 = formatManager.createReaderFor(File(md.stem[0].path));
-    //    //auto* reader_audio2 = formatManager.createReaderFor(File(md.stem[1].path));
-    //    //auto* reader_audio3 = formatManager.createReaderFor(File(md.stem[2].path));
-    //    //auto* reader_audio4 = formatManager.createReaderFor(File(md.stem[3].path));
-    //    if (reader_audio1 != nullptr)
-    //    {
-    //        //std::unique_ptr<PositionableAudioSource> tmpSource(new AudioFormatReaderSource(reader, true));
-    //        std::unique_ptr<juce::AudioFormatReaderSource> newSource1(new juce::AudioFormatReaderSource(reader_audio1, true));
-    //        //std::unique_ptr<juce::AudioFormatReaderSource> newSource2(new juce::AudioFormatReaderSource(reader_audio2, true));  
-    //        //std::unique_ptr<juce::AudioFormatReaderSource> newSource3(new juce::AudioFormatReaderSource(reader_audio3, true));  
-    //        //std::unique_ptr<juce::AudioFormatReaderSource> newSource4(new juce::AudioFormatReaderSource(reader_audio4, true));  
-    //        audio1.setSource(newSource1.get(), 0, nullptr, reader_audio1->sampleRate);
-    //        //audio2.setSource(newSource2.get(), 0, nullptr, reader_audio2->sampleRate);
-    //        //audio3.setSource(newSource3.get(), 0, nullptr, reader_audio3->sampleRate);
-    //        //audio4.setSource(newSource4.get(), 0, nullptr, reader_audio4->sampleRate);
-    //        playButton.setEnabled(true);
-    //        energySlider.setEnabled(true);
-    //        readerSource_audio1.reset(newSource1.release());
-    //        //readerSource_audio2.reset(newSource2.release());
-    //        //readerSource_audio3.reset(newSource3.release());
-    //        //readerSource_audio4.reset(newSource4.release());
-//
-    //        changeState(Starting);
-    //        CBScenes.setVisible(true);
-    //    }
-    //}
-    //else
-    //{
-    //    //song not found
-    //}
-//}
-
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
-//void PlayerComponent::changeState(TransportState newState)
-//{
-
-    //    int lengthDuration_s;
-    //    int minutes; 
-    //    int seconds;
-    //    String LengthString;
-    //    if (state != newState)
-    //    {
-    //        state = newState;
-    //        switch (state)
-    //        {
-    //        case Stopped:
-    //            updatePlayerButtonImage(false);
-    //            audio1.setPosition(0.0);
-    //            audio2.setPosition(0.0);
-    //            audio3.setPosition(0.0);
-    //            audio4.setPosition(0.0);
-    //            break;
-    //        case Starting:
-    //            updatePlayerButtonImage(true);
-    //
-    //            audio1.start();
-    //            //audio2.start();
-    //            //audio3.start();
-    //            //audio4.start();
-    //
-    //
-    //            lengthDuration_s = audio1.getLengthInSeconds();
-    //            minutes = ((int)(lengthDuration_s / 60));
-    //            seconds = lengthDuration_s - (60 * minutes);
-    //            LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
-    //            lengthLabel.setText(LengthString, juce::dontSendNotification);
-    //            musicSlider.setValue(0, dontSendNotification);
-    //            break;
-    //        case Playing:
-    //            updatePlayerButtonImage(true);
-    //            break;
-    //        case Stopping:
-    //            updatePlayerButtonImage(false);
-    //            audio1.stop();
-    //            //audio2.stop();
-    //            //audio3.stop();
-    //            //audio4.stop();            
-    //            break;
-    //        }
-    //    }
-//}
-
-
+void PlayerComponent::Master_changeState(Master_TransportState Master_newState)
+{
+        int lengthDuration_s;
+        int minutes; 
+        int seconds;
+        String LengthString;
+        AudioProcessorGraph::Node* node;
+        if (Master_newState != Master_newState)
+        {
+            Master_state = Master_newState;
+            switch (Master_state)
+            {
+            case Master_Stopped:
+                updatePlayerButtonImage(false);
+                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+                if (node != nullptr)
+                {
+                    if (auto* processor = node->getProcessor())
+                    {
+                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        {
+                            plugin->changeState(CustomPlayerProcessor::Stopped);
+                        }
+                    }
+                }
+                break;
+            case Master_Starting:
+                updatePlayerButtonImage(true);
+                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+                if (node != nullptr)
+                {
+                    if (auto* processor = node->getProcessor())
+                    {
+                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        {
+                            plugin->changeState(CustomPlayerProcessor::Starting);
+                            lengthDuration_s = plugin->getLength_s();
+                            minutes = ((int)(lengthDuration_s / 60));
+                            seconds = lengthDuration_s - (60 * minutes);
+                            LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
+                            lengthLabel.setText(LengthString, juce::dontSendNotification);
+                            musicSlider.setValue(0, dontSendNotification);
+                        }
+                    }
+                }
+                break;
+            case Master_Playing:
+                updatePlayerButtonImage(true);
+                break;
+            case Master_Stopping:
+                updatePlayerButtonImage(false);
+                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+                if (node != nullptr)
+                {
+                    if (auto* processor = node->getProcessor())
+                    {
+                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        {
+                            plugin->changeState(CustomPlayerProcessor::Stopping);
+                        }
+                    }
+                }
+                break;
+            }
+        }
+}
 
 
 void PlayerComponent::updatePlayerButtonImage(bool playing)
@@ -381,7 +360,6 @@ void PlayerComponent::updatePlayerButtonImage(bool playing)
     }
     playButton.setBounds((getWidth() - PLAY_BUTTON_SIZE) * 0.5f, 45 - 0.5 * PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE);
 }
-
 
 void PlayerComponent::updateVolumeButtonImage(bool isMuted, int sliderVolume)
 {
@@ -433,49 +411,57 @@ void PlayerComponent::muteButtonClicked(void)
 
 void PlayerComponent::playButtonClicked()
 {
-    /*
-    if (audio1.isPlaying())
+    AudioProcessorGraph::Node* node;
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+    if (node != nullptr)
     {
-        changeState(Stopping);
+        if (auto* processor = node->getProcessor())
+        {
+            if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+            {
+                if (plugin->isPlaying())
+                {
+                    Master_changeState(Master_Stopping);
+                }
+                else
+                {
+                    Master_changeState(Master_Starting);
+                }
+            }
+        }
     }
-    else
-    {
-        changeState(Starting);
-    }
-    */
 }
 
 
 void PlayerComponent::nextButtonClicked(void)
 {
-    /*
+    
     if (currentIdxPlaying == jsonParserGetNbSong() - 1) //dernier son jou�, retour au premier
     {
-        loadAndPlay(0);
+        Master_loadAndPlay(0);
         currentIdxPlaying = 0;
     }
     else
     {
-        loadAndPlay(++currentIdxPlaying);
+        Master_loadAndPlay(++currentIdxPlaying);
     }
-    */
+    
 }
 
 void PlayerComponent::prevButtonClicked(void)
 {
-    /*
-        if (currentIdxPlaying == 0) //dernier son joué, retour au premier
+    
+    if (currentIdxPlaying == 0) //dernier son joué, retour au premier
     {
         currentIdxPlaying = jsonParserGetNbSong() - 1;
-        loadAndPlay(currentIdxPlaying);
+        Master_loadAndPlay(currentIdxPlaying);
     }
     else
     {
-        loadAndPlay(--currentIdxPlaying);
+        Master_loadAndPlay(--currentIdxPlaying);
     }
-    */
+    
 }
-
 
 
 static std::unique_ptr<ScopedDPIAwarenessDisabler> makeDPIAwarenessDisablerForPlugin (const PluginDescription& desc)
@@ -519,31 +505,28 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
         //}
 
 
-    //init parameter
-    AudioProcessorGraph::Node* node;
-    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //vst3 dearvr pro
-    if(node != nullptr)
-    {
-        if (auto* processor = node->getProcessor())
-            {
-                if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+        //init parameter
+        AudioProcessorGraph::Node* node;
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //vst3 dearvr pro
+        if(node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
                 {
-                    /*
-                    cartesian   0
-                    azimuth     1    
-                    elevation   2
-                    distance    3
-                    */
-                    //plugin->setParameter(1,f);
-                    if (auto* param = plugin->getParameters()[0])
-                        return param->setValue(1);
-                    
+                    if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                    {
+                        /*
+                        cartesian   0
+                        azimuth     1    
+                        elevation   2
+                        distance    3
+                        */
+                        //plugin->setParameter(1,f);
+                        if (auto* param = plugin->getParameters()[0])
+                            return param->setValue(1);
+
+                    }
                 }
-            }
-    }
-
-
-
+        }
     }
 }
 
