@@ -1,14 +1,14 @@
 #include "PlayerComponent.h"
 
 
-bool PlayerComponent::isPlaying(void)
-{
-    if (state == Playing)
-    {
-        return true;
-    }
-    return false;
-}
+//bool PlayerComponent::isPlaying(void)
+//{
+//    if (state == Playing)
+//    {
+//        return true;
+//    }
+//    return false;
+//}
 
 void PlayerComponent::sliderDragStarted(Slider* slider)
 {
@@ -22,8 +22,8 @@ void PlayerComponent::sliderDragEnded(Slider* slider)
 {
     if (slider == &musicSlider)
     {
-        float v = musicSlider.getValue();
-        audio1.setPosition(v * audio1.getLengthInSeconds() / 10);
+        //float v = musicSlider.getValue();
+        //audio1.setPosition(v * audio1.getLengthInSeconds() / 10);
         //audio2.setPosition(v * audio2.getLengthInSeconds() / 10);
         //audio3.setPosition(v * audio3.getLengthInSeconds() / 10);
         //audio4.setPosition(v * audio4.getLengthInSeconds() / 10);        
@@ -35,37 +35,37 @@ void PlayerComponent::sliderDragEnded(Slider* slider)
 void PlayerComponent::sliderValueChanged(Slider* slider)
 {
 
-    if (slider == &volumeSlider)
-    {
-        currentVolume = 10*slider->getValue();
-        if (currentVolume < 85)
-        {
-            volumeSlider.setColour(0x1001310, Colour((uint8_t)0x1d, (uint8_t)0xb9, (uint8_t)0x54, (float)currentVolume / 75));
-        }
-        else
-        {
-            volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 7*(currentVolume-85)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - (currentVolume - 85)), (float)1));
-        }
-
-        if (isMuted && (currentVolume!=0))
-        {
-            updateVolumeButtonImage(false, currentVolume);
-        }
-        else if (currentVolume == 0)
-        {
-            updateVolumeButtonImage(true, currentVolume);
-            isMuted = true;
-        }
-    }
-
-    if (slider == &energySlider)//1..10
-    {
-        //glue reset
-        if (abs(energySlider.getValue() - 5) < 0.31 )
-        {
-            energySlider.setValue(5, dontSendNotification);
-        }
-    }
+    //if (slider == &volumeSlider)
+    //{
+    //    currentVolume = 10*slider->getValue();
+    //    if (currentVolume < 85)
+    //    {
+    //        volumeSlider.setColour(0x1001310, Colour((uint8_t)0x1d, (uint8_t)0xb9, (uint8_t)0x54, (float)currentVolume / 75));
+    //    }
+    //    else
+    //    {
+    //        volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 7*(currentVolume-85)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - (currentVolume - 85)), (float)1));
+    //    }
+//
+    //    if (isMuted && (currentVolume!=0))
+    //    {
+    //        updateVolumeButtonImage(false, currentVolume);
+    //    }
+    //    else if (currentVolume == 0)
+    //    {
+    //        updateVolumeButtonImage(true, currentVolume);
+    //        isMuted = true;
+    //    }
+    //}
+//
+    //if (slider == &energySlider)//1..10
+    //{
+    //    //glue reset
+    //    if (abs(energySlider.getValue() - 5) < 0.31 )
+    //    {
+    //        energySlider.setValue(5, dontSendNotification);
+    //    }
+    //}
     
 }
 
@@ -91,10 +91,6 @@ void PlayerComponent::CBScenesChanged(void)
     }
 
 
-void PlayerComponent::playCommand(void)
-{
-
-}
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
@@ -210,40 +206,44 @@ void PlayerComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
     //if (source == &mixerAudioSource)
     //{
-        if (audio1.isPlaying())
-            changeState(Playing);
-        else
-            changeState(Stopped);
+    //    if (audio1.isPlaying())
+    //        changeState(Playing);
+    //    else
+    //        changeState(Stopped);
     //}
 
 }
 
 void PlayerComponent::timerCallback()
 {
-    if (audio1.isPlaying())
+    /*
+    if (audioX.isPlaying())
     {
-        juce::RelativeTime position(audio1.getCurrentPosition());
+        juce::RelativeTime position(audioX.getCurrentPosition());
         auto minutes = ((int)position.inMinutes()) % 60;
         auto seconds = ((int)position.inSeconds()) % 60;
         auto positionString = juce::String::formatted("%02d:%02d", minutes, seconds);
         currentPositionLabel.setText(positionString, juce::dontSendNotification);
         if (!musicSliderBlockTimer)
         {
-            musicSlider.setValue(10 * audio1.getCurrentPosition() / audio1.getLengthInSeconds(), dontSendNotification);
+            musicSlider.setValue(10 * audioX.getCurrentPosition() / audio1.getLengthInSeconds(), dontSendNotification);
         }
     }
     else
     {
         //currentPositionLabel.setText("Stopped", juce::dontSendNotification);
     }
+    */
 }
 
 void PlayerComponent::updateLoopState(bool shouldLoop)
 {
-    if (readerSource_audio1.get() != nullptr)
+    /*
+    if (readerSource_audioX.get() != nullptr)
     {
         readerSource_audio1->setLooping(shouldLoop);
     }
+    */
 	/*
     if (readerSource_audio2.get() != nullptr)
     {
@@ -260,96 +260,99 @@ void PlayerComponent::updateLoopState(bool shouldLoop)
 	*/       
 }
 
-void PlayerComponent::loadAndPlay(int idx)
-{
-    s_metadata md;
-    if (!jsonParserLoad(idx, &md))
-    {
-        playerTitlePlayingComponent.loadSongData(md);
-        currentIdxPlaying = idx; //todo optimiser
-        auto* reader_audio1 = formatManager.createReaderFor(File(md.stem[0].path));
-        //auto* reader_audio2 = formatManager.createReaderFor(File(md.stem[1].path));
-        //auto* reader_audio3 = formatManager.createReaderFor(File(md.stem[2].path));
-        //auto* reader_audio4 = formatManager.createReaderFor(File(md.stem[3].path));
-        if (reader_audio1 != nullptr)
-        {
-            //std::unique_ptr<PositionableAudioSource> tmpSource(new AudioFormatReaderSource(reader, true));
-            std::unique_ptr<juce::AudioFormatReaderSource> newSource1(new juce::AudioFormatReaderSource(reader_audio1, true));
-            //std::unique_ptr<juce::AudioFormatReaderSource> newSource2(new juce::AudioFormatReaderSource(reader_audio2, true));  
-            //std::unique_ptr<juce::AudioFormatReaderSource> newSource3(new juce::AudioFormatReaderSource(reader_audio3, true));  
-            //std::unique_ptr<juce::AudioFormatReaderSource> newSource4(new juce::AudioFormatReaderSource(reader_audio4, true));  
-            audio1.setSource(newSource1.get(), 0, nullptr, reader_audio1->sampleRate);
-            //audio2.setSource(newSource2.get(), 0, nullptr, reader_audio2->sampleRate);
-            //audio3.setSource(newSource3.get(), 0, nullptr, reader_audio3->sampleRate);
-            //audio4.setSource(newSource4.get(), 0, nullptr, reader_audio4->sampleRate);
-            playButton.setEnabled(true);
-            energySlider.setEnabled(true);
-            readerSource_audio1.reset(newSource1.release());
-            //readerSource_audio2.reset(newSource2.release());
-            //readerSource_audio3.reset(newSource3.release());
-            //readerSource_audio4.reset(newSource4.release());
-
-            changeState(Starting);
-            CBScenes.setVisible(true);
-        }
-    }
-    else
-    {
-        //song not found
-    }
-}
+//void PlayerComponent::loadAndPlay(int idx)
+//{
+    //s_metadata md;
+    //if (!jsonParserLoad(idx, &md))
+    //{
+    //    playerTitlePlayingComponent.loadSongData(md);
+    //    currentIdxPlaying = idx; //todo optimiser
+    //    auto* reader_audio1 = formatManager.createReaderFor(File(md.stem[0].path));
+    //    //auto* reader_audio2 = formatManager.createReaderFor(File(md.stem[1].path));
+    //    //auto* reader_audio3 = formatManager.createReaderFor(File(md.stem[2].path));
+    //    //auto* reader_audio4 = formatManager.createReaderFor(File(md.stem[3].path));
+    //    if (reader_audio1 != nullptr)
+    //    {
+    //        //std::unique_ptr<PositionableAudioSource> tmpSource(new AudioFormatReaderSource(reader, true));
+    //        std::unique_ptr<juce::AudioFormatReaderSource> newSource1(new juce::AudioFormatReaderSource(reader_audio1, true));
+    //        //std::unique_ptr<juce::AudioFormatReaderSource> newSource2(new juce::AudioFormatReaderSource(reader_audio2, true));  
+    //        //std::unique_ptr<juce::AudioFormatReaderSource> newSource3(new juce::AudioFormatReaderSource(reader_audio3, true));  
+    //        //std::unique_ptr<juce::AudioFormatReaderSource> newSource4(new juce::AudioFormatReaderSource(reader_audio4, true));  
+    //        audio1.setSource(newSource1.get(), 0, nullptr, reader_audio1->sampleRate);
+    //        //audio2.setSource(newSource2.get(), 0, nullptr, reader_audio2->sampleRate);
+    //        //audio3.setSource(newSource3.get(), 0, nullptr, reader_audio3->sampleRate);
+    //        //audio4.setSource(newSource4.get(), 0, nullptr, reader_audio4->sampleRate);
+    //        playButton.setEnabled(true);
+    //        energySlider.setEnabled(true);
+    //        readerSource_audio1.reset(newSource1.release());
+    //        //readerSource_audio2.reset(newSource2.release());
+    //        //readerSource_audio3.reset(newSource3.release());
+    //        //readerSource_audio4.reset(newSource4.release());
+//
+    //        changeState(Starting);
+    //        CBScenes.setVisible(true);
+    //    }
+    //}
+    //else
+    //{
+    //    //song not found
+    //}
+//}
 
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 
-void PlayerComponent::changeState(TransportState newState)
-{
-    int lengthDuration_s;
-    int minutes; 
-    int seconds;
-    String LengthString;
-    if (state != newState)
-    {
-        state = newState;
-        switch (state)
-        {
-        case Stopped:
-            updatePlayerButtonImage(false);
-            audio1.setPosition(0.0);
-            audio2.setPosition(0.0);
-            audio3.setPosition(0.0);
-            audio4.setPosition(0.0);
-            break;
-        case Starting:
-            updatePlayerButtonImage(true);
+//void PlayerComponent::changeState(TransportState newState)
+//{
 
-            audio1.start();
-            //audio2.start();
-            //audio3.start();
-            //audio4.start();
+    //    int lengthDuration_s;
+    //    int minutes; 
+    //    int seconds;
+    //    String LengthString;
+    //    if (state != newState)
+    //    {
+    //        state = newState;
+    //        switch (state)
+    //        {
+    //        case Stopped:
+    //            updatePlayerButtonImage(false);
+    //            audio1.setPosition(0.0);
+    //            audio2.setPosition(0.0);
+    //            audio3.setPosition(0.0);
+    //            audio4.setPosition(0.0);
+    //            break;
+    //        case Starting:
+    //            updatePlayerButtonImage(true);
+    //
+    //            audio1.start();
+    //            //audio2.start();
+    //            //audio3.start();
+    //            //audio4.start();
+    //
+    //
+    //            lengthDuration_s = audio1.getLengthInSeconds();
+    //            minutes = ((int)(lengthDuration_s / 60));
+    //            seconds = lengthDuration_s - (60 * minutes);
+    //            LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
+    //            lengthLabel.setText(LengthString, juce::dontSendNotification);
+    //            musicSlider.setValue(0, dontSendNotification);
+    //            break;
+    //        case Playing:
+    //            updatePlayerButtonImage(true);
+    //            break;
+    //        case Stopping:
+    //            updatePlayerButtonImage(false);
+    //            audio1.stop();
+    //            //audio2.stop();
+    //            //audio3.stop();
+    //            //audio4.stop();            
+    //            break;
+    //        }
+    //    }
+//}
 
 
-            lengthDuration_s = audio1.getLengthInSeconds();
-            minutes = ((int)(lengthDuration_s / 60));
-            seconds = lengthDuration_s - (60 * minutes);
-            LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
-            lengthLabel.setText(LengthString, juce::dontSendNotification);
-            musicSlider.setValue(0, dontSendNotification);
-            break;
-        case Playing:
-            updatePlayerButtonImage(true);
-            break;
-        case Stopping:
-            updatePlayerButtonImage(false);
-            audio1.stop();
-            //audio2.stop();
-            //audio3.stop();
-            //audio4.stop();            
-            break;
-        }
-    }
-}
 
 
 void PlayerComponent::updatePlayerButtonImage(bool playing)
@@ -410,25 +413,27 @@ void PlayerComponent::updateVolumeButtonImage(bool isMuted, int sliderVolume)
 
 void PlayerComponent::muteButtonClicked(void)
 {
-    if (isMuted)
-    {
-        updateVolumeButtonImage(false, currentVolume);
-        isMuted = false;
-        currentVolume = volumeBeforeMute;;
-        volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
-    }
-    else
-    {
-        updateVolumeButtonImage(true, currentVolume);
-        isMuted = true;
-        volumeBeforeMute = currentVolume;
-        currentVolume = 0;
-        volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
-    }
+    //if (isMuted)
+    //{
+    //    updateVolumeButtonImage(false, currentVolume);
+    //    isMuted = false;
+    //    currentVolume = volumeBeforeMute;;
+    //    volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
+    //}
+    //else
+    //{
+    //    updateVolumeButtonImage(true, currentVolume);
+    //    isMuted = true;
+    //    volumeBeforeMute = currentVolume;
+    //    currentVolume = 0;
+    //    volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
+    //}
 }
+
 
 void PlayerComponent::playButtonClicked()
 {
+    /*
     if (audio1.isPlaying())
     {
         changeState(Stopping);
@@ -437,10 +442,13 @@ void PlayerComponent::playButtonClicked()
     {
         changeState(Starting);
     }
+    */
 }
+
 
 void PlayerComponent::nextButtonClicked(void)
 {
+    /*
     if (currentIdxPlaying == jsonParserGetNbSong() - 1) //dernier son jou�, retour au premier
     {
         loadAndPlay(0);
@@ -450,10 +458,12 @@ void PlayerComponent::nextButtonClicked(void)
     {
         loadAndPlay(++currentIdxPlaying);
     }
+    */
 }
 
 void PlayerComponent::prevButtonClicked(void)
 {
+    /*
         if (currentIdxPlaying == 0) //dernier son joué, retour au premier
     {
         currentIdxPlaying = jsonParserGetNbSong() - 1;
@@ -463,6 +473,7 @@ void PlayerComponent::prevButtonClicked(void)
     {
         loadAndPlay(--currentIdxPlaying);
     }
+    */
 }
 
 
@@ -550,14 +561,14 @@ void PlayerComponent::initialiseGraph(void)
 
     slots.add(slot1Node);
     slots.add(slot2Node);
-    slots.set(0, mainProcessor->addNode ( std::make_unique<OscillatorProcessor>()));
+    slots.set(0, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(0))); //0 : id du player
     //auto osc1 = std::make_unique<OscillatorProcessor>();
     //slots.set(0, mainProcessor->addNode(oscillator1));
 
     auto slot = slots.getUnchecked(0); //useless mais pour tester
     if (slot != nullptr)
     {
-        if (slot->getProcessor()->getName() == "Oscillator")
+        if (slot->getProcessor()->getName() == "Player")
         {
             //config node
             slot->getProcessor()->setPlayConfigDetails(mainProcessor->getMainBusNumInputChannels(),
@@ -589,11 +600,6 @@ void PlayerComponent::initialiseGraph(void)
                                                                 }
                                                             );
      
-
-  
-
-
-
 
     //auto instance=  vstformatManager.createPluginInstance(*pluginDescriptions[0],
     //                                                     mainProcessor->getSampleRate(),

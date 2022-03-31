@@ -291,35 +291,154 @@ private:
 
 
 //==============================================================================
-class CustomPlayerProcessor  : public ProcessorBase
+class CustomPlayerProcessor  : public ProcessorBase, public  juce::ChangeListener
 {
+
     
 public:
+
+    enum TransportState
+    {
+        Stopped,
+        Starting,
+        Playing,
+        Stopping
+    };
+
     CustomPlayerProcessor(int idx)
     {
         id = idx;
-
+        state = Stopped;
+        formatManager.registerBasicFormats();
     }
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override
     {
-
+        audioX.prepareToPlay(samplesPerBlock,sampleRate);
     }
 
     void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
     {
+   
+        auto totalNumInputChannels = getTotalNumInputChannels();
+        auto totalNumOutputChannels = getTotalNumOutputChannels();
+        for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        {
+            buffer.clear(i, 0, buffer.getNumSamples());
+        }
+
+       audioX.getNextAudioBlock(AudioSourceChannelInfo(buffer));
+       for (int channel = 0; channel < totalNumInputChannels; ++channel)
+       {
+       //DSP Filtering code comes here
+       }
+    }
+
+/*
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
+    {
+        if (readerSource_audioX.get() == nullptr)
+        {
+            bufferToFill.clearActiveBufferRegion();
+            return;
+        }
+
 
     }
+*/
 
     void reset() override
     {
-   
     }
 
+    void changeState(TransportState newState)
+    {
+        int lengthDuration_s;
+        int minutes; 
+        int seconds;
+        String LengthString;
+        if (state != newState)
+        {
+            state = newState;
+            switch (state)
+            {
+            case Stopped:
+                //updatePlayerButtonImage(false);
+                audioX.setPosition(0.0);
+                break;
+            case Starting:
+                //updatePlayerButtonImage(true);
+                audioX.start();
+
+                //lengthDuration_s = audio1.getLengthInSeconds();
+                //minutes = ((int)(lengthDuration_s / 60));
+                //seconds = lengthDuration_s - (60 * minutes);
+                //LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
+                //lengthLabel.setText(LengthString, juce::dontSendNotification);
+                //musicSlider.setValue(0, dontSendNotification);
+                break;
+            case Playing:
+                //updatePlayerButtonImage(true);
+                break;
+            case Stopping:
+                //updatePlayerButtonImage(false);
+                audioX.stop();          
+                break;
+            }
+        }
+    }
+
+    bool isPlaying(void)
+    {
+        if (state == Playing)
+        {
+            return true;
+        }
+        return false;
+    }
+
+
+    void changeListenerCallback(juce::ChangeBroadcaster* source) override
+    {
+
+            if (audioX.isPlaying())
+                changeState(Playing);
+            else
+                changeState(Stopped);
+    }
+
+    void loadAndPlay(int idx, int stemidx) //stem 0
+    {
+        s_metadata md;
+        if (!jsonParserLoad(idx, &md))
+        {
+            auto* reader_audio1 = formatManager.createReaderFor(File(md.stem[stemidx].path));
+            if (reader_audio1 != nullptr)
+            {
+                std::unique_ptr<juce::AudioFormatReaderSource> newSource1(new juce::AudioFormatReaderSource(reader_audio1, true));
+                audioX.setSource(newSource1.get(), 0, nullptr, reader_audio1->sampleRate);
+                readerSource_audioX.reset(newSource1.release());
+                changeState(Starting);
+            }
+        }
+        else
+        {
+            //song not found
+        }
+    }
+
+
     const juce::String getName() const override { return "Player"; }
-    const juce::String getId() const {return id;} 
+    const int getId() const {return id;} 
 
 private:
+    std::unique_ptr<juce::AudioFormatReaderSource> readerSource_audioX;
+    juce::AudioTransportSource audioX;
+    juce::AudioFormatManager formatManager;
+    TransportState state;
+    int currentVolume = 85;
+
+
     int id = 0;
     juce::dsp::Oscillator<float> oscillator;
 };
@@ -350,10 +469,9 @@ class PlayerComponent : public juce::AudioAppComponent,
 	using Node = AudioProcessorGraph::Node;	
 
 public:
-    PlayerComponent() : mainProcessor (new juce::AudioProcessorGraph()), state(Stopped)
+    PlayerComponent() : mainProcessor (new juce::AudioProcessorGraph())
     {
         currentIdxPlaying = 0;
-        currentVolume = 85;
         isMuted = false;
         musicSliderBlockTimer = false; 
 
@@ -443,7 +561,8 @@ public:
         addAndMakeVisible(&volumeSlider);
         volumeSlider.hideTextBox(true);
         volumeSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-        volumeSlider.setValue(currentVolume/10, juce::dontSendNotification);
+        //volumeSlider.setValue(currentVolume/10, juce::dontSendNotification);
+        volumeSlider.setValue(20 / 10, juce::dontSendNotification);
         volumeSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); //backgroundId
         volumeSlider.setColour(0x1001300, Colour(THUMB_COLOR));      //thumbColor (la boule)
         volumeSlider.setColour(0x1001310, Colour(LIGNE_COLOR));      //ligneColor
@@ -453,11 +572,11 @@ public:
 
 
     	// Adding the two primary audio sources to the mixer
-	    mixerAudioSource.addInputSource(&audio1, false);
+	        //mixerAudioSource.addInputSource(&audio1, false);
 	    //mixerAudioSource.addInputSource(&audio2, false);
 	    //mixerAudioSource.addInputSource(&audio3, false);
 	    //mixerAudioSource.addInputSource(&audio4, false);
-        formatManager.registerBasicFormats();
+            //formatManager.registerBasicFormats();
         //transportSource.addChangeListener(this);
         //mixerAudioSource.addChangeListener(this);
 
@@ -507,8 +626,6 @@ public:
         mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
 
 
-
-
         setAudioChannels(2, 2);
 
 
@@ -525,35 +642,29 @@ public:
     void sliderDragStarted(Slider* slider);
     void sliderDragEnded(Slider* slider);
     void sliderValueChanged(Slider* slider);
-    void playCommand(void);
+
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
-    void paint(juce::Graphics& g) override;
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override;
+
+    void paint(juce::Graphics& g) override;
     void resized() override;
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void timerCallback() override;
     void updateLoopState(bool shouldLoop);
-    bool isPlaying(void);
-    void loadAndPlay(int idx);
+    //bool isPlaying(void);
+    //void loadAndPlay(int idx);
     void initialiseGraph();
     void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error);
 private:
 
     int     currentIdxPlaying;
-    int     currentVolume;
     int     volumeBeforeMute;
     bool    isMuted;
     
     bool    musicSliderBlockTimer; //gestion drag drop timer
 
-    enum TransportState
-    {
-        Stopped,
-        Starting,
-        Playing,
-        Stopping
-    };
+ 
 
 
 
@@ -596,12 +707,13 @@ private:
         {
             if (auto* processor = node->getProcessor())
             {
-                if (auto* plugin = dynamic_cast<OscillatorProcessor*> (processor))
+                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
                 {
-                    if (plugin->getName() == "Oscillator")
-                    {
-                        plugin->setMyFrequency(520);
-                    }
+                    //if (plugin->getName() == "Oscillator")
+                    //{
+                    //    plugin->setMyFrequency(520);
+                    //}
+                    plugin->loadAndPlay(0,0);
                 }
             }
         }
@@ -644,7 +756,7 @@ private:
     }    
 
 
-    void changeState(TransportState newState);
+
     void updatePlayerButtonImage(bool playing);
     void updateVolumeButtonImage(bool isMuted, int sliderVolume);
     void muteButtonClicked(void);
@@ -667,29 +779,19 @@ private:
     juce::Label currentPositionLabel;
     juce::Label lengthLabel;
     PlayerTitlePlayingComponent playerTitlePlayingComponent;
-    TransportState state;
+
     juce::ComboBox   CBScenes;
 
     juce::TextButton DebugButton;
     juce::TextButton DebugButton2;
 
 
-
-    juce::AudioFormatManager formatManager;
-
-    std::unique_ptr<juce::AudioFormatReaderSource> readerSource_audio1;
-    std::unique_ptr<juce::AudioFormatReaderSource> readerSource_audio2;
-    std::unique_ptr<juce::AudioFormatReaderSource> readerSource_audio3;
-    std::unique_ptr<juce::AudioFormatReaderSource> readerSource_audio4;
-    juce::AudioTransportSource  audio1;
-    juce::AudioTransportSource  audio2;
-    juce::AudioTransportSource  audio3;
-    juce::AudioTransportSource  audio4;
     juce::MixerAudioSource mixerAudioSource;
 
 
 	juce::KnownPluginList* list_;
 	juce::AudioPluginFormatManager vstformatManager;
+
 
 
 	std::unique_ptr <juce::AudioProcessorGraph> mainProcessor;
@@ -699,9 +801,6 @@ private:
     Node::Ptr audioOutputNode;
 
     OwnedArray<PluginWindow> activePluginWindows;
-
-
-    OscillatorProcessor oscillator1;
 
     juce::ReferenceCountedArray<Node> slots;
     juce::ReferenceCountedArray<Node> activeSlots;    
