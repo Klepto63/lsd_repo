@@ -106,6 +106,7 @@ void PlayerComponent::paint(juce::Graphics& g)
     g.fillAll(Colour(WP_PLAYER));
 }
 
+
 void PlayerComponent::setAngle(float f)
 {
     AudioProcessorGraph::Node* node;
@@ -122,7 +123,10 @@ void PlayerComponent::setAngle(float f)
                     elevation   2
                     distance    3
                     */
-                    plugin->setParameter(1,f);
+                    //plugin->setParameter(1,f);
+                    if (auto* param = plugin->getParameters()[1])
+                        return param->setValueNotifyingHost(f);
+                    
                 }
             }
     }
@@ -287,11 +291,6 @@ void PlayerComponent::loadAndPlay(int idx)
 
             changeState(Starting);
             CBScenes.setVisible(true);
-        }
-        else
-        {
-            int t = 0;
-            t++; 
         }
     }
     else
@@ -500,13 +499,39 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
         }
         for (int channel = 0; channel < 2; ++channel)     //connect_audio_node input/output
         {
-          //  mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
+            mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
         }
         
             //node->properties.set ("x", pos.x);
             //node->properties.set ("y", pos.y);
             //changed();
         //}
+
+
+    //init parameter
+    AudioProcessorGraph::Node* node;
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //vst3 dearvr pro
+    if(node != nullptr)
+    {
+        if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                {
+                    /*
+                    cartesian   0
+                    azimuth     1    
+                    elevation   2
+                    distance    3
+                    */
+                    //plugin->setParameter(1,f);
+                    if (auto* param = plugin->getParameters()[0])
+                        return param->setValue(1);
+                    
+                }
+            }
+    }
+
+
 
     }
 }
@@ -525,7 +550,9 @@ void PlayerComponent::initialiseGraph(void)
 
     slots.add(slot1Node);
     slots.add(slot2Node);
-    slots.set(0, mainProcessor->addNode(std::make_unique<OscillatorProcessor>()));
+    slots.set(0, mainProcessor->addNode ( std::make_unique<OscillatorProcessor>()));
+    //auto osc1 = std::make_unique<OscillatorProcessor>();
+    //slots.set(0, mainProcessor->addNode(oscillator1));
 
     auto slot = slots.getUnchecked(0); //useless mais pour tester
     if (slot != nullptr)
@@ -562,6 +589,10 @@ void PlayerComponent::initialiseGraph(void)
                                                                 }
                                                             );
      
+
+  
+
+
 
 
     //auto instance=  vstformatManager.createPluginInstance(*pluginDescriptions[0],

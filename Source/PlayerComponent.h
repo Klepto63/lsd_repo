@@ -199,24 +199,6 @@ private:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //==============================================================================
 class ProcessorBase  : public juce::AudioProcessor
 {
@@ -291,9 +273,69 @@ public:
 
     const juce::String getName() const override { return "Oscillator"; }
 
+
+    void setMyFrequency(float x)
+    {
+        oscillator.setFrequency (x);
+    }
+
 private:
     juce::dsp::Oscillator<float> oscillator;
 };
+
+
+
+
+
+
+
+
+//==============================================================================
+class CustomPlayerProcessor  : public ProcessorBase
+{
+    
+public:
+    CustomPlayerProcessor(int idx)
+    {
+        id = idx;
+
+    }
+
+    void prepareToPlay (double sampleRate, int samplesPerBlock) override
+    {
+
+    }
+
+    void processBlock (juce::AudioSampleBuffer& buffer, juce::MidiBuffer&) override
+    {
+
+    }
+
+    void reset() override
+    {
+   
+    }
+
+    const juce::String getName() const override { return "Player"; }
+    const juce::String getId() const {return id;} 
+
+private:
+    int id = 0;
+    juce::dsp::Oscillator<float> oscillator;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -412,9 +454,9 @@ public:
 
     	// Adding the two primary audio sources to the mixer
 	    mixerAudioSource.addInputSource(&audio1, false);
-	    mixerAudioSource.addInputSource(&audio2, false);
-	    mixerAudioSource.addInputSource(&audio3, false);
-	    mixerAudioSource.addInputSource(&audio4, false);
+	    //mixerAudioSource.addInputSource(&audio2, false);
+	    //mixerAudioSource.addInputSource(&audio3, false);
+	    //mixerAudioSource.addInputSource(&audio4, false);
         formatManager.registerBasicFormats();
         //transportSource.addChangeListener(this);
         //mixerAudioSource.addChangeListener(this);
@@ -451,23 +493,25 @@ public:
 		DebugButton2.setButtonText("Debug2");
 		DebugButton2.setVisible(true);
 
+
+
         auto inputDevice  = juce::MidiInput::getDefaultDevice();
         auto outputDevice = juce::MidiOutput::getDefaultDevice();
         mainProcessor->enableAllBuses();
-
         deviceManager.initialiseWithDefaultDevices (0, 2);                          // [1]
         deviceManager.addAudioCallback (&mainProcessorPlayer);                                   // [2]
         deviceManager.setMidiInputDeviceEnabled (inputDevice.identifier, true);
         deviceManager.addMidiInputDeviceCallback (inputDevice.identifier, &mainProcessorPlayer); // [3]
         deviceManager.setDefaultMidiOutputDevice (outputDevice.identifier);
-
         initialiseGraph();
-
         mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
 
 
 
+
         setAudioChannels(2, 2);
+
+
         startTimer(20);
     }
     ~PlayerComponent() override
@@ -545,34 +589,57 @@ private:
 
     void DebugButton2Callback(void)
     {
+
         AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
-        if(node != nullptr)
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=osc
+        if (node != nullptr)
         {
             if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<OscillatorProcessor*> (processor))
                 {
-                    if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                    if (plugin->getName() == "Oscillator")
                     {
-                        auto description = plugin->getPluginDescription();
-                        auto parameters = plugin->getParameters();
-                        auto test = plugin->getNumParameters();
-
-                        int ii = 0;
-                        for (int i= 0; i < test; i++)
-                        {
-                            auto test2 = plugin->getHostedParameter(i);
-                            auto test3 = test2->getName(20);
-                            ii++;
-                   
-     
-                        }
-
-
-                        activePluginWindows.add (new PluginWindow (node, PluginWindow::Type::generic, activePluginWindows));
-
+                        plugin->setMyFrequency(520);
                     }
                 }
+            }
         }
+
+
+
+
+
+
+
+
+
+
+
+        //AudioProcessorGraph::Node* node;
+        //node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
+        //if(node != nullptr)
+        //{
+        //    if (auto* processor = node->getProcessor())
+        //        {
+        //            if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+        //            {
+        //                auto description = plugin->getPluginDescription();
+        //                auto parameters = plugin->getParameters();
+        //                auto test = plugin->getNumParameters();
+//
+        //                int ii = 0;
+        //                for (int i= 0; i < test; i++)
+        //                {
+        //                    auto test2 = plugin->getHostedParameter(i);
+        //                    auto test3 = test2->getName(20);
+        //                    ii++;
+        //                }
+        //                activePluginWindows.add (new PluginWindow (node, PluginWindow::Type::generic, activePluginWindows));
+//
+        //            }
+        //        }
+        //}
 
     }    
 
@@ -632,6 +699,9 @@ private:
     Node::Ptr audioOutputNode;
 
     OwnedArray<PluginWindow> activePluginWindows;
+
+
+    OscillatorProcessor oscillator1;
 
     juce::ReferenceCountedArray<Node> slots;
     juce::ReferenceCountedArray<Node> activeSlots;    

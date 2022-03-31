@@ -9,7 +9,7 @@ using namespace juce;
 
 //==============================================================================
 class MainContentComponent : public juce::AudioAppComponent,
-    public juce::ChangeListener
+    public juce::ChangeListener, private juce::Slider::Listener
 {
 public:
 
@@ -36,7 +36,9 @@ public:
         FakeCodaSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
         FakeCodaSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); 
         FakeCodaSlider.setColour(0x1001300, Colour(THUMB_COLOR));      
-        FakeCodaSlider.setColour(0x1001310, Colour(LIGNE_COLOR));      
+        FakeCodaSlider.setColour(0x1001310, Colour(LIGNE_COLOR));
+              
+        FakeCodaSlider.addListener(this);
 
         setSize(1300, 800);
     }
@@ -96,7 +98,7 @@ public:
     {
         if (slider == &FakeCodaSlider)
         {
-            playerComponent.setAngle(slider->getValue());
+            playerComponent.setAngle(slider->getValue()/10); //0..1
         }
     }
 

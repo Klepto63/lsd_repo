@@ -74,12 +74,13 @@ public:
          
             //Time::waitForMillisecondCounter(Time::getMillisecondCounter() + 100);
 
-			auto* dw = new PopUpEnterComponent(POPUP_WELCOME);
-            dw->setVisible(true);
-			dw->setOpaque(true);
-            dw->addToDesktop(1,0); //StyleFlags
-            dw->setAlwaysOnTop(true);
-    		if (dw != nullptr) dw->setCentreRelative(0.5, 0.5);
+            //todo remettre popup welcome
+			//0 auto* dw = new PopUpEnterComponent(POPUP_WELCOME);
+            //0 dw->setVisible(true);
+			//0 dw->setOpaque(true);
+            //0 dw->addToDesktop(1,0); //StyleFlags
+            //0 dw->setAlwaysOnTop(true);
+    		//0 if (dw != nullptr) dw->setCentreRelative(0.5, 0.5);
         }
 
         void closeButtonPressed() override
