@@ -47,11 +47,11 @@ public:
     {
         if(1)
         {
-            //if (currentIdSong != tableComponent.getRowId()  || playerComponent.isPlaying()==false)
-            //{
-            //    currentIdSong = tableComponent.getRowId();
-            //    playerComponent.loadAndPlay(currentIdSong);
-            //}
+            if (currentIdSong != tableComponent.getRowId()  || playerComponent.Master_isPlaying()==false)
+            {
+                currentIdSong = tableComponent.getRowId();
+                playerComponent.Master_loadAndPlay(currentIdSong);
+            }
         }
     }
 

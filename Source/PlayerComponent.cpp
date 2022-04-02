@@ -1,15 +1,6 @@
 #include "PlayerComponent.h"
 
 
-//bool PlayerComponent::isPlaying(void)
-//{
-//    if (state == Playing)
-//    {
-//        return true;
-//    }
-//    return false;
-//}
-
 void PlayerComponent::sliderDragStarted(Slider* slider)
 {
     if (slider == &musicSlider)
@@ -21,42 +12,52 @@ void PlayerComponent::sliderDragStarted(Slider* slider)
 void PlayerComponent::sliderDragEnded(Slider* slider)
 {
     if (slider == &musicSlider)
-    {
-        //float v = musicSlider.getValue();
-        //audio1.setPosition(v * audio1.getLengthInSeconds() / 10);
-        //audio2.setPosition(v * audio2.getLengthInSeconds() / 10);
-        //audio3.setPosition(v * audio3.getLengthInSeconds() / 10);
-        //audio4.setPosition(v * audio4.getLengthInSeconds() / 10);        
+    {    
+        double v = musicSlider.getValue();
         musicSliderBlockTimer = false;
+        AudioProcessorGraph::Node* node;
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+        if (node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                {
+                        plugin->setPosition(v);
+                    
+                }
+            }
+        }
     }
+    
 }
 
 
 void PlayerComponent::sliderValueChanged(Slider* slider)
 {
 
-    //if (slider == &volumeSlider)
-    //{
-    //    currentVolume = 10*slider->getValue();
-    //    if (currentVolume < 85)
-    //    {
-    //        volumeSlider.setColour(0x1001310, Colour((uint8_t)0x1d, (uint8_t)0xb9, (uint8_t)0x54, (float)currentVolume / 75));
-    //    }
-    //    else
-    //    {
-    //        volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 7*(currentVolume-85)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - (currentVolume - 85)), (float)1));
-    //    }
-//
-    //    if (isMuted && (currentVolume!=0))
-    //    {
-    //        updateVolumeButtonImage(false, currentVolume);
-    //    }
-    //    else if (currentVolume == 0)
-    //    {
-    //        updateVolumeButtonImage(true, currentVolume);
-    //        isMuted = true;
-    //    }
-    //}
+    if (slider == &volumeSlider)
+    {
+        currentVolume = 10*slider->getValue();
+        if (currentVolume < 85)
+        {
+            volumeSlider.setColour(0x1001310, Colour((uint8_t)0x1d, (uint8_t)0xb9, (uint8_t)0x54, (float)currentVolume / 75));
+        }
+        else
+        {
+            volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 7*(currentVolume-85)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - (currentVolume - 85)), (float)1));
+        }
+
+        if (isMuted && (currentVolume!=0))
+        {
+            updateVolumeButtonImage(false, currentVolume);
+        }
+        else if (currentVolume == 0)
+        {
+            updateVolumeButtonImage(true, currentVolume);
+            isMuted = true;
+        }
+    }
 //
     //if (slider == &energySlider)//1..10
     //{
@@ -94,14 +95,13 @@ void PlayerComponent::CBScenesChanged(void)
 
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    mixerAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    //mixerAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void PlayerComponent::paint(juce::Graphics& g)
 {
     g.fillAll(Colour(WP_PLAYER));
 }
-
 
 void PlayerComponent::setAngle(float f)
 {
@@ -130,60 +130,60 @@ void PlayerComponent::setAngle(float f)
 
 void PlayerComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    /*
-    if (readerSource.get() == nullptr)
-    {
-        bufferToFill.clearActiveBufferRegion();
-        return;
-    }
-    mixerAudioSource.getNextAudioBlock(bufferToFill);
-    */
-    auto level = (float) volumeSlider.getValue()/8;
-    //if (level == 0)
+    ///*
+    //if (readerSource.get() == nullptr)
     //{
+    //    bufferToFill.clearActiveBufferRegion();
     //    return;
     //}
-    mixerAudioSource.getNextAudioBlock(bufferToFill);
-    auto* device = deviceManager.getCurrentAudioDevice();
-    auto activeInputChannels  = device->getActiveInputChannels();
-    auto activeOutputChannels = device->getActiveOutputChannels();
-    auto maxInputChannels  = activeInputChannels .getHighestBit() + 1;
-    auto maxOutputChannels = activeOutputChannels.getHighestBit() + 1;
-    for (auto channel = 0; channel < maxOutputChannels; ++channel)
-        {
-            if ((! activeOutputChannels[channel]) || maxInputChannels == 0)
-            {
-                bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples);
-            }
-            else
-            {
-                auto actualInputChannel = channel % maxInputChannels; // [1]
-                if (! activeInputChannels[channel]) // [2]
-                {
-                    bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples);
-                }
-                else // [3]
-                {
-                    auto* inBuffer = bufferToFill.buffer->getReadPointer (actualInputChannel,
-                                                                          bufferToFill.startSample);
-                    auto* outBuffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample);
-                    for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
-                    {
-                        outBuffer[sample] = inBuffer[sample] * level;
-                    }
-                }
-            }
-        }
+    //mixerAudioSource.getNextAudioBlock(bufferToFill);
+    //*/
+    //auto level = (float) volumeSlider.getValue()/8;
+    ////if (level == 0)
+    ////{
+    ////    return;
+    ////}
+    //mixerAudioSource.getNextAudioBlock(bufferToFill);
+    //auto* device = deviceManager.getCurrentAudioDevice();
+    //auto activeInputChannels  = device->getActiveInputChannels();
+    //auto activeOutputChannels = device->getActiveOutputChannels();
+    //auto maxInputChannels  = activeInputChannels .getHighestBit() + 1;
+    //auto maxOutputChannels = activeOutputChannels.getHighestBit() + 1;
+    //for (auto channel = 0; channel < maxOutputChannels; ++channel)
+    //    {
+    //        if ((! activeOutputChannels[channel]) || maxInputChannels == 0)
+    //        {
+    //            bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples);
+    //        }
+    //        else
+    //        {
+    //            auto actualInputChannel = channel % maxInputChannels; // [1]
+    //            if (! activeInputChannels[channel]) // [2]
+    //            {
+    //                bufferToFill.buffer->clear (channel, bufferToFill.startSample, bufferToFill.numSamples);
+    //            }
+    //            else // [3]
+    //            {
+    //                auto* inBuffer = bufferToFill.buffer->getReadPointer (actualInputChannel,
+    //                                                                      bufferToFill.startSample);
+    //                auto* outBuffer = bufferToFill.buffer->getWritePointer (channel, bufferToFill.startSample);
+    //                for (auto sample = 0; sample < bufferToFill.numSamples; ++sample)
+    //                {
+    //                    outBuffer[sample] = inBuffer[sample] * level;
+    //                }
+    //            }
+    //        }
+    //    }
 }
 
 void PlayerComponent::releaseResources()
 {
-    mixerAudioSource.releaseResources();
+   // mixerAudioSource.releaseResources();
 }
 
 void PlayerComponent::resized()
 {
-    energySlider.setBounds((getWidth() - 100) * 0.5f - 1, 5, 100, 80);
+    //energySlider.setBounds((getWidth() - 100) * 0.5f - 1, 5, 100, 80);
     playButton.setBounds((getWidth() - PLAY_BUTTON_SIZE) * 0.5f , 45 - 0.5* PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE); //aussi resized a updatePlayerButtonImage()
     prevButton.setBounds((getWidth() - NEXT_BUTTON_SIZE) * 0.5f - NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
     nextButton.setBounds((getWidth() - NEXT_BUTTON_SIZE) * 0.5f + NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
@@ -204,36 +204,51 @@ void PlayerComponent::resized()
 
 void PlayerComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-    //if (source == &mixerAudioSource)
-    //{
-    //    if (audio1.isPlaying())
-    //        changeState(Playing);
-    //    else
-    //        changeState(Stopped);
-    //}
 
 }
 
 void PlayerComponent::timerCallback()
 {
-    /*
-    if (audioX.isPlaying())
+    bool p = Master_isPlaying();
+    double length_s;
+    if(p)
     {
-        juce::RelativeTime position(audioX.getCurrentPosition());
-        auto minutes = ((int)position.inMinutes()) % 60;
-        auto seconds = ((int)position.inSeconds()) % 60;
-        auto positionString = juce::String::formatted("%02d:%02d", minutes, seconds);
-        currentPositionLabel.setText(positionString, juce::dontSendNotification);
-        if (!musicSliderBlockTimer)
+        if(Master_state != Master_Playing)
         {
-            musicSlider.setValue(10 * audioX.getCurrentPosition() / audio1.getLengthInSeconds(), dontSendNotification);
+            Master_changeState(Master_Playing);
+        }
+
+
+    AudioProcessorGraph::Node* node;
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+    if (node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                {
+                    juce::RelativeTime position(plugin->getCurrentPosition_s());
+                    auto minutes = ((int)position.inMinutes()) % 60;
+                    auto seconds = ((int)position.inSeconds()) % 60;
+                    auto positionString = juce::String::formatted("%02d:%02d", minutes, seconds);
+                    currentPositionLabel.setText(positionString, juce::dontSendNotification);
+                    if (!musicSliderBlockTimer)
+                    {
+                        musicSlider.setValue(10 * plugin->getCurrentPosition_s() / plugin->getLength_s(), dontSendNotification);
+                    }
+                }
+            }
         }
     }
     else
     {
-        //currentPositionLabel.setText("Stopped", juce::dontSendNotification);
+        if(Master_state == Master_Playing)
+        {
+            Master_changeState(Master_Stopped);
+        }
     }
-    */
+
+
 }
 
 void PlayerComponent::Master_loadAndPlay(int idx)
@@ -253,7 +268,7 @@ void PlayerComponent::Master_loadAndPlay(int idx)
                 {
                     plugin->loadAndPlay(idx,0);
                     playButton.setEnabled(true);
-                    energySlider.setEnabled(true);  
+                    //energySlider.setEnabled(true);  
                     Master_changeState(Master_Starting);    
                     CBScenes.setVisible(true);                                  
                 }
@@ -273,7 +288,7 @@ void PlayerComponent::Master_changeState(Master_TransportState Master_newState)
         int seconds;
         String LengthString;
         AudioProcessorGraph::Node* node;
-        if (Master_newState != Master_newState)
+        if (Master_state != Master_newState)
         {
             Master_state = Master_newState;
             switch (Master_state)
@@ -331,6 +346,25 @@ void PlayerComponent::Master_changeState(Master_TransportState Master_newState)
                 break;
             }
         }
+}
+
+bool PlayerComponent::Master_isPlaying(void)
+{
+    bool isPlaying = false;
+    AudioProcessorGraph::Node* node;
+   node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+    if (node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                {
+                    isPlaying = plugin->isPlaying(); 
+
+                }
+            }
+        }
+        return isPlaying;
 }
 
 
@@ -411,24 +445,13 @@ void PlayerComponent::muteButtonClicked(void)
 
 void PlayerComponent::playButtonClicked()
 {
-    AudioProcessorGraph::Node* node;
-    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
-    if (node != nullptr)
+    if (Master_isPlaying())
     {
-        if (auto* processor = node->getProcessor())
-        {
-            if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
-            {
-                if (plugin->isPlaying())
-                {
-                    Master_changeState(Master_Stopping);
-                }
-                else
-                {
-                    Master_changeState(Master_Starting);
-                }
-            }
-        }
+        Master_changeState(Master_Stopping);
+    }
+    else
+    {
+        Master_changeState(Master_Starting);
     }
 }
 
@@ -480,15 +503,6 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
     else
     {
         instance->enableAllBuses();
-        //connect to graph
-        //if (auto node = graph.addNode (std::move (instance)))
-        //{
-            //NODE MIDDLE
-        //for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
-        //{
-        //    mainProcessor->addConnection({ { slots.getUnchecked(0)->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
-        //}
-
         auto VR3Node = mainProcessor->addNode(std::move(instance));
         for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
         {

@@ -367,20 +367,20 @@ public:
 
     bool isPlaying(void)
     {
-        if (state == Playing)
-        {
-            return true;
-        }
-        return false;
+        return audioX.isPlaying();
     }
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override
     {
+           
+           
+           
+           
+    }
 
-            if (audioX.isPlaying())
-                changeState(Playing);
-            else
-                changeState(Stopped);
+    void setPosition(float v)
+    {
+        audioX.setPosition(v * audioX.getLengthInSeconds() / 10);
     }
 
     void loadAndPlay(int idx, int stemidx) //stem 0
@@ -407,6 +407,11 @@ public:
     double getLength_s()
     {
         return audioX.getLengthInSeconds();
+    }
+
+    double getCurrentPosition_s()
+    {
+        return audioX.getCurrentPosition();
     }
 
     const juce::String getName() const override { return "Player"; }
@@ -485,15 +490,15 @@ public:
         isMuted = false;
         musicSliderBlockTimer = false; 
 
-        addAndMakeVisible(&energySlider);
-        energySlider.setSliderStyle(Slider::Rotary);
-        energySlider.setValue(5, juce::dontSendNotification); //1..10
-        energySlider.setLookAndFeel(&energySliderLookAndFeel);
-        energySlider.hideTextBox(true);
-        energySlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-        energySlider.addListener(this);
-        energySlider.setRotaryParameters(MathConstants<float>::pi * 1.5f, MathConstants<float>::pi * 2.5f, true);
-        energySlider.setEnabled(false);
+        //addAndMakeVisible(&energySlider);
+        //energySlider.setSliderStyle(Slider::Rotary);
+        //energySlider.setValue(5, juce::dontSendNotification); //1..10
+        //energySlider.setLookAndFeel(&energySliderLookAndFeel);
+        //energySlider.hideTextBox(true);
+        //energySlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+        //energySlider.addListener(this);
+        //energySlider.setRotaryParameters(MathConstants<float>::pi * 1.5f, MathConstants<float>::pi * 2.5f, true);
+        //energySlider.setEnabled(false);
 
         addAndMakeVisible(&playButton);
         playButton.setButtonText("Play");
@@ -572,7 +577,7 @@ public:
         volumeSlider.hideTextBox(true);
         volumeSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
         //volumeSlider.setValue(currentVolume/10, juce::dontSendNotification);
-        volumeSlider.setValue(20 / 10, juce::dontSendNotification);
+        volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
         volumeSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); //backgroundId
         volumeSlider.setColour(0x1001300, Colour(THUMB_COLOR));      //thumbColor (la boule)
         volumeSlider.setColour(0x1001310, Colour(LIGNE_COLOR));      //ligneColor
@@ -580,34 +585,6 @@ public:
         addAndMakeVisible(&playerTitlePlayingComponent);
         setSize(200, 200);
 
-
-    	// Adding the two primary audio sources to the mixer
-	        //mixerAudioSource.addInputSource(&audio1, false);
-	    //mixerAudioSource.addInputSource(&audio2, false);
-	    //mixerAudioSource.addInputSource(&audio3, false);
-	    //mixerAudioSource.addInputSource(&audio4, false);
-            //formatManager.registerBasicFormats();
-        //transportSource.addChangeListener(this);
-        //mixerAudioSource.addChangeListener(this);
-
-
-		//vstformatManager->addDefaultFormats();
-
-
-        //AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon, "Couldn't create plugin", "error");
-
-        //auto vstHost = new PluginListComponent((juce::AudioPluginFormatManager&) vstformatManager, (juce::KnownPluginList&) list_, NULL, NULL, true);
-
-		//new PluginListComponent (manager_->formatManager, *manager_->list_, deadMansPedalFile, manager_->props_->getUserSettings(), true), true);
-
-		//		ScopedPointer<XmlElement> pluginList(userSettings->getXmlValue("pluginList"));
- 		//if (nullptr != pluginList)
- 		//{
-    	//	gKnownPlugins.recreateFromXml(*pluginList);
- 		//}
-
-
-        
 		addAndMakeVisible(&DebugButton);
 		DebugButton.onClick = [this] { DebugButtonCallback(); };
 		DebugButton.setEnabled(true);
@@ -622,8 +599,6 @@ public:
 		DebugButton2.setButtonText("Debug2");
 		DebugButton2.setVisible(true);
 
-
-
         auto inputDevice  = juce::MidiInput::getDefaultDevice();
         auto outputDevice = juce::MidiOutput::getDefaultDevice();
         mainProcessor->enableAllBuses();
@@ -632,12 +607,12 @@ public:
         deviceManager.setMidiInputDeviceEnabled (inputDevice.identifier, true);
         deviceManager.addMidiInputDeviceCallback (inputDevice.identifier, &mainProcessorPlayer); // [3]
         deviceManager.setDefaultMidiOutputDevice (outputDevice.identifier);
+
         initialiseGraph();
+
         mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
-
-
-        setAudioChannels(2, 2);
-
+        
+        setAudioChannels(0, 2);
 
         startTimer(20);
     }
@@ -663,7 +638,7 @@ public:
 
     void Master_loadAndPlay(int idx);
     void Master_changeState(Master_TransportState Master_newState);
-
+    bool Master_isPlaying(void);
 
     void initialiseGraph();
     void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error);
@@ -672,13 +647,9 @@ public:
 
 
 private:
-    Master_TransportState  Master_state;
-    int             currentIdxPlaying;
-    int             volumeBeforeMute;
-    bool            isMuted;
-    bool            musicSliderBlockTimer; //gestion drag drop timer
 
-    
+
+   
 
     void DebugButtonCallback(void)
     {
@@ -745,9 +716,6 @@ private:
         //}
 
     }    
-
-
-
     void updatePlayerButtonImage(bool playing);
     void updateVolumeButtonImage(bool isMuted, int sliderVolume);
     void muteButtonClicked(void);
@@ -758,14 +726,20 @@ private:
 
 
     //==========================================================================
+    Master_TransportState   Master_state;
+    int                     currentIdxPlaying;
+    int                     volumeBeforeMute;
+    bool                    isMuted;
+    bool                    musicSliderBlockTimer; //gestion drag drop timer
+    int                     currentVolume = 85;                   
 
-    EnergySliderLookAndFeel energySliderLookAndFeel;
+    //EnergySliderLookAndFeel energySliderLookAndFeel;
     juce::ImageButton playButton;
     juce::ImageButton nextButton;
     juce::ImageButton prevButton;
     juce::ImageButton muteButton;
     juce::Slider musicSlider;
-    juce::Slider energySlider;
+    //juce::Slider energySlider;
     juce::Slider volumeSlider;
     juce::Label currentPositionLabel;
     juce::Label lengthLabel;
@@ -776,17 +750,13 @@ private:
     juce::TextButton DebugButton;
     juce::TextButton DebugButton2;
 
-
-    juce::MixerAudioSource mixerAudioSource;
-
-
 	juce::KnownPluginList* list_;
 	juce::AudioPluginFormatManager vstformatManager;
 
 
 	std::unique_ptr <juce::AudioProcessorGraph> mainProcessor;
     juce::AudioDeviceManager deviceManager;
-    juce::AudioProcessorPlayer mainProcessorPlayer; //An AudioIODeviceCallback object which streams audio through an AudioProcessor.
+    juce::AudioProcessorPlayer mainProcessorPlayer; 
     Node::Ptr audioInputNode;
     Node::Ptr audioOutputNode;
 
