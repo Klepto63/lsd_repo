@@ -513,6 +513,20 @@ public:
         muteButton.onClick = [this] { muteButtonClicked(); };
         muteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
 
+        addAndMakeVisible(&cubeButton);
+        cubeButton.setButtonText("Scene");
+        cubeButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);   
+        Image imgcubeButton = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton.png"));
+        Image imgcubeButton2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton2.png"));
+        cubeButton.setImages(true,  //resize to fit
+                             true,  //rescale image
+                             true,  //preserve proportion
+            imgcubeButton, 1.0f, juce::Colours::transparentBlack,
+            imgcubeButton, 1.0f, juce::Colours::white,
+            imgcubeButton2, 1.0f, juce::Colours::transparentBlack, //image when down
+            0.5f
+        );
+
         addAndMakeVisible(&nextButton);
         nextButton.setButtonText("Next");
         Image imgNextButton = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "nextbutton.png"));
@@ -527,6 +541,9 @@ public:
         );
         nextButton.onClick = [this] { nextButtonClicked(); };
         nextButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
+
+
+
         addAndMakeVisible(&prevButton);
         prevButton.setButtonText("Prev");
         Image imgPrevButton = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "prevbutton.png"));
@@ -723,7 +740,7 @@ private:
     void nextButtonClicked(void);
     void prevButtonClicked(void);
     void CBScenesChanged(void);
-
+    void cubeButtonClicked(void);
 
     //==========================================================================
     Master_TransportState   Master_state;
@@ -738,6 +755,7 @@ private:
     juce::ImageButton nextButton;
     juce::ImageButton prevButton;
     juce::ImageButton muteButton;
+    juce::ImageButton cubeButton;
     juce::Slider musicSlider;
     //juce::Slider energySlider;
     juce::Slider volumeSlider;

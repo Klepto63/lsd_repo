@@ -194,7 +194,7 @@ void PlayerComponent::resized()
     playerTitlePlayingComponent.setBounds(10, 10, 200, 80);
     volumeSlider.setBounds(getWidth() - 200, 45, 150, 20);
     muteButton.setBounds(getWidth() - 200 - MUTE_BUTTON_SIZE, 45, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE); //aussi resized a updateMuteButtonImage()
-
+    cubeButton.setBounds(getWidth() - 200 - MUTE_BUTTON_SIZE - 50, 45, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE);
 
     CBScenes.setBounds(185, 15,100,22);//22);
 
@@ -442,6 +442,11 @@ void PlayerComponent::muteButtonClicked(void)
     //}
 }
 
+void PlayerComponent::cubeButtonClicked(void)
+{
+
+}
+
 
 void PlayerComponent::playButtonClicked()
 {
@@ -459,30 +464,30 @@ void PlayerComponent::playButtonClicked()
 void PlayerComponent::nextButtonClicked(void)
 {
     
-    if (currentIdxPlaying == jsonParserGetNbSong() - 1) //dernier son jou�, retour au premier
-    {
-        Master_loadAndPlay(0);
-        currentIdxPlaying = 0;
-    }
-    else
-    {
-        Master_loadAndPlay(++currentIdxPlaying);
-    }
+    //if (currentIdxPlaying == jsonParserGetNbSong() - 1) //dernier son jou�, retour au premier
+    //{
+    //    Master_loadAndPlay(0);
+    //    currentIdxPlaying = 0;
+    //}
+    //else
+    //{
+    //    Master_loadAndPlay(++currentIdxPlaying);
+    //}
     
 }
 
 void PlayerComponent::prevButtonClicked(void)
 {
     
-    if (currentIdxPlaying == 0) //dernier son joué, retour au premier
-    {
-        currentIdxPlaying = jsonParserGetNbSong() - 1;
-        Master_loadAndPlay(currentIdxPlaying);
-    }
-    else
-    {
-        Master_loadAndPlay(--currentIdxPlaying);
-    }
+    //if (currentIdxPlaying == 0) //dernier son joué, retour au premier
+    //{
+    //    currentIdxPlaying = jsonParserGetNbSong() - 1;
+    //    Master_loadAndPlay(currentIdxPlaying);
+    //}
+    //else
+    //{
+    //    Master_loadAndPlay(--currentIdxPlaying);
+    //}
     
 }
 

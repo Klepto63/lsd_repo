@@ -16,7 +16,21 @@ public:
     {
         setSize(600, 600);
         load_background();
-        setFramesPerSecond(70);
+        setFramesPerSecond(10); //??
+
+        addAndMakeVisible(&sceneConfigButton);
+        sceneConfigButton.setButtonText("sceneConfigButton");
+        sceneConfigButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
+        Image sceneConfigButtonImg = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton.png"));
+        Image sceneConfigButtonImg2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton2.png"));
+        sceneConfigButton.setImages(true,  //resize to fit
+                             true,  //rescale image
+                             true,  //preserve proportion
+            sceneConfigButtonImg, 1.0f, juce::Colours::transparentBlack,
+            sceneConfigButtonImg, 1.0f, juce::Colours::white,
+            sceneConfigButtonImg2, 1.0f, juce::Colours::transparentBlack, //image when down
+            0.5f
+        );
     }
 
     void update() override
@@ -83,6 +97,13 @@ public:
 
     }
 
+
+
+    void playButtonClicked(void)
+    {
+
+    }
+
     void paint(juce::Graphics& g) override
     {
         g.fillAll(juce::Colours::black);
@@ -122,14 +143,19 @@ public:
     void resized() override
     {
 
-
+        sceneConfigButton.setBounds(50, 50, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE);
     }
 
 private:
 
     Image background;
     Image instrument1;
+
+    juce::ImageButton sceneConfigButton;
+
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SceneComponent)
+
 };//scene componenet.h
 
 

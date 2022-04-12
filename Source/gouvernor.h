@@ -65,14 +65,22 @@ public:
         int Height = getHeight();
         int Width = getWidth();
         int h_playbar = 100; //largeur playbar like spotify
-        int h_table = 200;
-        int l_leftbar = 300;
+        
+        int l_leftbar = 0.225f*Width; //300 static
+        if(l_leftbar < 200)
+        {
+            l_leftbar = 200;
+        }
         //hyperlinkButton.setBounds(10, 50,100, 20);
-        playerComponent.setBounds(0, Height - h_playbar, Width, h_playbar);
-        tableComponent.setBounds(l_leftbar - 8, Height - h_playbar - h_table, Width-l_leftbar +17, 210);
-        leftBarComponent.setBounds(0,0, l_leftbar, Height - h_playbar);
-        sceneComponent.setBounds(l_leftbar,0,Width-265, Height - h_playbar - 192); //1035x50
 
+
+        leftBarComponent.setBounds(0,0, l_leftbar, Height - h_playbar);
+        playerComponent.setBounds(0, Height - h_playbar, Width, h_playbar);
+
+
+        sceneComponent.setBounds(l_leftbar,0,Width-265, 0.4f * Height); //1035x50
+
+        tableComponent.setBounds(l_leftbar - 8,  0.4f * Height - 10,   Width-l_leftbar +17,    (1 - 0.4f) * Height   - h_playbar + 20);
 
         FakeCodaSlider.setBounds(100,Height - 0.5*h_playbar, 200,20);
     }

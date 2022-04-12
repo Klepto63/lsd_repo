@@ -63,7 +63,7 @@ public:
         {
             setUsingNativeTitleBar (true);
 
-            setResizable(false, false);
+            setResizable(true, false);
             //setContentOwned(new PopUpEnterComponent(2), true);
             setContentOwned(new MainContentComponent(), true);
             centreWithSize (getWidth(), getHeight());
