@@ -10,33 +10,35 @@
 
 class SceneComponent : public juce::AnimatedAppComponent
 {
+
+typedef enum
+{
+        SCENE_TUTO_INIT = 0,            // please select a song
+        SCENE_TUTO_2D,                  // you can enable 3D feature by cliking on inco ([])
+        SCENE_TUTO_CONNECT,              // instruments are now in 3D place.
+}SCENE_TUTO;
+    
+
 public:
 
     SceneComponent()
     {
         setSize(600, 600);
-        load_background();
-        setFramesPerSecond(10); //??
+        setFramesPerSecond(1);
 
-        addAndMakeVisible(&sceneConfigButton);
-        sceneConfigButton.setButtonText("sceneConfigButton");
-        sceneConfigButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
-        Image sceneConfigButtonImg = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton.png"));
-        Image sceneConfigButtonImg2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton2.png"));
-        sceneConfigButton.setImages(true,  //resize to fit
-                             true,  //rescale image
-                             true,  //preserve proportion
-            sceneConfigButtonImg, 1.0f, juce::Colours::transparentBlack,
-            sceneConfigButtonImg, 1.0f, juce::Colours::white,
-            sceneConfigButtonImg2, 1.0f, juce::Colours::transparentBlack, //image when down
-            0.5f
-        );
+        sceneId = SCENE_TUTO_INIT;
+        load_scene();
+
+        load_init_scene();
+
     }
 
     void update() override
     {
         // This function is called at the frequency specified by the setFramesPerSecond() call
         // in the constructor. You can use it to update counters, animate values, etc.
+
+
     }
 
     void drawCirclePolar(juce::Graphics& g, float dist, float angle, float rad, juce::Colour color)
@@ -58,8 +60,37 @@ public:
 
     void load_background()
     {
-        background  = ImageFileFormat::loadFrom(File::File(ABS_PATH_SONGS + (juce::String)"/song1/scene/1.png" ));
+        //background  = ImageFileFormat::loadFrom(File::File(ABS_PATH_SONGS + (juce::String)"/song1/scene/1.png" ));
         //instrument1 = ImageFileFormat::loadFrom(File::File("C:/Users/Alex/Desktop/Coda2022/songs/raw_/harpi_a.png"));
+    }
+
+
+    void event_notify(int idx)
+    {
+
+        if((idx == 0) && (sceneId ==SCENE_TUTO_INIT))
+        {
+            sceneId = SCENE_TUTO_2D;
+            load_scene();
+        }
+        if((idx == 1) && (sceneId ==SCENE_TUTO_2D))
+        {
+            sceneId = SCENE_TUTO_CONNECT;
+            load_scene();
+        }   
+
+    }
+
+
+    void load_init_scene()
+    {
+
+    }
+
+    void load_scene()
+    {
+        //load_background();
+        repaint();
     }
 
     void drawScene(juce::Graphics& g)
@@ -70,8 +101,10 @@ public:
         //                          RectanglePlacement placementWithinTarget, bool fillAlphaChannelWithCurrentBrush) const
         //
 
-        g.drawImageAt(background, 0,0,false);
-        g.drawImage(instrument1, 485,280,   95,95,   0,0,400,400,false);
+
+        //
+        //g.drawImageAt(background, 0,0,false);
+        //g.drawImage(instrument1, 485,280,   95,95,   0,0,400,400,false);
 
 
 //void Graphics::drawImage (const Image& imageToDraw,
@@ -98,19 +131,69 @@ public:
     }
 
 
-
-    void playButtonClicked(void)
-    {
-
-    }
-
     void paint(juce::Graphics& g) override
     {
-        g.fillAll(juce::Colours::black);
-        g.setColour(getLookAndFeel().findColour(juce::Slider::thumbColourId));
+        //g.fillAll(juce::Colours::black);
+        //g.setColour(getLookAndFeel().findColour(juce::Slider::thumbColourId));
 
-        drawScene(g);
+        String m;
+        int i =0;
+        switch(sceneId)
+        {
+            case SCENE_TUTO_INIT : 
+            {
+                g.fillAll(Colour((uint32)WP1_COLOR));
+                g.setColour(Colour((uint32)P1_COLOR));
+                g.setFont(CODAFRONT_TEXT_SIZE_P1);
+                static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
+                Font Gofont = Font(typeface);
+                Gofont.setHeight(26);
+	            g.drawText ("Welcome to Coda demo player", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
+	            m << "Let's start by selecting a song..";	
+                Gofont.setHeight(18);
+                g.setFont(Gofont);
+                g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
+                break;
+            }
+            case SCENE_TUTO_2D :
+            {
+                g.fillAll(Colour((uint32)WP1_COLOR));
+                g.setColour(Colour((uint32)P1_COLOR));
+                g.setFont(CODAFRONT_TEXT_SIZE_P1);
+                static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
+                Font Gofont = Font(typeface);
+                Gofont.setHeight(26);
+    		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
+    		    m << "you can now enable 3D audio by clicling on the icone 2D";	
+                Gofont.setHeight(18);
+                g.setFont(Gofont);
+                g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
+                break;
+            }
+            case SCENE_TUTO_CONNECT :
+            {
+                g.fillAll(Colour((uint32)WP1_COLOR));
+                g.setColour(Colour((uint32)P1_COLOR));
+                g.setFont(CODAFRONT_TEXT_SIZE_P1);
+                static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
+                Font Gofont = Font(typeface);
+                Gofont.setHeight(26);
+    		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
+    		    m << "Now connect presque. If you don't have one, you can buy one at. Meanwhile, simulate by";	
+                Gofont.setHeight(18);
+                g.setFont(Gofont);
+                g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
+                break;
+            }
+            default : 
+            {
+                break;
+            }
+        }
+    }
 
+
+        //drawScene(g);
 
         //drawCirclePolar(g, 0.3f, (float) getFrameCounter(), 30, juce::Colours:: blue);
         //drawCirclePolar(g, 0.3f, (float) getFrameCounter() + 45, 30                              , juce::Colours::purple);
@@ -138,20 +221,21 @@ public:
         }
                 //g.strokePath(spinePath, juce::PathStrokeType(4.0f));
         */
-    }
+    
 
     void resized() override
     {
 
-        sceneConfigButton.setBounds(50, 50, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE);
+
     }
 
 private:
 
-    Image background;
-    Image instrument1;
+    int sceneId=0;
+    //Image background;
+    //Image instrument1;
 
-    juce::ImageButton sceneConfigButton;
+
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SceneComponent)

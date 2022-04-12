@@ -21,7 +21,7 @@ public:
         table.addMouseListener(this, true);
         table.setModel(this);
         selectedRow = 99;
-        table.setRowHeight(50);
+        table.setRowHeight(30);
        
         table.setColour(ListBox::backgroundColourId, Colour(ROW_ALTERNATE_COLOR2));
         table.setOutlineThickness(0);
@@ -58,7 +58,6 @@ public:
     // This is overloaded from TableListBoxModel, and should fill in the background of the whole row
     void paintRowBackground(Graphics& g, int rowNumber, int /*width*/, int /*height*/, bool rowIsSelected) override
     {
- 
         if (rowNumber % 2)
             g.fillAll(Colour(ROW_ALTERNATE_COLOR2));
         else
@@ -67,7 +66,6 @@ public:
         {
             g.fillAll(Colour(SELECTED_ROW_COLOR));
         }
-   
     }
 
     void setselectedRow(int i)

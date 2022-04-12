@@ -666,7 +666,7 @@ public:
 private:
 
 
-   
+
 
     void DebugButtonCallback(void)
     {

@@ -172,7 +172,7 @@ private:
         //showPopupWindows();
     }
 
-	int state = 2;
+	int state = 1;
     int windowInstance = 0; //nombre de pop ouvert simultanné
     Array<Component::SafePointer<Component>> windows;
 	PopUpEnterComponent* dw = 0;

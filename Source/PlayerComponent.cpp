@@ -183,18 +183,34 @@ void PlayerComponent::releaseResources()
 
 void PlayerComponent::resized()
 {
+
+    int Height = getHeight();
+    int Width = getWidth();
+    int h_playbar = 100; //largeur playbar like spotify
     //energySlider.setBounds((getWidth() - 100) * 0.5f - 1, 5, 100, 80);
-    playButton.setBounds((getWidth() - PLAY_BUTTON_SIZE) * 0.5f , 45 - 0.5* PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE); //aussi resized a updatePlayerButtonImage()
-    prevButton.setBounds((getWidth() - NEXT_BUTTON_SIZE) * 0.5f - NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
-    nextButton.setBounds((getWidth() - NEXT_BUTTON_SIZE) * 0.5f + NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
-    musicSlider.setBounds(0.5 * (getWidth() - MUSIC_SLIDER_SIZE), 58, MUSIC_SLIDER_SIZE, 42);
-    lengthLabel.setBounds(0.5 * (getWidth() + MUSIC_SLIDER_SIZE), 59, getWidth() - 20, 40);
-    currentPositionLabel.setBounds(0.5 * (getWidth() - MUSIC_SLIDER_SIZE)-40, 59, getWidth() - 20, 40);
+    playButton.setBounds((Width - PLAY_BUTTON_SIZE) * 0.5f , 45 - 0.5* PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE); //aussi resized a updatePlayerButtonImage()
+    prevButton.setBounds((Width - NEXT_BUTTON_SIZE) * 0.5f - NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
+    nextButton.setBounds((Width - NEXT_BUTTON_SIZE) * 0.5f + NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
+
 
     playerTitlePlayingComponent.setBounds(10, 10, 200, 80);
-    volumeSlider.setBounds(getWidth() - 200, 45, 150, 20);
-    muteButton.setBounds(getWidth() - 200 - MUTE_BUTTON_SIZE, 45, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE); //aussi resized a updateMuteButtonImage()
-    cubeButton.setBounds(getWidth() - 200 - MUTE_BUTTON_SIZE - 50, 45, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE);
+
+
+    int musicSliderSize = 0.25f*Width + 150;
+
+    currentPositionLabel.setBounds(0.5 * (Width - musicSliderSize) - 40, 59, Width - 20, 40);
+    musicSlider.setBounds(0.5 * (Width - musicSliderSize), 58, musicSliderSize, 42);
+    lengthLabel.setBounds(0.5 * (Width + musicSliderSize), 59, Width - 20, 40);
+
+
+
+    muteButton.setBounds(0.8f*Width + 2 * ICON_BUTTON_SIZE, 0.5f*(h_playbar-ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE); //aussi resized a updateMuteButtonImage()
+    volumeSlider.setBounds(0.8f*Width + 3 * ICON_BUTTON_SIZE, 0.5f*(h_playbar-ICON_BUTTON_SIZE), 0.15f*Width - 3 * ICON_BUTTON_SIZE , 20);
+
+
+
+
+    cubeButton.setBounds(Width - 200 - ICON_BUTTON_SIZE - 50, 45, ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
 
     CBScenes.setBounds(185, 15,100,22);//22);
 
@@ -412,34 +428,34 @@ void PlayerComponent::updateVolumeButtonImage(bool isMuted, int sliderVolume)
     {
         Image img = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"sound.png"));
         Image img2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"sound2.png"));
-        muteButton.setImages(true, true, true,
-            img, 1.0f, juce::Colours::transparentBlack,
-            img, 1.0f, juce::Colours::green,
-            img2, 1.0f, juce::Colours::transparentBlack, //pas le pause
+        muteButton.setImages(true, true, true,                  
+            img, 1.0f, juce::Colours::transparentBlack,     //normal
+            img, 1.0f, juce::Colours::green,                 //over mouse
+            img2, 1.0f, juce::Colours::transparentBlack,    // during click
             0.5f
         );
     }
-    muteButton.setBounds(getWidth() - 200 - MUTE_BUTTON_SIZE, 45, MUTE_BUTTON_SIZE, MUTE_BUTTON_SIZE);
+    resized();
 }
 
 
 void PlayerComponent::muteButtonClicked(void)
 {
-    //if (isMuted)
-    //{
-    //    updateVolumeButtonImage(false, currentVolume);
-    //    isMuted = false;
-    //    currentVolume = volumeBeforeMute;;
-    //    volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
-    //}
-    //else
-    //{
-    //    updateVolumeButtonImage(true, currentVolume);
-    //    isMuted = true;
-    //    volumeBeforeMute = currentVolume;
-    //    currentVolume = 0;
-    //    volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
-    //}
+    if (isMuted)
+    {
+        updateVolumeButtonImage(false, currentVolume);
+        isMuted = false;
+        currentVolume = volumeBeforeMute;;
+        volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
+    }
+    else
+    {
+        updateVolumeButtonImage(true, currentVolume);
+        isMuted = true;
+        volumeBeforeMute = currentVolume;
+        currentVolume = 0;
+        volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
+    }
 }
 
 void PlayerComponent::cubeButtonClicked(void)
