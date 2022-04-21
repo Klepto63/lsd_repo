@@ -44,7 +44,7 @@ public:
         sceneConfigButton.setButtonText("sceneConfigButton");
         sceneConfigButton.onClick = [this] { sceneConfigButtonClicked(); };
         sceneConfigButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
-        Image sceneConfigButtonImgOFF = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "sceneConfig.png"));
+        Image sceneConfigButtonImgOFF = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SCENE_CONFIG)));
 
         sceneConfigButton.setImages(true,  //resize to fit
                              true,  //rescale image
@@ -59,7 +59,7 @@ public:
         bypass3DButton.setButtonText("bypass3DButton");
         bypass3DButton.onClick = [this] { bypass3DButtonClicked(); };
         bypass3DButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
-        Image bypass3DButtonImg = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbuttonOFF.png"));
+        Image bypass3DButtonImg = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_3DBUTTON_OFF)));
 
         bypass3DButton.setImages(true,  //resize to fit
                              true,  //rescale image
@@ -80,6 +80,7 @@ public:
             if (currentIdSong != tableComponent.getRowId()  || playerComponent.Master_isPlaying()==false)
             {
                 currentIdSong = tableComponent.getRowId();
+                playerComponent.Master_changeState(PlayerComponent::Master_Stopped);
                 playerComponent.Master_loadAndPlay(currentIdSong);
                 sceneComponent.event_notify(0);
             }
@@ -96,6 +97,7 @@ public:
     {
         //open new windows component
         dw = new WindowSceneConfig();
+        dw->setName("Spatial Configuration");
         dw->setVisible(true);
 		dw->setOpaque(true);
 		dw->addToDesktop(ComponentPeer::windowHasTitleBar |
@@ -111,13 +113,13 @@ public:
         Image bypass3DButtonImg;
         if(ModeBypassed)
         {
-            bypass3DButtonImg = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbuttonON.png"));
+            bypass3DButtonImg = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_3DBUTTON_ON)));
             ModeBypassed = false;
             sceneComponent.event_notify(1);
         }
         else
         {
-            bypass3DButtonImg = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbuttonOFF.png"));
+            bypass3DButtonImg = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_3DBUTTON_OFF)));
             ModeBypassed = true;
         }
 

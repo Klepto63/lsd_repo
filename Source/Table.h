@@ -333,7 +333,7 @@ private:
     void loadData()
     {
         //demoData = parseXML(File("C:/Users/Desktop/Coda2022/lsd_repo/Coda2022/tabledata.xml"));
-        demoData = parseXML(File(ABS_PATH + (juce::String) "tabledata.xml"));
+        demoData = parseXML(File(PathGetAsset(ASSET_XML_DATA)));
 
         dataList = demoData->getChildByName("DATA");
         columnList = demoData->getChildByName("COLUMNS");

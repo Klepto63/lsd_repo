@@ -7,6 +7,7 @@
 #include <JuceHeader.h>
 #include "Path.h"
 
+#include "customLookAndFeel.h"
 
 class SceneComponent : public juce::AnimatedAppComponent
 {
@@ -23,13 +24,27 @@ public:
 
     SceneComponent()
     {
+
+        setLookAndFeel(&customLookAndFeel);
+        for (auto child : getChildren())
+        {
+            child->setLookAndFeel(&customLookAndFeel);
+        }
+
         setSize(600, 600);
         setFramesPerSecond(1);
 
         sceneId = SCENE_TUTO_INIT;
         load_scene();
 
+
+        addAndMakeVisible(&skipTutorial);
+        skipTutorial.setButtonText("skip tutorial");
+        skipTutorial.setColour(0x1000100, Colour((uint32)SCENE_COMPONENT_WP));
+        skipTutorial.setColour(0x1000102, Colour((uint32)SCENE_COMPONENT_LABEL));   //text color
+
         load_init_scene();
+
 
     }
 
@@ -60,7 +75,7 @@ public:
 
     void load_background()
     {
-        //background  = ImageFileFormat::loadFrom(File::File(ABS_PATH_SONGS + (juce::String)"/song1/scene/1.png" ));
+        //background  = ImageFileFormat::loadFrom(File::File(PathGetAsset(PATH_SONG) + (juce::String)"/song1/scene/1.png" ));
         //instrument1 = ImageFileFormat::loadFrom(File::File("C:/Users/Alex/Desktop/Coda2022/songs/raw_/harpi_a.png"));
     }
 
@@ -142,7 +157,7 @@ public:
         {
             case SCENE_TUTO_INIT : 
             {
-                g.fillAll(Colour((uint32)WP1_COLOR));
+                g.fillAll(Colour((uint32)SCENE_COMPONENT_WP));
                 g.setColour(Colour((uint32)P1_COLOR));
                 g.setFont(CODAFRONT_TEXT_SIZE_P1);
                 static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
@@ -225,17 +240,23 @@ public:
 
     void resized() override
     {
+        int Height = getHeight();
+        int Width = getWidth();
 
+        int BUTTON_WIDTH = 100;
+        int BUTTON_HEIGHT = 30;
 
+        skipTutorial.setBounds(Width - BUTTON_WIDTH - 20 ,Height - BUTTON_HEIGHT - 20 ,BUTTON_WIDTH,BUTTON_HEIGHT);
     }
 
 private:
 
     int sceneId=0;
+    TextButton skipTutorial;
     //Image background;
     //Image instrument1;
 
-
+    CustomLookAndFeel customLookAndFeel;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SceneComponent)

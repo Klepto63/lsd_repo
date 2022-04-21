@@ -14,12 +14,16 @@
 //textColourOnId = 0x1000103
 
 
-
 //------------------------------------ POPUP1
 #define WP1_COLOR	  0xff111111
-#define P1_COLOR      0xffffffff
+#define P1_COLOR      0xffffffff        //couleur text boutton custom
+#define BUTTON_CUSTUM_COLOR 0xff121212  //couleur boutton custom
 #define BUTTON_COLOR1 0xff181818
 #define BUTTON_COLOR2 0xff116c31
+
+//-------------------------------------SCENE COMPONENT
+#define SCENE_COMPONENT_WP      WP1_COLOR
+#define SCENE_COMPONENT_LABEL   0xff9999AA
 
 //------------------------------------- GOUVERNOR
 #define WP2_COLOR     0xff111111

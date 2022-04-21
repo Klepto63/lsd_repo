@@ -7,6 +7,7 @@
 #include "PopUpEnterComponent.h"
 #include "openGLscene.h"
 #include "EnergySliderLookAndFeel.h"
+#include "customLookAndFeel.h"
 
 using namespace juce;
 
@@ -25,6 +26,13 @@ public:
 
 	LeftBarComponent()
 	{
+
+        setLookAndFeel(&customLookAndFeel);
+        for (auto child : getChildren())
+        {
+            child->setLookAndFeel(&customLookAndFeel);
+        }
+
 		switch (state)
 		{
 		case LB_NO_CONNECTED:
@@ -33,7 +41,7 @@ public:
 			ConnectCodaButton.onClick = [this] { ConnectCodaButtonClicked(); };
 			ConnectCodaButton.setEnabled(true);
 			ConnectCodaButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
-			ConnectCodaButton.setButtonText("Connect");
+			ConnectCodaButton.setButtonText("Connect device");
 			ConnectCodaButton.setVisible(true);
 			break;
 		}
@@ -88,7 +96,7 @@ public:
 		case LB_NO_CONNECTED:
 		{
 			int w = 160;
-			int h = 22;
+			int h = 30;
 			ConnectCodaButton.setBounds((int)((getWidth() - w) * 0.5f), (int)((getHeight() - h) * 0.5f), w, h);
 			break;
 		}
@@ -180,6 +188,7 @@ private:
     TextButton ConnectCodaButton;
 	openGLMaskComponent maskComponent;
 	OpenGlAngleSliderLookAndFeel openGlAngleSliderLookAndFeel;
+	CustomLookAndFeel customLookAndFeel;
 	Slider Slider1;
 	Slider Slider2;
 

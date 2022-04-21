@@ -25,19 +25,19 @@ public:
         bool, bool isButtonDown) override
     {
         auto buttonArea = button.getLocalBounds();
-        auto edge = 4;
+        auto edge = 2;
 
         buttonArea.removeFromLeft(edge);
         buttonArea.removeFromTop(edge);
 
-        // shadow
-        g.setColour(juce::Colours::darkgrey.withAlpha(0.5f));
+        //// shadow
+        g.setColour(juce::Colours::darkgrey.withAlpha(0.3f));
         g.fillRect(buttonArea);
 
         auto offset = isButtonDown ? -edge / 2 : -edge;
         buttonArea.translate(offset, offset);
 
-        g.setColour(backgroundColour);
+        g.setColour(Colour((uint32)BUTTON_CUSTUM_COLOR));
         g.fillRect(buttonArea);
     }
 
@@ -47,7 +47,8 @@ public:
         g.setFont(font);
         //g.setColour(button.findColour(button.getToggleState() ? juce::TextButton::textColourOnId : juce::TextButton::textColourOffId)
         //    .withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
-        g.setColour(Colour((uint32)P1_COLOR));
+
+        g.setColour(Colour((uint32)P1_COLOR)); 
 
 
 
@@ -55,12 +56,12 @@ public:
         auto cornerSize = juce::jmin(button.getHeight(), button.getWidth()) / 2;
 
         auto fontHeight = juce::roundToInt(font.getHeight() * 0.6f);
-        auto leftIndent = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
-        auto rightIndent = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
+        auto leftIndent = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 2 : 1));
+        auto rightIndent = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 2 : 1));
         auto textWidth = button.getWidth() - leftIndent - rightIndent;
 
-        auto edge = 4;
-        auto offset = isButtonDown ? edge / 2 : 0;
+        auto edge = 2;
+        auto offset = isButtonDown ? edge / 1 : 0;
 
         if (textWidth > 0)
             g.drawFittedText(button.getButtonText(),

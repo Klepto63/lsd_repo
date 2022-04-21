@@ -372,10 +372,7 @@ public:
 
     void changeListenerCallback(juce::ChangeBroadcaster* source) override
     {
-           
-           
-           
-           
+
     }
 
     void setPosition(float v)
@@ -474,6 +471,9 @@ class PlayerComponent : public juce::AudioAppComponent,
 	using Node = AudioProcessorGraph::Node;	
 
 
+
+
+public:
     enum Master_TransportState
     {
         Master_Stopped,
@@ -482,8 +482,6 @@ class PlayerComponent : public juce::AudioAppComponent,
         Master_Stopping
     };
 
-
-public:
     PlayerComponent() : mainProcessor (new juce::AudioProcessorGraph())
     {
         currentIdxPlaying = 0;
@@ -516,8 +514,8 @@ public:
         addAndMakeVisible(&cubeButton);
         cubeButton.setButtonText("Scene");
         cubeButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);   
-        Image imgcubeButton = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton.png"));
-        Image imgcubeButton2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "3dbutton2.png"));
+        Image imgcubeButton = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_IMG_3D_BUTTON)));
+        Image imgcubeButton2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_IMG_3D_BUTTON_ONCLICK)));
         cubeButton.setImages(true,  //resize to fit
                              true,  //rescale image
                              true,  //preserve proportion
@@ -529,8 +527,8 @@ public:
 
         addAndMakeVisible(&nextButton);
         nextButton.setButtonText("Next");
-        Image imgNextButton = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "nextbutton.png"));
-        Image imgNextButton2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"nextButton2.png"));
+        Image imgNextButton = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_IMG_NEXT_BUTTON)));
+        Image imgNextButton2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_IMG_NEXT_BUTTON_ONCLICK)));
         nextButton.setImages(true,  //resize to fit
                              true,  //rescale image
                              true,  //preserve proportion
@@ -542,12 +540,10 @@ public:
         nextButton.onClick = [this] { nextButtonClicked(); };
         nextButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
 
-
-
         addAndMakeVisible(&prevButton);
         prevButton.setButtonText("Prev");
-        Image imgPrevButton = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String) "prevbutton.png"));
-        Image imgPrevButton2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"prevbutton2.png"));
+        Image imgPrevButton = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_IMG_PREV_BUTTON)));
+        Image imgPrevButton2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_IMG_PREV_BUTTON_ONCLICK)));
         prevButton.setImages(true,  //resize to fit
             true,  //rescale image
             true,  //preserve proportion
@@ -654,6 +650,7 @@ public:
 
 
     void Master_loadAndPlay(int idx);
+    //void PlayerComponent::Master_stopPlay(void);
     void Master_changeState(Master_TransportState Master_newState);
     bool Master_isPlaying(void);
 

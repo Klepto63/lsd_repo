@@ -32,31 +32,31 @@ void PlayerComponent::sliderDragEnded(Slider* slider)
     
 }
 
-
 void PlayerComponent::sliderValueChanged(Slider* slider)
 {
 
     if (slider == &volumeSlider)
     {
         currentVolume = 10*slider->getValue();
+
         if (currentVolume < 85)
         {
             volumeSlider.setColour(0x1001310, Colour((uint8_t)0x1d, (uint8_t)0xb9, (uint8_t)0x54, (float)currentVolume / 75));
         }
         else
         {
-            volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 7*(currentVolume-85)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - (currentVolume - 85)), (float)1));
+            volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 9*(currentVolume-50)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - 2 * (currentVolume - 85)), (float)1));
         }
 
         if (isMuted && (currentVolume!=0))
         {
-            updateVolumeButtonImage(false, currentVolume);
+            isMuted = false;
         }
         else if (currentVolume == 0)
         {
-            updateVolumeButtonImage(true, currentVolume);
             isMuted = true;
         }
+        updateVolumeButtonImage(isMuted, currentVolume);
     }
 //
     //if (slider == &energySlider)//1..10
@@ -267,6 +267,7 @@ void PlayerComponent::timerCallback()
 
 }
 
+
 void PlayerComponent::Master_loadAndPlay(int idx)
 {
     s_metadata md;
@@ -388,8 +389,8 @@ void PlayerComponent::updatePlayerButtonImage(bool playing)
 {
     if (playing)
     {
-        Image img2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"playbutton.png"));
-        Image img = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"pauseButton.png"));
+        Image img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PLAY_BUTTON)));
+        Image img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PAUSE_BUTTON)));
         playButton.setImages(true, true, true,
             img, 1.0f, juce::Colours::transparentBlack,
             img, 1.0f, juce::Colours::transparentBlack,
@@ -399,8 +400,8 @@ void PlayerComponent::updatePlayerButtonImage(bool playing)
     }
     else
     {
-        Image img = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"playbutton.png"));
-        Image img2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"pauseButton.png"));
+        Image img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PLAY_BUTTON)));
+        Image img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PAUSE_BUTTON)));
         playButton.setImages(true, true, true,
             img, 1.0f, juce::Colours::transparentBlack,
             img, 1.0f, juce::Colours::transparentBlack,
@@ -413,28 +414,37 @@ void PlayerComponent::updatePlayerButtonImage(bool playing)
 
 void PlayerComponent::updateVolumeButtonImage(bool isMuted, int sliderVolume)
 {
+    Image img, img2;
     if (isMuted)
     {
-        Image img = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"soundMuted.png"));
-        Image img2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"soundMuted2.png"));
-        muteButton.setImages(true, true, true,
-            img, 1.0f, juce::Colours::transparentBlack,
-            img, 1.0f, juce::Colours::red,
-            img2, 1.0f, juce::Colours::transparentBlack, //pas le pause
-            0.5f
-        );
+        img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SOUND_MUTED)));
+        img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SOUND_MUTED_ONCLICK)));
+
     }
     else
     {
-        Image img = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"sound.png"));
-        Image img2 = ImageFileFormat::loadFrom(File::File(ABS_PATH_ASSETS + (juce::String)"sound2.png"));
-        muteButton.setImages(true, true, true,                  
-            img, 1.0f, juce::Colours::transparentBlack,     //normal
-            img, 1.0f, juce::Colours::green,                 //over mouse
-            img2, 1.0f, juce::Colours::transparentBlack,    // during click
-            0.5f
-        );
+        if(sliderVolume < 30)
+        {
+            img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SOUND1)));
+        }
+        else if(sliderVolume < 70)
+        {
+            img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SOUND2)));
+        }
+        else
+        {
+            img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SOUND3)));
+        }
+
+        img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SOUND_ONCLICK)));
     }
+
+     muteButton.setImages(true, true, true,
+         img, 1.0f, juce::Colours::transparentBlack,
+         img, 1.0f, juce::Colours::red,
+         img2, 1.0f, juce::Colours::transparentBlack, //pas le pause
+         0.5f
+     );
     resized();
 }
 
@@ -603,7 +613,7 @@ void PlayerComponent::initialiseGraph(void)
     vstformatManager.addDefaultFormats();
     for (int i = 0; i < vstformatManager.getNumFormats(); ++i)
     {
-        plist.scanAndAddFile("C:/Users/Alex/Desktop/Coda2022/lsd_repo/dearVRpro.vst3", true, pluginDescriptions,  *vstformatManager.getFormat(i));
+        plist.scanAndAddFile(PathGetAsset(ASSET_VST), true, pluginDescriptions,  *vstformatManager.getFormat(i));
     }
     jassert (pluginDescriptions.size() > 0);
     String msg ("Oh no!");

@@ -10,7 +10,7 @@ int jsonParserLoad(int idx, s_metadata* metadata)
 
 	if (idx < librairy_size) //todo checker si on a trouve les data dans le json
 	{
-		juce::String pathh  = ABS_PATH_SONGS +  jsonFile["library"][idx]["folder"];
+		juce::String pathh  = PathGetAsset(PATH_SONG) +  jsonFile["library"][idx]["folder"];
 		metadata->folder	= jsonFile["library"][idx]["folder"];
 		metadata->id		= jsonFile["library"][idx]["id"];
 		metadata->composer  = jsonFile["library"][idx]["composer"];
@@ -38,8 +38,7 @@ int jsonParserGetNbSong()
 
 void jsonParserInit(void)
 {
-	jsonFile = JSON::parse(File(ABS_PATH_SONGS + (juce::String) "song.json"));
+	jsonFile = JSON::parse(File(PathGetAsset(PATH_SONG) +  (juce::String) "song.json") );
 	librairy_size = jsonFile["librairy-size"];
-
 }
 
