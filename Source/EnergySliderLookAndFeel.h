@@ -35,18 +35,28 @@ public:
         Colour c3 = c1.interpolatedWith(c2, angleratio).interpolatedWith(Colour(0xaaffffff), 1 - 2 * abs(angleratio - 0.5));
 
         //ellipse
-        g.setColour(c3.interpolatedWith(Colour(WP_PLAYER), 0.7));
-        g.drawEllipse(rx, ry, rw, rw, 1.0f);
+        g.setColour(c3.interpolatedWith(Colour(WP_LEFTBAR), 0.7));
+        g.drawEllipse(rx, ry, rw, rw, 3.0f);
     
 
-        g.setColour(Colour(WP_PLAYER));
-        g.drawLine(0, height, width, height,height);
+        g.setColour(Colour(WP_LEFTBAR));
+        //g.setColour(Colour(TEXT_RED));
+        //g.drawLine(0, height, width, height,0.2f*height);
+
+        g.drawRect(0,0.5*height, 40,80,40);
+        g.drawRect(150,0.5*height, 40,80,40);
+
+        g.drawRect(0, 0.85*height,  200,30,40);  
+
+        //g.drawLine(0,height, 0.20*width,height,height);
+        //g.drawLine(100,height, 0.20*width,height,height);        
+        //g.drawLine(,height, 0.20*width,height,height);
 
 
 
         juce::Path p;
         auto pointerLength = radius * 0.30f;
-        auto pointerThickness = 2.0f;
+        auto pointerThickness = 3.0f;
         p.addRectangle(-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
         p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
         g.setColour(c3);
@@ -77,7 +87,6 @@ class OpenGlAngleSliderLookAndFeel : public LookAndFeel_V1
                 {
 
                 }
-
  
         private:
 

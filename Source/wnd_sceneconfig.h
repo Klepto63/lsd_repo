@@ -6,6 +6,7 @@
 #include "CustomLookAndFeel.h"
 #include "Path.h"
 #include "polarPlan.h"
+#include "sceneconfig.h"
 using namespace juce;
 
 
@@ -15,6 +16,8 @@ public:
 
     WindowSceneConfig()
     {
+        sceneconfig_load(&tempSceneconfig);
+
         addAndMakeVisible(BUTTON_OK);
         BUTTON_OK.setVisible(true);
         BUTTON_OK.setButtonText("OK");
@@ -26,38 +29,38 @@ public:
         BUTTON_CANCEL.onClick = [this] {ButtonCANCEL_callback();};
 
         addAndMakeVisible(polarPlanComponent);
-        
+        addAndMakeVisible(ComboAmbiant);
         addAndMakeVisible(ComboMode);
-        ComboMode.addItem("Default",1);
-        ComboMode.addItem("Far",2);
-        ComboMode.addItem("Duo only",3);
-        ComboMode.addItem("One instrument in front",4);        
-        ComboMode.addItem("Tournant",5);        
-        ComboMode.setSelectedId(1,dontSendNotification);
-
-        addAndMakeVisible(ComboSceneEQ);
-        ComboSceneEQ.addItem("Natural",1);
-        ComboSceneEQ.addItem("Opera",2);
-        ComboSceneEQ.addItem("Space",3);
-        ComboSceneEQ.addItem("Dry",4);        
-        ComboSceneEQ.setSelectedId(1,dontSendNotification);        
-
         addAndMakeVisible(ComboLiveMode);
-        ComboLiveMode.addItem("Disabled",1);
-        ComboLiveMode.addItem("Enabled",2);
-        ComboLiveMode.setSelectedId(1, dontSendNotification);
+        for(int ii = 0; ii < E_SCENE_MODE_ENUM; ii++)
+        {
+            ComboMode.addItem(sceneconfig_buttonText(0,ii) ,ii+1);
+        }
+        for(int ii = 0; ii < E_SCENE_AMBIANT_ENUM; ii++)
+        {
+            ComboAmbiant.addItem(sceneconfig_buttonText(1,ii) ,ii+1);
+        }
+        for(int ii = 0; ii < E_SCENE_LIVE_MODE_ENUM; ii++)
+        {
+            ComboLiveMode.addItem(sceneconfig_buttonText(2,ii) ,ii+1);
+        }
 
-        addAndMakeVisible(ComboModeInstrumentSelector);
-        ComboModeInstrumentSelector.addItem("-",1);        
-        ComboModeInstrumentSelector.addItem("Piano",2);
-        ComboModeInstrumentSelector.addItem("Violin",3);
-        ComboModeInstrumentSelector.setSelectedId(1, dontSendNotification);
+        ComboAmbiant.setSelectedId(tempSceneconfig.ambiant+1,dontSendNotification);   
+        ComboMode.setSelectedId(tempSceneconfig.mode+1,dontSendNotification);
+        ComboLiveMode.setSelectedId(tempSceneconfig.livemode+1, dontSendNotification);
+    
 
-        addAndMakeVisible(ComboLiveModeInstrumentSelector);
-        ComboLiveModeInstrumentSelector.addItem("-",1);        
-        ComboLiveModeInstrumentSelector.addItem("Piano",2);
-        ComboLiveModeInstrumentSelector.addItem("Violin",3);
-        ComboLiveModeInstrumentSelector.setSelectedId(1, dontSendNotification);   
+        //addAndMakeVisible(ComboModeInstrumentSelector);
+        //ComboModeInstrumentSelector.addItem("-",1);        
+        //ComboModeInstrumentSelector.addItem("Piano",2);
+        //ComboModeInstrumentSelector.addItem("Violin",3);
+        //ComboModeInstrumentSelector.setSelectedId(1, dontSendNotification);
+//
+        //addAndMakeVisible(ComboLiveModeInstrumentSelector);
+        //ComboLiveModeInstrumentSelector.addItem("-",1);        
+        //ComboLiveModeInstrumentSelector.addItem("Piano",2);
+        //ComboLiveModeInstrumentSelector.addItem("Violin",3);
+        //ComboLiveModeInstrumentSelector.setSelectedId(1, dontSendNotification);   
 
         setLookAndFeel(&customLookAndFeel);
         for (auto child : getChildren())
@@ -77,9 +80,12 @@ public:
         }
     }
 
-
     void WindowSceneConfig::ButtonOK_callback(void)
     {
+        tempSceneconfig.ambiant = (E_SCENE_AMBIANT) (ComboAmbiant.getSelectedId() - 1);
+        tempSceneconfig.mode = (E_SCENE_MODE) (ComboMode.getSelectedId() - 1);
+        tempSceneconfig.livemode = (E_SCENE_LIVEMODE) (ComboLiveMode.getSelectedId() - 1);
+        sceneconfig_save(tempSceneconfig);
         delete this;
     }
     void WindowSceneConfig::ButtonCANCEL_callback(void)
@@ -107,38 +113,40 @@ public:
 
 
 
-        switch(ConfigModeId)
-        {
-            case 0 : 
-            {
-                m = "Explication du mode en courethetheth s bla bla zozornzrgzrg zrg ";
-                break;
-            }
 
-        }
-        g.drawFittedText(m, Rectangle<int>(350, 340, 210,100),  juce::Justification::centred, 10,1 );
 
-        switch(ConfigSceneId)
-        {
-            case 0 : 
-            {
-                m = "Explication du scene en co heth eth eth eth eturs bla bla zozornzrgzrg zrg ";
-                break;
-            }
-
-        }
-        g.drawFittedText(m, Rectangle<int>(350, 440, 210,100),  juce::Justification::centred, 10,1 );
-
-        switch(ConfigModeLiveMode)
-        {
-            case 0 : 
-            {
-                m = "Live mode //todo chixehethethet  instru etc";
-                break;
-            }
-
-        }
-        g.drawFittedText(m, Rectangle<int>(350, 540, 210,100),  juce::Justification::centred, 10,1 );
+        //switch(ConfigModeId)
+        //{
+        //    case 0 : 
+        //    {
+        //        m = "etete";
+        //        break;
+        //    }
+//
+        //}
+        //g.drawFittedText(m, Rectangle<int>(350, 340, 210,100),  juce::Justification::centred, 10,1 );
+//
+        //switch(ConfigSceneId)
+        //{
+        //    case 0 : 
+        //    {
+        //        m = "Explication du scene en co heth eth eth eth eturs bla bla zozornzrgzrg zrg ";
+        //        break;
+        //    }
+//
+        //}
+        //g.drawFittedText(m, Rectangle<int>(350, 440, 210,100),  juce::Justification::centred, 10,1 );
+//
+        //switch(ConfigModeLiveMode)
+        //{
+        //    case 0 : 
+        //    {
+        //        m = "Live mode //todo chixehethethet  instru etc";
+        //        break;
+        //    }
+//
+        //}
+        //g.drawFittedText(m, Rectangle<int>(350, 540, 210,100),  juce::Justification::centred, 10,1 );
 
 
     }
@@ -159,7 +167,7 @@ public:
 
         ComboMode.setBounds(70,  Y_ref,                             110,BUTTON_Y);
         ComboModeInstrumentSelector.setBounds(70+110+20, Y_ref,     110,BUTTON_Y);
-        ComboSceneEQ.setBounds(70,     Y_ref+100,                   110,BUTTON_Y);
+        ComboAmbiant.setBounds(70,     Y_ref+100,                   110,BUTTON_Y);
         ComboLiveMode.setBounds(70, Y_ref+200,                      110,BUTTON_Y);
         ComboLiveModeInstrumentSelector.setBounds(70+110+20, Y_ref+200,     110,BUTTON_Y);
 
@@ -175,7 +183,7 @@ private:
     ComboBox ComboMode;
     ComboBox ComboModeInstrumentSelector;
 
-    ComboBox ComboSceneEQ;
+    ComboBox ComboAmbiant;
 
     ComboBox ComboLiveMode;
     ComboBox ComboLiveModeInstrumentSelector;
@@ -186,10 +194,8 @@ private:
     PolarPlanComponent polarPlanComponent;
     CustomLookAndFeel customLookAndFeel;
 
-    //config to struct
-    int ConfigSceneId = 0;
-    int ConfigModeId  = 0;
-    int ConfigModeLiveMode = 0;
+    Scene_config tempSceneconfig;
+
     SafePointer<DialogWindow> dialogWindow;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WindowSceneConfig)
 };

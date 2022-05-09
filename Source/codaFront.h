@@ -13,7 +13,8 @@
 //textColourOffId = 0x1000102
 //textColourOnId = 0x1000103
 
-
+//#40bb91 ver style  https://www.peko-step.com/fr/tool/tfcolor.html
+//rouge style 0xffff3054
 //------------------------------------ POPUP1
 #define WP1_COLOR	  0xff111111
 #define P1_COLOR      0xffffffff        //couleur text boutton custom
@@ -31,11 +32,12 @@
 //--------------------------------------- SLIDER MUSIC
 #define BACKGROUND_COLOR 0xff535353
 #define THUMB_COLOR      0xc8ffffff
-#define LIGNE_COLOR      0xff1db954
+#define LIGNE_COLOR      0xffff3054//0xff1db954    //OLD VERT
 
 
 //--------------------------------------- TABLE
-#define SELECTED_ROW_COLOR   0x991db954                   //0x10ffffff
+#define SELECTED_ROW_COLOR   0xff40bb91 // remetttre0x991db954                   //0x10ffffff
+#define SELECTED_ROW_COLOR   0xffff3054  //remetttre 0x991db954                   //0x10ffffff
 #define ROW_ALTERNATE_COLOR  0xff181818
 #define ROW_ALTERNATE_COLOR2 0xff121212
 #define COLOR_TEXT_TABLE     0xffbbbbbb
@@ -55,6 +57,8 @@
 //--------------------- LEFTBAR
 #define WP_LEFTBAR 0xFF000000
 
+#define TEXT_RED   0xA0FF5544 
+
 #define TABLE_X0 500
 #define TABLE_Y0 150
 #define TABLE_X1 650
@@ -63,6 +67,8 @@
 //--------------------------------------- SLIDER OPENGL
 #define THUMB_COLOR_OPENGL 0xc8ffffff
 #define LIGNE_COLOR_OPENGL 0x550099aa
+
+#define RECENTER_BUTTON 0xFF111111
 
 namespace CodaBinaryFont
 {

@@ -2,6 +2,8 @@
 
 #include "PopUpEnterComponent.h"
 #include "LeftBarComponent.h"
+#include "Path.h"
+
 
 void PopUpEnterComponent::constructPopUp(int idx)
 {
@@ -29,17 +31,18 @@ void PopUpEnterComponent::constructPopUp(int idx)
 	{
 		BUTTON_D.setButtonText("Cancel");
 		BUTTON_D.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
-
 		addAndMakeVisible(BUTTON_D);
-
 		BUTTON_B.setButtonText("Use mouse");
 		BUTTON_B.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
 		addAndMakeVisible(BUTTON_B);
-
 		BUTTON_C.setButtonText("Connect");
 		BUTTON_C.setColour(0x1000100, Colour((uint32)BUTTON_COLOR2));
 		addAndMakeVisible(BUTTON_C);
-		setSize(600, 350);		
+
+		
+
+		//setSize(600, 350);	
+		setSize(600, 500);	
 		break;
 	}
 	case POPUP_LOOKING_FOR_PRESQUEL:
@@ -58,7 +61,15 @@ void PopUpEnterComponent::constructPopUp(int idx)
 	}
 	case POPUP_MOUSE_MODE:
 	{	
-		setSize(600, 350);
+		BUTTON_D.setButtonText("Back");
+		BUTTON_D.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		addAndMakeVisible(BUTTON_D);
+
+		
+		BUTTON_B.setButtonText("use mouse"); //grisé
+		BUTTON_B.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		addAndMakeVisible(BUTTON_B);
+		setSize(600, 500);
 		break;
 	}
 	default:
@@ -129,11 +140,12 @@ void PopUpEnterComponent::ButtonB_callback(void)
 	{
 		case POPUP_WELCOME :
 		{
-			break;
 		}
+			break;
 		case POPUP_CONNECT_PRESQUEL :	//use mouse
 		{
 			constructPopUp(POPUP_MOUSE_MODE);
+			resized();
 			repaint();
 			break;
 		}
@@ -143,6 +155,8 @@ void PopUpEnterComponent::ButtonB_callback(void)
 		}
 		case POPUP_MOUSE_MODE :
 		{
+			leftbarChangeCallback(LeftBarComponent::LB_FAKE_MODE);
+			setVisible(false);
 			break;
 		}
 		default:
@@ -164,6 +178,7 @@ void PopUpEnterComponent::ButtonC_callback(void)
 		case POPUP_CONNECT_PRESQUEL : //connect
 		{	
 			constructPopUp(POPUP_LOOKING_FOR_PRESQUEL);
+			resized();
 			repaint();
 			break;
 		}
@@ -199,6 +214,13 @@ void PopUpEnterComponent::ButtonD_callback(void)
             setVisible(false);
 			break;
 		}
+		case POPUP_MOUSE_MODE : //back to screen
+		{
+			constructPopUp(POPUP_CONNECT_PRESQUEL);
+			repaint();
+			resized();
+			break;
+		}
 		default:
 		{
 			//error
@@ -214,7 +236,8 @@ void PopUpEnterComponent::paint (juce::Graphics& g)
     g.fillAll(Colour((uint32)WP1_COLOR));
     String m;
     int i =0;
-
+    int h = getHeight();
+    int w = getWidth();
 
     g.setFont(CODAFRONT_TEXT_SIZE_P1);
     static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
@@ -231,15 +254,31 @@ void PopUpEnterComponent::paint (juce::Graphics& g)
     		g.drawText ("Welcome to Studio-Coda", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
     		m << "This is a demonstrator of our virtual 3D audio player. If you own a Presquel, then connect it now. If not, you can use mouse to simulate head moves." << newLine
         	<< "Thank you for your interest !";	
+    		Gofont.setHeight(16);
+    		g.setFont(Gofont);
+    		g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);			
 			break;
 		}
 		case POPUP_CONNECT_PRESQUEL :
 		{
+			int lbox = 180;
+			displayedImage = ImageFileFormat::loadFrom(File::File(PathGetAsset(IMAGE_METRONOM)));			
+			g.drawImage(displayedImage,
+						0.5 * (w - lbox),
+						135,
+						lbox,lbox,
+						0,0,
+            			displayedImage.getWidth(),
+            			displayedImage.getHeight(),
+            			false);
+
     		g.setFont(Gofont);
     		g.setColour(Colour((uint32)P1_COLOR));
     		g.drawText ("Connect", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
-    		m << "Lets connect";	
-
+    		m << "Lets connect. Alternatively, use mouse";	
+    		Gofont.setHeight(16);
+    		g.setFont(Gofont);
+    		g.drawFittedText(m,  Rectangle<int>(100,305, getWidth()-200, 150), juce::Justification::centred,10,1);
 			break;
 		}
 		case POPUP_LOOKING_FOR_PRESQUEL :
@@ -264,16 +303,42 @@ void PopUpEnterComponent::paint (juce::Graphics& g)
             {
     		    m << "searching...";
             }
+			Gofont.setHeight(16);
+    		g.setFont(Gofont);
+    		g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
 			break;
 		}
+		case POPUP_MOUSE_MODE : 
+		{
+			int lbox = 150;
+			displayedImage = ImageFileFormat::loadFrom(File::File(PathGetAsset(IMAGE_FAKEMOUSE)));	
+			g.drawImage(displayedImage,
+						0.5 * (w - lbox),
+						150,
+						lbox,lbox,
+						0,0,
+            			displayedImage.getWidth(),
+            			displayedImage.getHeight(),
+            			false);
+    		g.setFont(Gofont);
+    		g.setColour(Colour((uint32)P1_COLOR));
+    		g.drawText ("Mouse mode", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
+    		m << "Use this button to simulate";	
+    		Gofont.setHeight(16);
+    		g.setFont(Gofont);
+    		g.drawFittedText(m,  Rectangle<int>(100,305, getWidth()-200, 150), juce::Justification::centred,10,1);
+
+			break;
+		}
+
+
+
 		default:
 		{
 			//error
 		}
 	}
-    Gofont.setHeight(16);
-    g.setFont(Gofont);
-    g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
+
 }
 
 
@@ -343,7 +408,7 @@ void PopUpEnterComponent::resized()
 			//					buttonSize.getHeight());
     		//BUTTON_C.setBounds(area.reduced(2));
 
-			Y = 272;
+			Y = 435;
 			space = 120;
 			sizeX = 110;
 			sizeY = 40;
@@ -358,20 +423,27 @@ void PopUpEnterComponent::resized()
 
 			break;
 		}
+
 		case POPUP_LOOKING_FOR_PRESQUEL :
 		{
 			Y = 272+300;
 			space = 120;
 			sizeX = 110;
 			sizeY = 40;
-
 			BUTTON_D.setBounds((w * 0.5 - space - sizeX), Y, sizeX, sizeY);
 			BUTTON_B.setBounds(w * 0.5 + space , Y, sizeX, sizeY);
 			break;
 		}
 		case POPUP_MOUSE_MODE: 
-		{
-
+		{	
+			Y = 435;
+			space = 120;
+			sizeX = 110;
+			sizeY = 40;
+			BUTTON_D.setBounds((w * 0.5 - space - sizeX), Y, sizeX, sizeY);
+			BUTTON_B.setBounds(w * 0.5 + space , Y, sizeX, sizeY);	
+			//BUTTON_B.setBounds((w - sizeX) * 0.5, Y, sizeX, sizeY);					
+			break;
 		}
 		default:
 		{

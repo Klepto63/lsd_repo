@@ -61,7 +61,7 @@ public:
                                                           .findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
-            setUsingNativeTitleBar (true);
+            setUsingNativeTitleBar (true); //614x940
 
             setResizable(true, false);
             //setContentOwned(new PopUpEnterComponent(2), true);
@@ -69,7 +69,7 @@ public:
             centreWithSize (getWidth(), getHeight());
             setVisible (true);
 			
-            //setResizeLimits(1000,600, 1500,1200);  //original(1200, 800);
+            setResizeLimits(940,614, 1800,1200);  //original(1200, 800);
 
          
             //Time::waitForMillisecondCounter(Time::getMillisecondCounter() + 100);

@@ -46,6 +46,10 @@ public:
         load_init_scene();
 
 
+		//addAndMakeVisible(&purchaseButton);
+		//purchaseButton.setButtonText("Buy");
+        //purchaseButton.setColour(juce::TextButton::buttonColourId, Colour(BUY_CODA_BUTTON)); 
+
     }
 
     void update() override
@@ -153,6 +157,8 @@ public:
 
         String m;
         int i =0;
+        static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
+        Font Gofont = Font(typeface);        
         switch(sceneId)
         {
             case SCENE_TUTO_INIT : 
@@ -160,8 +166,6 @@ public:
                 g.fillAll(Colour((uint32)SCENE_COMPONENT_WP));
                 g.setColour(Colour((uint32)P1_COLOR));
                 g.setFont(CODAFRONT_TEXT_SIZE_P1);
-                static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
-                Font Gofont = Font(typeface);
                 Gofont.setHeight(26);
 	            g.drawText ("Welcome to Coda demo player", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
 	            m << "Let's start by selecting a song..";	
@@ -175,8 +179,6 @@ public:
                 g.fillAll(Colour((uint32)WP1_COLOR));
                 g.setColour(Colour((uint32)P1_COLOR));
                 g.setFont(CODAFRONT_TEXT_SIZE_P1);
-                static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
-                Font Gofont = Font(typeface);
                 Gofont.setHeight(26);
     		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
     		    m << "you can now enable 3D audio by clicling on the icone 2D";	
@@ -190,8 +192,7 @@ public:
                 g.fillAll(Colour((uint32)WP1_COLOR));
                 g.setColour(Colour((uint32)P1_COLOR));
                 g.setFont(CODAFRONT_TEXT_SIZE_P1);
-                static auto typeface = Typeface::createSystemTypefaceFor(CodaBinaryFont::GothamLight_ttf, CodaBinaryFont::GothamLight_ttfSize);
-                Font Gofont = Font(typeface);
+
                 Gofont.setHeight(26);
     		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
     		    m << "Now connect presque. If you don't have one, you can buy one at. Meanwhile, simulate by";	
@@ -247,12 +248,14 @@ public:
         int BUTTON_HEIGHT = 30;
 
         skipTutorial.setBounds(Width - BUTTON_WIDTH - 20 ,Height - BUTTON_HEIGHT - 20 ,BUTTON_WIDTH,BUTTON_HEIGHT);
+        purchaseButton.setBounds(20, Height - 50,70,30);
     }
 
 private:
 
     int sceneId=0;
     TextButton skipTutorial;
+    TextButton purchaseButton;
     //Image background;
     //Image instrument1;
 

@@ -18,7 +18,7 @@ public:
         setSize(100, 100);
         setFramesPerSecond(1);
 
-        polarPlan = ImageFileFormat::loadFrom(File::File(PathGetAsset(POLAR_PLAN)));
+        polarPlan = ImageFileFormat::loadFrom(File::File(PathGetAsset(IMAGE_POLAR_PLAN)));
     }
     ~PolarPlanComponent()
     {

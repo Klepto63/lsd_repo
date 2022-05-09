@@ -5,7 +5,7 @@
 #include "codaFront.h"
 #include "pathsong.h"
 #include "PlayerTitlePlayingComponent.h"
-#include "EnergySliderLookAndFeel.h"
+
 #include "JsonParser.h"
 #include "Path.h"
 
@@ -488,15 +488,6 @@ public:
         isMuted = false;
         musicSliderBlockTimer = false; 
 
-        //addAndMakeVisible(&energySlider);
-        //energySlider.setSliderStyle(Slider::Rotary);
-        //energySlider.setValue(5, juce::dontSendNotification); //1..10
-        //energySlider.setLookAndFeel(&energySliderLookAndFeel);
-        //energySlider.hideTextBox(true);
-        //energySlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-        //energySlider.addListener(this);
-        //energySlider.setRotaryParameters(MathConstants<float>::pi * 1.5f, MathConstants<float>::pi * 2.5f, true);
-        //energySlider.setEnabled(false);
 
         addAndMakeVisible(&playButton);
         playButton.setButtonText("Play");
@@ -569,23 +560,6 @@ public:
         musicSlider.setColour(0x1001310, Colour(LIGNE_COLOR));      //ligneColor
         musicSlider.addListener(this);
 
-        addAndMakeVisible (CBScenes);
-        CBScenes.setColour(ComboBox::backgroundColourId,Colour((uint32)BUTTON_COLOR1));
-        CBScenes.setColour(ComboBox::outlineColourId,Colour((uint32)BUTTON_COLOR1));        
-                                    //backgroundColourId     = 0x1000b00,   /**< The background colour to fill the box with. */
-                                    //textColourId           = 0x1000a00,   /**< The colour for the text in the box. */
-                                    //outlineColourId        = 0x1000c00,   /**< The colour for an outline around the box. */
-                                    //buttonColourId         = 0x1000d00,   /**< The base colour for the button (a LookAndFeel class will probably use variations on this). */
-                                    //arrowColourId          = 0x1000e00,   /**< The colour for the arrow shape that pops up the menu */
-                                    //focusedOutlineColourId = 0x1000f00    /**< The colour that will be used to draw a box around the edge of the component when it has focus. */
-
-        CBScenes.addItem("Opera 1", 1);
-        CBScenes.addItem("Opera 2", 2);
-        CBScenes.addItem("Opera 3", 3);        
-        CBScenes.onChange = [this] { CBScenesChanged(); };
-        CBScenes.setSelectedId(1);
-        CBScenes.setVisible(false);
-
         addAndMakeVisible(&volumeSlider);
         volumeSlider.hideTextBox(true);
         volumeSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
@@ -598,19 +572,19 @@ public:
         addAndMakeVisible(&playerTitlePlayingComponent);
         setSize(200, 200);
 
-		addAndMakeVisible(&DebugButton);
-		DebugButton.onClick = [this] { DebugButtonCallback(); };
-		DebugButton.setEnabled(true);
-		DebugButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
-		DebugButton.setButtonText("Debug");
-		DebugButton.setVisible(true);
-
-		addAndMakeVisible(&DebugButton2);
-		DebugButton2.onClick = [this] { DebugButton2Callback(); };
-		DebugButton2.setEnabled(true);
-		DebugButton2.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
-		DebugButton2.setButtonText("Debug2");
-		DebugButton2.setVisible(true);
+		//addAndMakeVisible(&DebugButton);
+		//DebugButton.onClick = [this] { DebugButtonCallback(); };
+		//DebugButton.setEnabled(true);
+		//DebugButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		//DebugButton.setButtonText("Debug");
+		//DebugButton.setVisible(true);
+//
+		//addAndMakeVisible(&DebugButton2);
+		//DebugButton2.onClick = [this] { DebugButton2Callback(); };
+		//DebugButton2.setEnabled(true);
+		//DebugButton2.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		//DebugButton2.setButtonText("Debug2");
+		//DebugButton2.setVisible(true);
 
         auto inputDevice  = juce::MidiInput::getDefaultDevice();
         auto outputDevice = juce::MidiOutput::getDefaultDevice();
@@ -736,7 +710,6 @@ private:
     void playButtonClicked(void);
     void nextButtonClicked(void);
     void prevButtonClicked(void);
-    void CBScenesChanged(void);
     void cubeButtonClicked(void);
 
     //==========================================================================
@@ -747,20 +720,17 @@ private:
     bool                    musicSliderBlockTimer; //gestion drag drop timer
     int                     currentVolume = 85;                   
 
-    //EnergySliderLookAndFeel energySliderLookAndFeel;
+
     juce::ImageButton playButton;
     juce::ImageButton nextButton;
     juce::ImageButton prevButton;
     juce::ImageButton muteButton;
     juce::ImageButton cubeButton;
     juce::Slider musicSlider;
-    //juce::Slider energySlider;
     juce::Slider volumeSlider;
     juce::Label currentPositionLabel;
     juce::Label lengthLabel;
     PlayerTitlePlayingComponent playerTitlePlayingComponent;
-
-    juce::ComboBox   CBScenes;
 
     juce::TextButton DebugButton;
     juce::TextButton DebugButton2;

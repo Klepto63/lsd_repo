@@ -71,28 +71,6 @@ void PlayerComponent::sliderValueChanged(Slider* slider)
 }
 
 
-void PlayerComponent::CBScenesChanged(void)
-    {
-        switch (CBScenes.getSelectedId())
-        {
-            case 1: 
-            {
-                break;
-            } 
-            case 2: 
-            {
-                break;
-            } 
-            case 3: 
-            {
-                break;
-            } 
-            default: break;
-        }
-    }
-
-
-
 void PlayerComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
     //mixerAudioSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
@@ -212,8 +190,7 @@ void PlayerComponent::resized()
 
     cubeButton.setBounds(Width - 200 - ICON_BUTTON_SIZE - 50, 45, ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
 
-    CBScenes.setBounds(185, 15,100,22);//22);
-
+ 
     DebugButton.setBounds(200,20,60,30);
     DebugButton2.setBounds(300,20,60,30);
 }
@@ -286,8 +263,7 @@ void PlayerComponent::Master_loadAndPlay(int idx)
                     plugin->loadAndPlay(idx,0);
                     playButton.setEnabled(true);
                     //energySlider.setEnabled(true);  
-                    Master_changeState(Master_Starting);    
-                    CBScenes.setVisible(true);                                  
+                    Master_changeState(Master_Starting);                                 
                 }
             }
         }

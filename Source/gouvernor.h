@@ -7,6 +7,8 @@ using namespace juce;
 #include "SceneComponent.h" 
 #include "JsonParser.h"
 #include "wnd_sceneconfig.h"
+#include "EnergySliderLookAndFeel.h"
+#include "sceneconfig.h"
 //==============================================================================
 class MainContentComponent : public juce::AudioAppComponent,
     public juce::ChangeListener, private juce::Slider::Listener
@@ -18,6 +20,7 @@ public:
         currentIdSong = 0;
         ModeBypassed = true;
         jsonParserInit();
+        sceneconfig_init();
         addAndMakeVisible(&tableComponent);
         tableComponent.setComponentID("table");
         tableComponent.addMouseListener(this, true);
@@ -27,18 +30,21 @@ public:
         //hyperlinkButton.setURL(URL("www.studio-coda.fr"));
 
         addAndMakeVisible(&playerComponent);
-		leftBarComponent.setState(LB_NO_CONNECTED);
         addAndMakeVisible(&leftBarComponent);
         addAndMakeVisible(&sceneComponent);
+        leftBarComponent.setletbarCallback([this](int v)
+        {
+            leftbarupdated(v);
+        });
 
 
-        addAndMakeVisible(&FakeCodaSlider);
-        FakeCodaSlider.hideTextBox(true);
-        FakeCodaSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-        FakeCodaSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); 
-        FakeCodaSlider.setColour(0x1001300, Colour(THUMB_COLOR));      
-        FakeCodaSlider.setColour(0x1001310, Colour(LIGNE_COLOR));
-        FakeCodaSlider.addListener(this);
+        //addAndMakeVisible(&FakeCodaSlider);
+        //FakeCodaSlider.hideTextBox(true);
+        //FakeCodaSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+        //FakeCodaSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); 
+        //FakeCodaSlider.setColour(0x1001300, Colour(THUMB_COLOR));      
+        //FakeCodaSlider.setColour(0x1001310, Colour(LIGNE_COLOR));
+        //FakeCodaSlider.addListener(this);
 
         addAndMakeVisible(&sceneConfigButton);
         sceneConfigButton.setButtonText("sceneConfigButton");
@@ -46,7 +52,7 @@ public:
         sceneConfigButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
         Image sceneConfigButtonImgOFF = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SCENE_CONFIG)));
 
-        sceneConfigButton.setImages(true,  //resize to fit
+        sceneConfigButton.setImages(true,  //re-size to fit
                              true,  //rescale image
                              true,  //preserve proportion
             sceneConfigButtonImgOFF, 1.0f, juce::Colours::transparentBlack,
@@ -61,7 +67,7 @@ public:
         bypass3DButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
         Image bypass3DButtonImg = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_3DBUTTON_OFF)));
 
-        bypass3DButton.setImages(true,  //resize to fit
+        bypass3DButton.setImages(true,  //re-size to fit
                              true,  //rescale image
                              true,  //preserve proportion
             bypass3DButtonImg, 1.0f, juce::Colours::transparentBlack,
@@ -69,6 +75,9 @@ public:
             bypass3DButtonImg, 1.0f, juce::Colours::transparentBlack, //image when down
             0.5f
         );
+
+
+
 
         setSize(1300, 800);
     }
@@ -95,17 +104,30 @@ public:
 
     void sceneConfigButtonClicked(void)
     {
-        //open new windows component
-        dw = new WindowSceneConfig();
-        dw->setName("Spatial Configuration");
-        dw->setVisible(true);
-		dw->setOpaque(true);
-		dw->addToDesktop(ComponentPeer::windowHasTitleBar |
-			ComponentPeer::windowAppearsOnTaskbar |
-			ComponentPeer::windowHasMinimiseButton |
-			ComponentPeer::windowHasCloseButton, 0); //StyleFlags
-        dw->setAlwaysOnTop(true);   
-		dw->setCentreRelative(0.5, 0.5);         
+
+        bool shouldPopup = false;
+		if(dw == 0)
+		{
+			shouldPopup = true;
+		}
+		else if (dw->isVisible() == false)
+		{
+			shouldPopup = true;
+		}
+		if(shouldPopup)
+        {
+            dw = new WindowSceneConfig();
+            dw->setName("Spatial Configuration");
+            dw->setVisible(true);
+		    dw->setOpaque(true);
+		    dw->addToDesktop(ComponentPeer::windowHasTitleBar |
+		    	ComponentPeer::windowAppearsOnTaskbar |
+		    	ComponentPeer::windowHasMinimiseButton |
+		    	ComponentPeer::windowHasCloseButton, 0); //StyleFlags
+            dw->setAlwaysOnTop(true);   
+		    dw->setCentreRelative(0.5, 0.5); 
+        }
+        
     }
 
     void bypass3DButtonClicked(void)
@@ -123,7 +145,7 @@ public:
             ModeBypassed = true;
         }
 
-            bypass3DButton.setImages(true,  //resize to fit
+            bypass3DButton.setImages(true,  //re-size to fit
                              true,  //rescale image
                              true,  //preserve proportion
                 bypass3DButtonImg, 1.0f, juce::Colours::transparentBlack,
@@ -153,11 +175,16 @@ public:
 
         sceneComponent.setBounds(l_leftbar,0,Width-l_leftbar, 0.4f * Height); //1035x50
         tableComponent.setBounds(l_leftbar - 8,  0.4f * Height - 10,   Width-l_leftbar +17,    (1 - 0.4f) * Height   - h_playbar + 20);
-        FakeCodaSlider.setBounds(100,Height - 0.5*h_playbar, 200,20);
+        //FakeCodaSlider.setBounds(100,Height - 0.5*h_playbar, 200,20);
 
 
         sceneConfigButton.setBounds(0.8f * Width - 2 * ICON_BUTTON_SIZE, Height - 0.5f * (h_playbar + ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
         bypass3DButton.setBounds(0.8f*Width,  Height - 0.5f * (h_playbar+ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
+
+        int size = 190;
+        energySlider.setBounds(0.5f*(l_leftbar-size),40,size,size);
+
+        recenterButton.setBounds(0.5f*(l_leftbar - 70),160,70,30);   
     }
 
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
@@ -183,9 +210,41 @@ public:
         {
             playerComponent.setAngle(slider->getValue()/10); //0..1
         }
+        if (slider == &energySlider)
+        {
+            //playerComponent.setAngle(slider->getValue()/10); //0..1
+            leftBarComponent.anglereceived(slider->getValue()/10);
+        }        
     }
 
 private:
+
+    void leftbarupdated(int v)
+    {
+        if(v == ((LeftBarComponent::LB_FAKE_MODE)))
+        {
+            //todo only in mode
+            addAndMakeVisible(&energySlider);
+            energySlider.setSliderStyle(Slider::Rotary);
+            energySlider.setValue(5, juce::dontSendNotification); //1..10
+            energySlider.setLookAndFeel(&energySliderLookAndFeel);
+            energySlider.hideTextBox(true);
+            energySlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+            energySlider.addListener(this);
+            energySlider.setRotaryParameters(MathConstants<float>::pi * 1.5f, MathConstants<float>::pi * 2.5f, true);
+            energySlider.setEnabled(true);
+
+        
+		    addAndMakeVisible(&recenterButton);
+            recenterButton.setColour(juce::TextButton::buttonColourId, Colour(RECENTER_BUTTON));
+            recenterButton.setColour(juce::ComboBox::outlineColourId, Colour(RECENTER_BUTTON));
+		    recenterButton.setButtonText("Recenter");
+        }
+        else
+        {
+
+        }
+    }
 
 
     int currentIdSong;
@@ -194,10 +253,13 @@ private:
 
     //juce::HyperlinkButton hyperlinkButton;
 
+    CustomLookAndFeel customLookAndFeel;
+
     SceneComponent   sceneComponent;
     TableComponent   tableComponent;
     PlayerComponent  playerComponent;
-    LeftBarComponent leftBarComponent;
+
+    LeftBarComponent leftBarComponent; //public for popup windows
 
     
 
@@ -208,12 +270,15 @@ private:
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
 
 
-
-
+    EnergySliderLookAndFeel energySliderLookAndFeel;
+    juce::Slider energySlider;
 
 
     juce::ImageButton sceneConfigButton;
     juce::ImageButton bypass3DButton;
+
+    TextButton recenterButton;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)
 };

@@ -107,12 +107,26 @@ juce::String PathGetAsset(PATH_GET_ASSET a)
         ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/prevbutton2.png";        
         break;
     }
-    case POLAR_PLAN : 
+    case IMAGE_POLAR_PLAN : 
     {
         ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/images/polarplan.png";        
         break;
     }
-
+    case IMAGE_METRONOM : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/images/metronom.png";
+        break;
+    }
+    case IMAGE_FAKEMOUSE : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/images/fakemouse.png";
+        break;
+    }
+    case IMAGE_TRACKER_LOCKED :
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/images/locked.jpg";
+        break;
+    }
     default:
     {
 
