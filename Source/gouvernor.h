@@ -76,9 +76,6 @@ public:
             0.5f
         );
 
-
-
-
         setSize(1300, 800);
     }
 
@@ -100,7 +97,6 @@ public:
     {
         shutdownAudio();
     }
-
 
     void sceneConfigButtonClicked(void)
     {
