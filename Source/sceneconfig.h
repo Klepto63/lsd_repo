@@ -14,7 +14,9 @@ typedef enum
     E_SCENE_MODE_B,
     E_SCENE_MODE_FAR,
     E_SCENE_MODE_DUO,
-    E_SCENE_MODE_ONE,
+    E_SCENE_MODE_ONE_CENTER, 
+    E_SCENE_MODE_ONE_LEFT,
+    E_SCENE_MODE_ONE_RIGHT,
     E_SCENE_MODE_ENUM,
 }E_SCENE_MODE;
 
@@ -50,10 +52,14 @@ typedef struct
 void  sceneconfig_init(void);
 void  sceneconfig_load(Scene_config* sceneconfif);
 void  sceneconfig_save(Scene_config sceneconfif);
-
 char* sceneconfig_text_mode(void);
 char* sceneconfig_text_ambiant(void);
 char* sceneconfig_text_live(void);
+
+
+bool sceneconfig_pickinstr(E_SCENE_MODE mode);
+
+
 
 char* sceneconfig_buttonText(int i, int j);
 
