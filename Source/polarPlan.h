@@ -18,7 +18,7 @@ class PolarPlanComponent : public juce::AnimatedAppComponent
 
 typedef struct 
 {
-    char* name;
+    String name;
     float dist;
     int   rad; 
     bool  active;
@@ -67,7 +67,7 @@ public:
         repaint();
     }
 
-    void addInstr(e_slots slot, char* instrName)
+    void addInstr(e_slots slot, String instrName)
     {
         int idx=0;
         while(inst[idx].active && idx < MAX_INSTR)

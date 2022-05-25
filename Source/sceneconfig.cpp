@@ -12,7 +12,9 @@ using namespace juce;
 //    .livemodeInstrument = 0
 //};
 
-Scene_config internalSceneConfig;
+#define MAX_SONG_NUMBER 20 //todo
+
+Scene_config internalSceneConfig[MAX_SONG_NUMBER];
 
 char* SCENE_MODE_TEXT[E_SCENE_MODE_ENUM] = { "Default","A","B","FAR","DUO","ONE (Center)","ONE (Left)", "ONE (Right)"};
 char* SCENE_AMBIANT_TEXT[E_SCENE_MODE_ENUM] = {"Default","A","B","C" };
@@ -30,34 +32,38 @@ typedef struct
 
 void sceneconfig_init(void)
 {
-    internalSceneConfig.mode = E_SCENE_MODE_DEFAULT;
-    internalSceneConfig.mode_instrument = 0;
-    internalSceneConfig.ambiant = E_SCENE_AMBIANT_B;
-    internalSceneConfig.livemode = E_SCENE_LIVE_MODEOFF;
-    internalSceneConfig.livemodeInstrument = 0; 
+    for(int ii = 0; ii < MAX_SONG_NUMBER; ii++)
+    {
+        internalSceneConfig[ii].mode = E_SCENE_MODE_DEFAULT;
+        internalSceneConfig[ii].mode_instrument = 0;
+        internalSceneConfig[ii].ambiant = E_SCENE_AMBIANT_B;
+        internalSceneConfig[ii].livemode = E_SCENE_LIVE_MODEOFF;
+        internalSceneConfig[ii].livemodeInstrument = 0; 
+    }
 }
 
-void  sceneconfig_load(Scene_config* sceneconfig)
+void  sceneconfig_load(Scene_config* sceneconfig, int ii)
 {
-    sceneconfig->mode = internalSceneConfig.mode;
-    sceneconfig->mode_instrument =internalSceneConfig.mode_instrument;
-    sceneconfig->ambiant = internalSceneConfig.ambiant;
-    sceneconfig->livemode = internalSceneConfig.livemode;
-    sceneconfig->livemodeInstrument = internalSceneConfig.livemodeInstrument;
-}
-void  sceneconfig_save(Scene_config sceneconfig)
-{
-    internalSceneConfig.mode =               sceneconfig.mode;
-    internalSceneConfig.mode_instrument =    sceneconfig.mode_instrument;
-    internalSceneConfig.ambiant =            sceneconfig.ambiant;
-    internalSceneConfig.livemode =           sceneconfig.livemode;
-    internalSceneConfig.livemodeInstrument = sceneconfig.livemodeInstrument;
+    sceneconfig->mode = (E_SCENE_MODE) internalSceneConfig[ii].mode;
+    sceneconfig->mode_instrument =internalSceneConfig[ii].mode_instrument;
+    sceneconfig->ambiant = internalSceneConfig[ii].ambiant;
+    sceneconfig->livemode = internalSceneConfig[ii].livemode;
+    sceneconfig->livemodeInstrument = internalSceneConfig[ii].livemodeInstrument;
 }
 
-char* sceneconfig_text_mode(void)
+void  sceneconfig_save(Scene_config sceneconfig, int ii)
+{
+    internalSceneConfig[ii].mode =               sceneconfig.mode;
+    internalSceneConfig[ii].mode_instrument =    sceneconfig.mode_instrument;
+    internalSceneConfig[ii].ambiant =            sceneconfig.ambiant;
+    internalSceneConfig[ii].livemode =           sceneconfig.livemode;
+    internalSceneConfig[ii].livemodeInstrument = sceneconfig.livemodeInstrument;
+}
+
+char* sceneconfig_text_mode(int ii)
 {
     char* m;
-    switch(internalSceneConfig.mode)
+    switch(internalSceneConfig[ii].mode)
     {
     case E_SCENE_MODE_DEFAULT : 
     {
@@ -121,10 +127,10 @@ bool sceneconfig_pickinstr(E_SCENE_MODE mode)
     return ret;
 }
 
-char* sceneconfig_text_ambiant(void)
+char* sceneconfig_text_ambiant(int ii)
 {
     char* m;
-    switch(internalSceneConfig.ambiant)
+    switch(internalSceneConfig[ii].ambiant)
     {
     case E_SCENE_AMBIANT_DEFAULT:  
     {
@@ -154,10 +160,10 @@ char* sceneconfig_text_ambiant(void)
     return m;
 }
 
-char* sceneconfig_text_live(void)
+char* sceneconfig_text_live(int ii)
 {
      char* m;
-    switch(internalSceneConfig.livemode)
+    switch(internalSceneConfig[ii].livemode)
     {
         case E_SCENE_LIVE_MODEOFF : 
         {

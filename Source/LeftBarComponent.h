@@ -119,7 +119,7 @@ public:
 		leftbarCallback = cb;
 	}
 
-	void anglereceived(float f)
+	void setAngle(float f)
 	{
 		double a = (double) 1.5*180*f - 90;
 		maskComponent.set_angle(0,a,0);
@@ -163,7 +163,7 @@ private:
 
 		Gofont.setHeight(18);	
 		g.drawText ("No device detected", Rectangle<int>(0, 0.48*height + 30, getWidth(), 20), juce::Justification::horizontallyCentred, false);	
-		g.drawText ("No device detected", Rectangle<int>(0, 0.78*height + 30, getWidth(), 20), juce::Justification::horizontallyCentred, false);
+
 	
 	}
 

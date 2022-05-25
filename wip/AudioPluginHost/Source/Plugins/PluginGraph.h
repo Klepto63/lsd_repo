@@ -92,7 +92,7 @@ private:
     NodeID getNextUID() noexcept;
 
     void createNodeFromXml (const XmlElement&);
-    void addPluginCallback (std::unique_ptr<AudioPluginInstance>, const String& error, Point<double>);
+    void addPluginCallback (std::unique_ptr<AudioPluginInstance>, const String& error, Point<double>); //pas elle
     void changeListenerCallback (ChangeBroadcaster*) override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginGraph)

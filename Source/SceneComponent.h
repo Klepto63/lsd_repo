@@ -17,6 +17,7 @@ typedef enum
         SCENE_TUTO_INIT = 0,            // please select a song
         SCENE_TUTO_2D,                  // you can enable 3D feature by cliking on inco ([])
         SCENE_TUTO_CONNECT,              // instruments are now in 3D place.
+        SCENE_PLAYER_MODE,
 }SCENE_TUTO;
     
 
@@ -35,14 +36,14 @@ public:
         setFramesPerSecond(1);
 
         sceneId = SCENE_TUTO_INIT;
-        load_scene();
+        reload();
 
 
         addAndMakeVisible(&skipTutorial);
         skipTutorial.setButtonText("skip tutorial");
         skipTutorial.setColour(0x1000100, Colour((uint32)SCENE_COMPONENT_WP));
         skipTutorial.setColour(0x1000102, Colour((uint32)SCENE_COMPONENT_LABEL));   //text color
-
+        skipTutorial.onClick = [this] {sceneId = SCENE_PLAYER_MODE; repaint(); };
         load_init_scene();
 
 
@@ -83,21 +84,18 @@ public:
         //instrument1 = ImageFileFormat::loadFrom(File::File("C:/Users/Alex/Desktop/Coda2022/songs/raw_/harpi_a.png"));
     }
 
-
     void event_notify(int idx)
     {
 
         if((idx == 0) && (sceneId ==SCENE_TUTO_INIT))
         {
             sceneId = SCENE_TUTO_2D;
-            load_scene();
         }
         if((idx == 1) && (sceneId ==SCENE_TUTO_2D))
         {
             sceneId = SCENE_TUTO_CONNECT;
-            load_scene();
         }   
-
+        reload();
     }
 
 
@@ -106,9 +104,8 @@ public:
 
     }
 
-    void load_scene()
+    void reload()
     {
-        //load_background();
         repaint();
     }
 
@@ -195,10 +192,16 @@ public:
 
                 Gofont.setHeight(26);
     		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
-    		    m << "Now connect presque. If you don't have one, you can buy one at. Meanwhile, simulate by";	
+    		    m << "Time to connect presquel ! If you don't have one, you can buy one at. Meanwhile, simulate by";	
                 Gofont.setHeight(18);
                 g.setFont(Gofont);
                 g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
+                break;
+            }
+            case SCENE_PLAYER_MODE : 
+            {
+                skipTutorial.setVisible(false);
+                g.fillAll(Colour((uint32)SCENE_COMPONENT_WP2));
                 break;
             }
             default : 

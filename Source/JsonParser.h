@@ -26,3 +26,6 @@ typedef struct
 void jsonParserInit(void);
 int  jsonParserLoad(int idx, s_metadata* metadata);
 int  jsonParserGetNbSong(void);
+
+int   jsonParserGetInstrumentNumber(int idxsong);
+String jsonParserGetInstrumentList(int idxsong, int id);

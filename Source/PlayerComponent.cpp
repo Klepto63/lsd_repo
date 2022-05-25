@@ -84,25 +84,48 @@ void PlayerComponent::paint(juce::Graphics& g)
 void PlayerComponent::setAngle(float f)
 {
     AudioProcessorGraph::Node* node;
-    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
+    AudioProcessorGraph::Node* node2;
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 7); //7=dearPro1
     if(node != nullptr)
     {
         if (auto* processor = node->getProcessor())
             {
                 if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
                 {
-                    /*
-                    cartesian   0
-                    azimuth     1    
-                    elevation   2
-                    distance    3
-                    */
-                    //plugin->setParameter(1,f);
                     if (auto* param = plugin->getParameters()[1])
-                        return param->setValueNotifyingHost(f);
-                    
+                    {
+                        param->setValueNotifyingHost(0.25 + (f/2) + 0.15);   //0..1 == -180..180
+                    }
                 }
             }
+    }
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 8); //7=dearPro1
+    if (node != nullptr)
+    {
+        if (auto* processor = node->getProcessor())
+        {
+            if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+            {
+                if (auto* param = plugin->getParameters()[1])
+                {
+                    param->setValueNotifyingHost(0.25 + (f/2)  - 0.15);   //0..1 == -180..180
+                }
+            }
+        }
+    }
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 9); //7=dearPro1
+    if (node != nullptr)
+    {
+        if (auto* processor = node->getProcessor())
+        {
+            if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+            {
+                if (auto* param = plugin->getParameters()[1])
+                {
+                    param->setValueNotifyingHost(0.25 + (f/2)  );   //0..1 == -180..180
+                }
+            }
+        }
     }
 }
 
@@ -240,8 +263,6 @@ void PlayerComponent::timerCallback()
             Master_changeState(Master_Stopped);
         }
     }
-
-
 }
 
 
@@ -252,6 +273,7 @@ void PlayerComponent::Master_loadAndPlay(int idx)
     {
         playerTitlePlayingComponent.loadSongData(md);
         currentIdxPlaying = idx; //todo optimiser   
+
         AudioProcessorGraph::Node* node;
         node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
         if (node != nullptr)
@@ -260,10 +282,36 @@ void PlayerComponent::Master_loadAndPlay(int idx)
             {
                 if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
                 {
-                    plugin->loadAndPlay(idx,0);
+                    plugin->loadAndPlay(idx,0); //0 = stem 0
                     playButton.setEnabled(true);
                     //energySlider.setEnabled(true);  
                     Master_changeState(Master_Starting);                                 
+                }
+            }
+        }
+
+        AudioProcessorGraph::Node* node2;
+        node2 = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //4=player1
+        if (node2 != nullptr)
+        {
+            if (auto* processor = node2->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                {
+                    plugin->loadAndPlay(idx,1); //0 = stem 0                                
+                }
+            }
+        }
+
+        AudioProcessorGraph::Node* node3;
+        node3 = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 5); //4=player1
+        if (node3 != nullptr)
+        {
+            if (auto* processor = node3->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                {
+                    plugin->loadAndPlay(idx,2); //0 = stem 0                                
                 }
             }
         }
@@ -299,6 +347,17 @@ void PlayerComponent::Master_changeState(Master_TransportState Master_newState)
                         }
                     }
                 }
+                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //3=player0
+                if (node != nullptr)
+                {
+                    if (auto* processor = node->getProcessor())
+                    {
+                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        {
+                            plugin->changeState(CustomPlayerProcessor::Stopped);
+                        }
+                    }
+                }                
                 break;
             case Master_Starting:
                 updatePlayerButtonImage(true);
@@ -336,6 +395,17 @@ void PlayerComponent::Master_changeState(Master_TransportState Master_newState)
                         }
                     }
                 }
+                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
+                if (node != nullptr)
+                {
+                    if (auto* processor = node->getProcessor())
+                    {
+                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        {
+                            plugin->changeState(CustomPlayerProcessor::Stopping);
+                        }
+                    }
+                }                
                 break;
             }
         }
@@ -501,11 +571,12 @@ static std::unique_ptr<ScopedDPIAwarenessDisabler> makeDPIAwarenessDisablerForPl
 }
 
 
-void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> instance,  const String& error)
+
+void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error, int ii) //ii player à connecter
 {
     if (instance == nullptr)
     {
-        AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon,TRANS("Error loading pluging"), error);
+        AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon, TRANS("Error loading pluging"), error);
     }
     else
     {
@@ -513,43 +584,38 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
         auto VR3Node = mainProcessor->addNode(std::move(instance));
         for (int channel = 0; channel < 1; ++channel)     //connect_audio_node input/output
         {
-            mainProcessor->addConnection({ { slots.getUnchecked(0)->nodeID,  channel }, { VR3Node->nodeID, channel } });
+            mainProcessor->addConnection({ { slots.getUnchecked(ii)->nodeID,  channel }, { VR3Node->nodeID, channel } });
         }
         for (int channel = 0; channel < 2; ++channel)     //connect_audio_node input/output
         {
             mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
         }
-        
-            //node->properties.set ("x", pos.x);
-            //node->properties.set ("y", pos.y);
-            //changed();
-        //}
+        //node->properties.set ("x", pos.x);
+        //node->properties.set ("y", pos.y);
+        //changed();
+    }
 
-
-        //init parameter
-        AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //vst3 dearvr pro
-        if(node != nullptr)
+    //init parameter
+    AudioProcessorGraph::Node* node;
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID)(ii + 7)); //vst3 dearvr pro
+    if (node != nullptr)
+    {
+        if (auto* processor = node->getProcessor())
         {
-            if (auto* processor = node->getProcessor())
+            if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+            {
+                if (auto* param = plugin->getParameters()[0]) //0 Polar system
                 {
-                    if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
-                    {
-                        /*
-                        cartesian   0
-                        azimuth     1    
-                        elevation   2
-                        distance    3
-                        */
-                        //plugin->setParameter(1,f);
-                        if (auto* param = plugin->getParameters()[0])
-                            return param->setValue(1);
-
-                    }
-                }
+                    return param->setValue(1);
+                }     
+            }
         }
     }
 }
+
+
+
+
 
 /*
 Processors can be added to the graph as "nodes" using addNode(), and once added,
@@ -563,47 +629,84 @@ void PlayerComponent::initialiseGraph(void)
     audioInputNode  = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioInputNode));
     audioOutputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioOutputNode));
 
-    slots.add(slot1Node);
-    slots.add(slot2Node);
-    slots.set(0, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(0))); //0 : id du player
-    //auto osc1 = std::make_unique<OscillatorProcessor>();
-    //slots.set(0, mainProcessor->addNode(oscillator1));
+    //todolete
+    //slots.add(slot1Node);
+    //slots.add(slot2Node);
 
-    auto slot = slots.getUnchecked(0); //useless mais pour tester
-    if (slot != nullptr)
+    slots.set(0, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(10))); //0 : id du player
+    slots.set(1, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(11))); //0 : id du player
+    slots.set(2, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(12))); //0 : id du player
+    slots.set(3, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(13))); //0 : id du player    
+    for(int ii = 0; ii< 4; ii++)
     {
-        if (slot->getProcessor()->getName() == "Player")
+        auto slot = slots.getUnchecked(0); //useless mais pour tester
+        if (slot != nullptr)
         {
-            //config node
-            slot->getProcessor()->setPlayConfigDetails(mainProcessor->getMainBusNumInputChannels(),
-                mainProcessor->getMainBusNumOutputChannels(),
-                mainProcessor->getSampleRate(),
-                mainProcessor->getBlockSize());
+            if (slot->getProcessor()->getName() == "Player")
+            {
+                //config node
+                slot->getProcessor()->setPlayConfigDetails(mainProcessor->getMainBusNumInputChannels(),
+                    mainProcessor->getMainBusNumOutputChannels(),
+                    mainProcessor->getSampleRate(),
+                    mainProcessor->getBlockSize());
+            }
+            else
+            {
+                AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon,TRANS("Error"),"12");     
+            }
         }
     }
 
-    //https://forum.juce.com/t/connect-to-a-vst-plugin/20929/6
-    OwnedArray<PluginDescription> pluginDescriptions;
+
+    vstformatManager1.addDefaultFormats();
+    vstformatManager2.addDefaultFormats();
+    vstformatManager3.addDefaultFormats();
+    vstformatManager4.addDefaultFormats();
+
+
+    OwnedArray<PluginDescription> pluginDescriptions;    //https://forum.juce.com/t/connect-to-a-vst-plugin/20929/6
     KnownPluginList plist;
-    //AudioPluginFormatManager pluginFormatManager;
-    vstformatManager.addDefaultFormats();
-    for (int i = 0; i < vstformatManager.getNumFormats(); ++i)
+    for (int i = 0; i < vstformatManager1.getNumFormats(); ++i)
     {
-        plist.scanAndAddFile(PathGetAsset(ASSET_VST), true, pluginDescriptions,  *vstformatManager.getFormat(i));
+        plist.scanAndAddFile(PathGetAsset(ASSET_VST), true, pluginDescriptions,  *vstformatManager1.getFormat(i));
     }
     jassert (pluginDescriptions.size() > 0);
-    String msg ("Oh no!");
     std::shared_ptr<ScopedDPIAwarenessDisabler> dpiDisabler = makeDPIAwarenessDisablerForPlugin(*pluginDescriptions[0]);
- 
-    vstformatManager.createPluginInstanceAsync(         *pluginDescriptions[0],
+
+    vstformatManager1.createPluginInstanceAsync(         *pluginDescriptions[0],
                                                             48000,
                                                             1024,
                                                                 [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
                                                                 {
-                                                                    addPluginCallback(std::move(instance), error);
+                                                                    addPluginCallback(std::move(instance), error, 0);
                                                                 }
                                                             );
-     
+    vstformatManager2.createPluginInstanceAsync(         *pluginDescriptions[0],
+                                                            48000,
+                                                            1024,
+                                                                [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
+                                                                {
+                                                                    addPluginCallback(std::move(instance), error,1);
+                                                                }
+                                                            );
+    vstformatManager3.createPluginInstanceAsync(         *pluginDescriptions[0],
+                                                            48000,
+                                                            1024,
+                                                                [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
+                                                                {
+                                                                    addPluginCallback(std::move(instance), error, 2);
+                                                                }
+                                                            );
+    vstformatManager4.createPluginInstanceAsync(         *pluginDescriptions[0],
+                                                            48000,
+                                                            1024,
+                                                                [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
+                                                                {
+                                                                    addPluginCallback(std::move(instance), error,3);
+                                                                }
+                                                            );
+
+
 
     //auto instance=  vstformatManager.createPluginInstance(*pluginDescriptions[0],
     //                                                     mainProcessor->getSampleRate(),

@@ -35,6 +35,16 @@ int jsonParserGetNbSong()
 {
 	return librairy_size;
 }
+int   jsonParserGetInstrumentNumber(int idxsong)
+{
+	return jsonFile["library"][idxsong]["stem_nb"];
+}
+String jsonParserGetInstrumentList(int idxsong, int id)
+{
+	String m = jsonFile["library"][idxsong]["stems"][id]["name"];
+	return m;
+}
+
 
 void jsonParserInit(void)
 {

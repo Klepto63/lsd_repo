@@ -37,7 +37,8 @@ private:
 	TextButton BUTTON_D;
 
     Image displayedImage;
-    
+
+
     void ButtonA_callback(void);
     void ButtonB_callback(void);
     void ButtonC_callback(void);
@@ -53,4 +54,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PopUpEnterComponent)
 };
 
-#endif //POPUP_COMPONENT_H
+#endif //POPUP_COMPONENT_H*

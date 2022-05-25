@@ -51,7 +51,9 @@ void PopUpEnterComponent::constructPopUp(int idx)
 		BUTTON_D.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
 		addAndMakeVisible(BUTTON_D);
 
-		BUTTON_B.setButtonText("Select"); //grisé
+		BUTTON_B.setButtonText("Next"); //grisé
+		BUTTON_B.setEnabled(false);
+
 		BUTTON_B.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
 		addAndMakeVisible(BUTTON_B);
         //timer.startTimerHz(1);
@@ -66,7 +68,7 @@ void PopUpEnterComponent::constructPopUp(int idx)
 		addAndMakeVisible(BUTTON_D);
 
 		
-		BUTTON_B.setButtonText("use mouse"); //grisé
+		BUTTON_B.setButtonText("Use mouse"); //grisé
 		BUTTON_B.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
 		addAndMakeVisible(BUTTON_B);
 		setSize(600, 500);
@@ -235,7 +237,6 @@ void PopUpEnterComponent::paint (juce::Graphics& g)
 {
     g.fillAll(Colour((uint32)WP1_COLOR));
     String m;
-    int i =0;
     int h = getHeight();
     int w = getWidth();
 
@@ -283,26 +284,21 @@ void PopUpEnterComponent::paint (juce::Graphics& g)
 		}
 		case POPUP_LOOKING_FOR_PRESQUEL :
 		{
+			int lbox = 230;
+			displayedImage = ImageFileFormat::loadFrom(File::File(PathGetAsset(IMAGE_SEARCHING_BLE)));			
+			g.drawImage(displayedImage,
+						0.5 * (w - lbox),
+						205,
+						lbox,lbox,
+						0,0,
+            			displayedImage.getWidth(),
+            			displayedImage.getHeight(),
+            			false);
+
     		g.setFont(Gofont);
     		g.setColour(Colour((uint32)P1_COLOR));
     		g.drawText ("Searching", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
-            i++;
-            if(i % 4 == 0)
-            {
-    		    m << "searching";
-            }
-            if(i % 4 == 1)
-            {
-    		    m << "searching.";
-            }
-            if(i % 4 == 2)
-            {
-    		    m << "searching..";
-            }
-            if(i % 4 == 3)
-            {
-    		    m << "searching...";
-            }
+    		 m << "searching..";
 			Gofont.setHeight(16);
     		g.setFont(Gofont);
     		g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);

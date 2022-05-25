@@ -24,6 +24,7 @@
 
 //-------------------------------------SCENE COMPONENT
 #define SCENE_COMPONENT_WP      WP1_COLOR
+#define SCENE_COMPONENT_WP2     0xffff0000
 #define SCENE_COMPONENT_LABEL   0xff9999AA
 
 //------------------------------------- GOUVERNOR

@@ -50,11 +50,11 @@ typedef struct
 
 
 void  sceneconfig_init(void);
-void  sceneconfig_load(Scene_config* sceneconfif);
-void  sceneconfig_save(Scene_config sceneconfif);
-char* sceneconfig_text_mode(void);
-char* sceneconfig_text_ambiant(void);
-char* sceneconfig_text_live(void);
+void  sceneconfig_load(Scene_config* sceneconfif, int ii);
+void  sceneconfig_save(Scene_config sceneconfif, int ii);
+char* sceneconfig_text_mode(int ii);
+char* sceneconfig_text_ambiant(int ii);
+char* sceneconfig_text_live(int ii);
 
 
 bool sceneconfig_pickinstr(E_SCENE_MODE mode);

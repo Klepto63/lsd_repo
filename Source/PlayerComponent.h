@@ -8,7 +8,7 @@
 
 #include "JsonParser.h"
 #include "Path.h"
-
+#include "sceneconfig.h"
 #include "vstProcessor.h"
 
 using namespace juce;
@@ -281,8 +281,6 @@ private:
 //==============================================================================
 class CustomPlayerProcessor  : public ProcessorBase, public  juce::ChangeListener
 {
-
-    
 public:
 
     enum TransportState
@@ -318,9 +316,10 @@ public:
        audioX.getNextAudioBlock(AudioSourceChannelInfo(buffer));
        for (int channel = 0; channel < totalNumInputChannels; ++channel)
        {
-       //DSP Filtering code comes here
+        //DSP Filtering code comes here
        }
     }
+
 
 /*
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override
@@ -424,6 +423,22 @@ private:
     int id = 0;
     juce::dsp::Oscillator<float> oscillator;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -572,19 +587,19 @@ public:
         addAndMakeVisible(&playerTitlePlayingComponent);
         setSize(200, 200);
 
-		//addAndMakeVisible(&DebugButton);
-		//DebugButton.onClick = [this] { DebugButtonCallback(); };
-		//DebugButton.setEnabled(true);
-		//DebugButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
-		//DebugButton.setButtonText("Debug");
-		//DebugButton.setVisible(true);
+		addAndMakeVisible(&DebugButton);
+		DebugButton.onClick = [this] { DebugButtonCallback(); };
+		DebugButton.setEnabled(true);
+		DebugButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		DebugButton.setButtonText("Debug");
+		DebugButton.setVisible(true);
 //
-		//addAndMakeVisible(&DebugButton2);
-		//DebugButton2.onClick = [this] { DebugButton2Callback(); };
-		//DebugButton2.setEnabled(true);
-		//DebugButton2.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
-		//DebugButton2.setButtonText("Debug2");
-		//DebugButton2.setVisible(true);
+		addAndMakeVisible(&DebugButton2);
+		DebugButton2.onClick = [this] { DebugButton2Callback(); };
+		DebugButton2.setEnabled(true);
+		DebugButton2.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
+		DebugButton2.setButtonText("Debug2");
+		DebugButton2.setVisible(true);
 
         auto inputDevice  = juce::MidiInput::getDefaultDevice();
         auto outputDevice = juce::MidiOutput::getDefaultDevice();
@@ -597,10 +612,14 @@ public:
 
         initialiseGraph();
 
-        mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
-        
-        setAudioChannels(0, 2);
+        Time::waitForMillisecondCounter(Time::getMillisecondCounter() + 1000);
 
+        //====delai
+        
+
+
+        mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
+        setAudioChannels(0, 2);
         startTimer(20);
     }
     ~PlayerComponent() override
@@ -629,20 +648,16 @@ public:
     bool Master_isPlaying(void);
 
     void initialiseGraph();
-    void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error);
-
+    void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error, int ii);
 
 
 
 private:
 
-
-
-
     void DebugButtonCallback(void)
     {
         AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 7);
         if(node != nullptr)
         {
             if (auto* processor = node->getProcessor())
@@ -671,39 +686,30 @@ private:
 
     void DebugButton2Callback(void)
     {
+        AudioProcessorGraph::Node* node;
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 7);
+        if(node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
+                {
+                    if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                    {
+                        auto description = plugin->getPluginDescription();
+                        auto parameters = plugin->getParameters();
+                        auto test = plugin->getNumParameters();
+                        int ii = 0;
+                        for (int i= 0; i < test; i++)
+                        {
+                            auto test2 = plugin->getHostedParameter(i);
+                            auto test3 = test2->getName(20);
+                            ii++;
+                        }
+                        activePluginWindows.add (new PluginWindow (node, PluginWindow::Type::generic, activePluginWindows));
+                    }
+                }
+        }
+    } 
 
-
-
-
-
-
-
-        //AudioProcessorGraph::Node* node;
-        //node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4);
-        //if(node != nullptr)
-        //{
-        //    if (auto* processor = node->getProcessor())
-        //        {
-        //            if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
-        //            {
-        //                auto description = plugin->getPluginDescription();
-        //                auto parameters = plugin->getParameters();
-        //                auto test = plugin->getNumParameters();
-//
-        //                int ii = 0;
-        //                for (int i= 0; i < test; i++)
-        //                {
-        //                    auto test2 = plugin->getHostedParameter(i);
-        //                    auto test3 = test2->getName(20);
-        //                    ii++;
-        //                }
-        //                activePluginWindows.add (new PluginWindow (node, PluginWindow::Type::generic, activePluginWindows));
-//
-        //            }
-        //        }
-        //}
-
-    }    
     void updatePlayerButtonImage(bool playing);
     void updateVolumeButtonImage(bool isMuted, int sliderVolume);
     void muteButtonClicked(void);
@@ -736,7 +742,11 @@ private:
     juce::TextButton DebugButton2;
 
 	juce::KnownPluginList* list_;
-	juce::AudioPluginFormatManager vstformatManager;
+
+	juce::AudioPluginFormatManager vstformatManager1;   //dearVrPro
+	juce::AudioPluginFormatManager vstformatManager2;   //dearVrPro
+	juce::AudioPluginFormatManager vstformatManager3;   //dearVrPro
+	juce::AudioPluginFormatManager vstformatManager4;   //dearVrPro
 
 
 	std::unique_ptr <juce::AudioProcessorGraph> mainProcessor;
@@ -748,9 +758,12 @@ private:
     OwnedArray<PluginWindow> activePluginWindows;
 
     juce::ReferenceCountedArray<Node> slots;
+
     juce::ReferenceCountedArray<Node> activeSlots;    
     Node::Ptr slot1Node;    //osci
     Node::Ptr slot2Node;    //dearVr
+
+ 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerComponent)
 };

@@ -7,6 +7,8 @@
 #include "Path.h"
 #include "polarPlan.h"
 #include "sceneconfig.h"
+#include "JsonParser.h"
+#include "polarPlan.h"
 using namespace juce;
 
 
@@ -14,9 +16,10 @@ class WindowSceneConfig  : public Component
 {
 public:
 
-    WindowSceneConfig()
+    WindowSceneConfig(int sIDX)
     {
-        sceneconfig_load(&tempSceneconfig);
+        IDX = sIDX;
+        sceneconfig_load(&tempSceneconfig, IDX);
         addAndMakeVisible(BUTTON_OK);
         BUTTON_OK.setVisible(true);
         BUTTON_OK.setButtonText("OK");
@@ -35,16 +38,19 @@ public:
         ComboAmbiant.onChange = [this] {update(); };
         ComboMode.onChange = [this] {update(); };
         ComboLiveMode.onChange = [this] {update(); };
+        ComboModeInstrumentSelector.onChange =  [this] {update(); };
+        ComboLiveModeInstrumentSelector.onChange =  [this] {update(); };
+
         addAndMakeVisible(ComboModeInstrumentSelector);
-        ComboModeInstrumentSelector.addItem("-",1);        
-        ComboModeInstrumentSelector.addItem("Piano",2);
-        ComboModeInstrumentSelector.addItem("Violin",3);
-        ComboModeInstrumentSelector.setSelectedId(1, dontSendNotification);
         addAndMakeVisible(ComboLiveModeInstrumentSelector);
-        ComboLiveModeInstrumentSelector.addItem("-",1);        
-        ComboLiveModeInstrumentSelector.addItem("Piano",2);
-        ComboLiveModeInstrumentSelector.addItem("Violin",3);
+        for(int ii = 0; ii < jsonParserGetInstrumentNumber(IDX); ii++)
+        {
+            ComboModeInstrumentSelector.addItem(jsonParserGetInstrumentList(IDX,ii) ,ii+1);
+            ComboLiveModeInstrumentSelector.addItem(jsonParserGetInstrumentList(IDX,ii) ,ii+1);
+        }
+        ComboModeInstrumentSelector.setSelectedId(1, dontSendNotification);
         ComboLiveModeInstrumentSelector.setSelectedId(1, dontSendNotification);   
+
         if(sceneconfig_pickinstr(tempSceneconfig.mode)){ComboModeInstrumentSelector.setVisible(true); }
         else{ComboModeInstrumentSelector.setVisible(false);}
         if(tempSceneconfig.livemode){ComboLiveModeInstrumentSelector.setVisible(true);}
@@ -66,6 +72,7 @@ public:
         
         setSize(600, 700);
         setOpaque(true);
+        update();
     }
     ~WindowSceneConfig() override
     {
@@ -104,10 +111,9 @@ public:
         m = "Live";
         g.drawFittedText(m, Rectangle<int>(25, 550, 70,70),  juce::Justification::left, 10,1 );       
 
-
-        g.drawFittedText(sceneconfig_text_mode(), Rectangle<int>(250, 350, 300,70),  juce::Justification::left, 10,1 );
-        g.drawFittedText(sceneconfig_text_ambiant(), Rectangle<int>(250, 450, 300,70),  juce::Justification::left, 10,1 );
-        g.drawFittedText(sceneconfig_text_live(), Rectangle<int>(250, 550, 300,70),  juce::Justification::left, 10,1 );
+        g.drawFittedText(sceneconfig_text_mode(IDX), Rectangle<int>(250, 350, 300,70),  juce::Justification::left, 10,1 );
+        g.drawFittedText(sceneconfig_text_ambiant(IDX), Rectangle<int>(250, 450, 300,70),  juce::Justification::left, 10,1 );
+        g.drawFittedText(sceneconfig_text_live(IDX), Rectangle<int>(250, 550, 300,70),  juce::Justification::left, 10,1 );
 
     }
 
@@ -163,22 +169,20 @@ private:
 
         polarPlanComponent.clearInstr();
         if(tempSceneconfig.mode == E_SCENE_MODE_ONE_CENTER)
-        {
-
-            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_CENTER, "piano");
+        { 
+            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_CENTER, ComboModeInstrumentSelector.getText());
         }
-        if(tempSceneconfig.mode == E_SCENE_MODE_ONE_LEFT)
-        {
-
-            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_LEFT, "piano");
+        else if(tempSceneconfig.mode == E_SCENE_MODE_ONE_LEFT)
+        { 
+            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_LEFT, ComboModeInstrumentSelector.getText());
+        }     
+        else if(tempSceneconfig.mode == E_SCENE_MODE_ONE_RIGHT)
+        { 
+            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_RIGHT, ComboModeInstrumentSelector.getText());
         }
-          if(tempSceneconfig.mode == E_SCENE_MODE_ONE_RIGHT)
-        {
+        
 
-            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_RIGHT, "piano");
-        }
-
-        sceneconfig_save(tempSceneconfig);
+        sceneconfig_save(tempSceneconfig, IDX);
         repaint();
     }
 
@@ -192,6 +196,7 @@ private:
     ComboBox ComboLiveMode;
     ComboBox ComboLiveModeInstrumentSelector;
 
+    int IDX= 0;
     //TextBox TextMode;
     //TextBox TextScene;
     //Image   ImageScene;

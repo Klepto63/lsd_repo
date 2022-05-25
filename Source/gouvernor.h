@@ -17,7 +17,7 @@ public:
 
     MainContentComponent()
     {
-        currentIdSong = 0;
+        currentIdSong = -1;
         ModeBypassed = true;
         jsonParserInit();
         sceneconfig_init();
@@ -36,15 +36,6 @@ public:
         {
             leftbarupdated(v);
         });
-
-
-        //addAndMakeVisible(&FakeCodaSlider);
-        //FakeCodaSlider.hideTextBox(true);
-        //FakeCodaSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
-        //FakeCodaSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); 
-        //FakeCodaSlider.setColour(0x1001300, Colour(THUMB_COLOR));      
-        //FakeCodaSlider.setColour(0x1001310, Colour(LIGNE_COLOR));
-        //FakeCodaSlider.addListener(this);
 
         addAndMakeVisible(&sceneConfigButton);
         sceneConfigButton.setButtonText("sceneConfigButton");
@@ -101,6 +92,13 @@ public:
     void sceneConfigButtonClicked(void)
     {
 
+        if(currentIdSong == -1)
+        {
+            //no song selected = no popup
+            AlertWindow::showMessageBoxAsync(MessageBoxIconType::WarningIcon,TRANS("No song selected"),"Select a song to edit spatial configuration");   
+            return;
+        }
+
         bool shouldPopup = false;
 		if(dw == 0)
 		{
@@ -112,7 +110,8 @@ public:
 		}
 		if(shouldPopup)
         {
-            dw = new WindowSceneConfig();
+            
+            dw = new WindowSceneConfig(currentIdSong);
             dw->setName("Spatial Configuration");
             dw->setVisible(true);
 		    dw->setOpaque(true);
@@ -202,14 +201,12 @@ public:
 
     void sliderValueChanged(Slider* slider)
     {
-        if (slider == &FakeCodaSlider)
-        {
-            playerComponent.setAngle(slider->getValue()/10); //0..1
-        }
         if (slider == &energySlider)
         {
             //playerComponent.setAngle(slider->getValue()/10); //0..1
-            leftBarComponent.anglereceived(slider->getValue()/10);
+            float f = slider->getValue()/10;  
+            leftBarComponent.setAngle(f);
+            playerComponent.setAngle(f);
         }        
     }
 
@@ -260,7 +257,6 @@ private:
     
 
 	WindowSceneConfig* dw = 0; //config scene
-    Slider FakeCodaSlider;
 
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
