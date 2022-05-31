@@ -11,7 +11,15 @@
 #include "sceneconfig.h"
 
 
-#define MAX_INSTR 5
+#define SLOT_FRONT_DIST 0.35f
+#define SLOT_FAR_DIST   0.82f
+
+#define SLOT_MIDLE_DIST 0.45f
+#define SLOT_MIDLE_LEFT_ANGLE   18.0f
+#define SLOT_MIDLE_LLEFT_ANGLE  46.0f
+
+#define SLOT_FRONT_LEFT_ANGLE  43.0f
+
 
 class PolarPlanComponent : public juce::AnimatedAppComponent
 {
@@ -20,21 +28,10 @@ typedef struct
 {
     String name;
     float dist;
-    int   rad; 
-    bool  active;
+    float   rad; 
 }s_pp_instr;
 
 public:
-
-
-    typedef enum
-    {
-        E_SLOT_FRONT_CENTER,
-        E_SLOT_FRONT_LEFT,
-        E_SLOT_FRONT_RIGHT,
-
-    }e_slots;
-
 
     PolarPlanComponent()
     {
@@ -43,7 +40,7 @@ public:
         polarPlan = ImageFileFormat::loadFrom(File::File(PathGetAsset(IMAGE_POLAR_PLAN)));
         for(int ii = 0; ii < MAX_INSTR; ii++)
         {
-            inst[ii].active = false; 
+            inst[ii].dist = -1; 
         }
 
     }
@@ -57,50 +54,72 @@ public:
         // in the constructor. You can use it to update counters, animate values, etc.
     }
 
-
-    void clearInstr(void)
+    void replot(Scene_config sc, int IDX)
     {
-        for(int ii = 0; ii <MAX_INSTR; ii++)
-        {
-            inst[ii].active = false; 
-        }
-        repaint();
-    }
 
-    void addInstr(e_slots slot, String instrName)
-    {
-        int idx=0;
-        while(inst[idx].active && idx < MAX_INSTR)
+        for (int idx = 0; idx < jsonParserGetStemNumber(IDX); idx++)
         {
-            idx++;
-        }
-        if(idx == MAX_INSTR)
-        {
-            return;
-        }
-
-        inst[idx].name = instrName;
-        inst[idx].active = true;
-        inst[idx].dist = 0.2f;        
-        switch(slot)
-        {
-            case E_SLOT_FRONT_CENTER :
+            e_slot slot = sc.slots[idx];
+            inst[idx].name = jsonParserGetStemName(IDX, idx);
+            switch (slot)
             {
+            case E_SLOT_UNUSED:
+            {
+                inst[idx].dist = -1;
+                break;
+            }
+            case E_SLOT_FRONT_CENTER:
+            {
+                inst[idx].rad = 0;
+                inst[idx].dist = SLOT_FRONT_DIST;
+                break;
+            }
+            case E_SLOT_FRONT_LEFT:
+            {
+                inst[idx].dist = SLOT_FRONT_DIST;
+                inst[idx].rad = SLOT_FRONT_LEFT_ANGLE;
+                break;
+            }
+            case E_SLOT_FRONT_RIGHT:
+            {
+                inst[idx].dist = SLOT_FRONT_DIST;
+                inst[idx].rad = -1.0f * SLOT_FRONT_LEFT_ANGLE;
+                break;
+            }
+            case E_SLOT_MIDLE_LEFT:
+            {
+                inst[idx].dist = SLOT_MIDLE_DIST;
+                inst[idx].rad = 1.0f * SLOT_MIDLE_LEFT_ANGLE;
+                break;
+            }
+            case E_SLOT_MIDLE_LLEFT:
+            {
+                inst[idx].dist = 1.0f * SLOT_MIDLE_DIST;
+                inst[idx].rad = 1.0f * SLOT_MIDLE_LLEFT_ANGLE;
+                break;
+            }
+            case E_SLOT_MIDLE_RIGHT:
+            {
+                inst[idx].dist = SLOT_MIDLE_DIST;
+                inst[idx].rad = -1 * SLOT_MIDLE_LEFT_ANGLE;
+                break;
+            }
+            case E_SLOT_MIDLE_RRIGHT:
+            {
+                inst[idx].dist = SLOT_MIDLE_DIST;
+                inst[idx].rad = -1 * SLOT_MIDLE_LLEFT_ANGLE;
+                break;
+            }
+            case E_SLOT_MIDLE_CENTER :
+            {
+                inst[idx].dist = SLOT_MIDLE_DIST;
                 inst[idx].rad = 0;
                 break;
             }
-            case E_SLOT_FRONT_LEFT :
-            {
-                inst[idx].rad = 42;
-                break;
-            }
-            case E_SLOT_FRONT_RIGHT :
-            {
-                inst[idx].rad = -42;
-                break;
-            }                       
         }
-        repaint();
+            repaint();
+
+        }
     }
 
     void paint(juce::Graphics& g) override
@@ -118,9 +137,9 @@ public:
             polarPlan.getHeight(),
             false);
 
-        for(int ii = 0; ii<MAX_INSTR; ii++)
+        for (int ii = 0; ii < MAX_INSTR; ii++)
         {
-            if(inst[ii].active)
+            if(inst[ii].dist != -1)
             {
                 angle = inst[ii].rad + 90;
                 x = 0.5 + inst[ii].dist * (std::cos((angle) * 2 * 3.1415 / 360));
@@ -135,13 +154,9 @@ public:
 
     void resized() override
     {
-
     }
 
-
 private:
-
-
 
     Image polarPlan;
     s_pp_instr inst[MAX_INSTR];

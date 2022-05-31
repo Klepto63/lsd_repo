@@ -1,14 +1,16 @@
 #pragma once
 
 #include "JuceHeader.h"
+#include "sceneconfig.h"
 using namespace juce;
 
-#define STEM_MAX_NB 5
+#define STEM_MAX_NB MAX_INSTR
 
 typedef struct
 {
 	String name;
 	String path;
+	String img;
 }s_stem;
 
 typedef struct
@@ -27,5 +29,6 @@ void jsonParserInit(void);
 int  jsonParserLoad(int idx, s_metadata* metadata);
 int  jsonParserGetNbSong(void);
 
-int   jsonParserGetInstrumentNumber(int idxsong);
-String jsonParserGetInstrumentList(int idxsong, int id);
+int    jsonParserGetStemNumber(int idxsong);
+String jsonParserGetStemName(int idxsong, int id);
+String jsonParserGetStemImgPath(int idxsong, int id);

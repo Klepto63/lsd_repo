@@ -9,6 +9,7 @@
     <DATA>
         <ITEM id="01" Composer="Vivaldi" Title="L'Estate" Stems="Harpsichord, violin, high strings, low strings" />
         <ITEM id="02" Composer="Vivaldi" Title="Summer"   Stems="Harpsichord, violin, high strings, low strings" />
-       
+        <ITEM id="03" Composer="Tchaikovsky" Title="Concerto 1"  Stems="Piano, violin, high strings,Todo n=5" />   
+        <ITEM id="04" Composer="Rossini" Title="William Tell Overture"  Stems="Piano, violin, high strings,Todo n=5" />               
     </DATA>
 </DEMO_TABLE_DATA>

@@ -11,6 +11,7 @@
 const juce::String ABS_PATH 		= "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/";
 //const juce::String ABS_PATH_SONGS 	= 
 const juce::String ABS_PATH_ASSETS 	= "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/";
+const juce::String ABS_PATH_ASSETS_IMG 	= "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/images/";
 #endif
 
 
@@ -43,7 +44,8 @@ typedef enum
     IMAGE_METRONOM,
     IMAGE_FAKEMOUSE,
     IMAGE_SEARCHING_BLE,
-    IMAGE_TRACKER_LOCKED
+    IMAGE_TRACKER_LOCKED,
+    IMAGE_3D_GRID,
 
 }PATH_GET_ASSET;
 

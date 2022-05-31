@@ -5,15 +5,27 @@
 
 #include "JuceHeader.h"
 
+#define MAX_INSTR 5 //todo 5
 
+typedef enum
+{
+    E_SLOT_UNUSED = 0,
+    E_SLOT_FRONT_CENTER,
+    E_SLOT_FRONT_LEFT,
+    E_SLOT_FRONT_RIGHT,
+    E_SLOT_MIDLE_LLEFT,
+    E_SLOT_MIDLE_LEFT,
+    E_SLOT_MIDLE_RIGHT,
+    E_SLOT_MIDLE_RRIGHT,
+    E_SLOT_MIDLE_CENTER
+}e_slot;
 
 typedef enum 
 {
-    E_SCENE_MODE_DEFAULT = 0,
-    E_SCENE_MODE_A,
+    E_SCENE_MODE_A = 0,
     E_SCENE_MODE_B,
+    E_SCENE_MODE_C,
     E_SCENE_MODE_FAR,
-    E_SCENE_MODE_DUO,
     E_SCENE_MODE_ONE_CENTER, 
     E_SCENE_MODE_ONE_LEFT,
     E_SCENE_MODE_ONE_RIGHT,
@@ -41,12 +53,14 @@ typedef struct
 {
     E_SCENE_MODE mode;
     int mode_instrument;
-
+    e_slot slots[MAX_INSTR];
     E_SCENE_AMBIANT ambiant;
 
     E_SCENE_LIVEMODE livemode;
     int livemodeInstrument;
 }Scene_config;
+
+
 
 
 void  sceneconfig_init(void);
@@ -56,11 +70,11 @@ char* sceneconfig_text_mode(int ii);
 char* sceneconfig_text_ambiant(int ii);
 char* sceneconfig_text_live(int ii);
 
+void  sceneconfig_save_highlight(int* array);
+void  sceneconfig_reset_hightlight(void);
+float sceneconfig_get_hightlight(int i);
 
-bool sceneconfig_pickinstr(E_SCENE_MODE mode);
-
-
-
+bool  sceneconfig_should_pickinstr(E_SCENE_MODE mode);
 char* sceneconfig_buttonText(int i, int j);
 
 #endif SCENE_CFG_H

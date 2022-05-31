@@ -1,7 +1,6 @@
 #include "Path.h"
 
 
-
 juce::String PathGetAsset(PATH_GET_ASSET a)
 {
     juce::String ret;
@@ -132,9 +131,13 @@ juce::String PathGetAsset(PATH_GET_ASSET a)
         ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/searching.png";
         break;
     }
+    case IMAGE_3D_GRID :
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/images/gridd_.png";
+        break;
+    }
     default:
     {
-
     }
     }
 

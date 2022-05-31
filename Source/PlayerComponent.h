@@ -379,6 +379,11 @@ public:
         audioX.setPosition(v * audioX.getLengthInSeconds() / 10);
     }
 
+    void setGain(float v)
+    {
+        audioX.setGain(v);
+    }
+
     void loadAndPlay(int idx, int stemidx) //stem 0
     {
         s_metadata md;
@@ -587,14 +592,14 @@ public:
         addAndMakeVisible(&playerTitlePlayingComponent);
         setSize(200, 200);
 
-		addAndMakeVisible(&DebugButton);
+		//addAndMakeVisible(&DebugButton);
 		DebugButton.onClick = [this] { DebugButtonCallback(); };
 		DebugButton.setEnabled(true);
 		DebugButton.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
 		DebugButton.setButtonText("Debug");
 		DebugButton.setVisible(true);
 //
-		addAndMakeVisible(&DebugButton2);
+		//addAndMakeVisible(&DebugButton2);
 		DebugButton2.onClick = [this] { DebugButton2Callback(); };
 		DebugButton2.setEnabled(true);
 		DebugButton2.setColour(0x1000100, Colour((uint32)BUTTON_COLOR1));
@@ -616,7 +621,6 @@ public:
 
         //====delai
         
-
 
         mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
         setAudioChannels(0, 2);
@@ -647,6 +651,9 @@ public:
     void Master_changeState(Master_TransportState Master_newState);
     bool Master_isPlaying(void);
 
+    void applyHightlight(void);
+    void updateConfig(void);
+
     void initialiseGraph();
     void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error, int ii);
 
@@ -657,7 +664,7 @@ private:
     void DebugButtonCallback(void)
     {
         AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 7);
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 8);
         if(node != nullptr)
         {
             if (auto* processor = node->getProcessor())
@@ -687,7 +694,7 @@ private:
     void DebugButton2Callback(void)
     {
         AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 7);
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 8);
         if(node != nullptr)
         {
             if (auto* processor = node->getProcessor())
@@ -743,10 +750,11 @@ private:
 
 	juce::KnownPluginList* list_;
 
-	juce::AudioPluginFormatManager vstformatManager1;   //dearVrPro
-	juce::AudioPluginFormatManager vstformatManager2;   //dearVrPro
-	juce::AudioPluginFormatManager vstformatManager3;   //dearVrPro
-	juce::AudioPluginFormatManager vstformatManager4;   //dearVrPro
+	juce::AudioPluginFormatManager vstformatManager1;
+	juce::AudioPluginFormatManager vstformatManager2;
+	juce::AudioPluginFormatManager vstformatManager3;
+	juce::AudioPluginFormatManager vstformatManager4;
+	juce::AudioPluginFormatManager vstformatManager5;
 
 
 	std::unique_ptr <juce::AudioProcessorGraph> mainProcessor;

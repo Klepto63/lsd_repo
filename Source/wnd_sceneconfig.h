@@ -9,8 +9,11 @@
 #include "sceneconfig.h"
 #include "JsonParser.h"
 #include "polarPlan.h"
+
 using namespace juce;
 
+
+typedef std::function<void (float)> WndConfigCallback;
 
 class WindowSceneConfig  : public Component 
 {
@@ -43,15 +46,16 @@ public:
 
         addAndMakeVisible(ComboModeInstrumentSelector);
         addAndMakeVisible(ComboLiveModeInstrumentSelector);
-        for(int ii = 0; ii < jsonParserGetInstrumentNumber(IDX); ii++)
+        for(int ii = 0; ii < jsonParserGetStemNumber(IDX); ii++)
         {
-            ComboModeInstrumentSelector.addItem(jsonParserGetInstrumentList(IDX,ii) ,ii+1);
-            ComboLiveModeInstrumentSelector.addItem(jsonParserGetInstrumentList(IDX,ii) ,ii+1);
+            ComboModeInstrumentSelector.addItem(jsonParserGetStemName(IDX,ii) ,ii+1);
+            ComboLiveModeInstrumentSelector.addItem(jsonParserGetStemName(IDX,ii) ,ii+1);
         }
+
         ComboModeInstrumentSelector.setSelectedId(1, dontSendNotification);
         ComboLiveModeInstrumentSelector.setSelectedId(1, dontSendNotification);   
 
-        if(sceneconfig_pickinstr(tempSceneconfig.mode)){ComboModeInstrumentSelector.setVisible(true); }
+        if(sceneconfig_should_pickinstr(tempSceneconfig.mode)){ComboModeInstrumentSelector.setVisible(true); }
         else{ComboModeInstrumentSelector.setVisible(false);}
         if(tempSceneconfig.livemode){ComboLiveModeInstrumentSelector.setVisible(true);}
         else{ComboLiveModeInstrumentSelector.setVisible(false);}
@@ -86,6 +90,7 @@ public:
     void WindowSceneConfig::ButtonOK_callback(void)
     {
         update();
+        wndConfigCallback(0);
         delete this;
     }
     void WindowSceneConfig::ButtonCANCEL_callback(void)
@@ -138,6 +143,11 @@ public:
     }
 
 
+    void setCallback(WndConfigCallback cb)
+    {
+       wndConfigCallback  = cb;
+    }
+
 private:
 
     void update(void )
@@ -147,9 +157,7 @@ private:
         tempSceneconfig.livemodeInstrument = (E_SCENE_LIVEMODE) (ComboLiveModeInstrumentSelector.getSelectedId() - 1);
         tempSceneconfig.mode = (E_SCENE_MODE) (ComboMode.getSelectedId() - 1);
         tempSceneconfig.livemode = (E_SCENE_LIVEMODE) (ComboLiveMode.getSelectedId() - 1);
-
-
-        if(sceneconfig_pickinstr(tempSceneconfig.mode))
+        if(sceneconfig_should_pickinstr(tempSceneconfig.mode))
         {
             ComboModeInstrumentSelector.setVisible(true);
         }
@@ -167,24 +175,103 @@ private:
             ComboLiveModeInstrumentSelector.setVisible(false);
         }
 
-        polarPlanComponent.clearInstr();
-        if(tempSceneconfig.mode == E_SCENE_MODE_ONE_CENTER)
-        { 
-            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_CENTER, ComboModeInstrumentSelector.getText());
+        for(int ii=0; ii<MAX_INSTR; ii++)
+        {
+            tempSceneconfig.slots[ii] = E_SLOT_UNUSED;
         }
-        else if(tempSceneconfig.mode == E_SCENE_MODE_ONE_LEFT)
-        { 
-            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_LEFT, ComboModeInstrumentSelector.getText());
-        }     
-        else if(tempSceneconfig.mode == E_SCENE_MODE_ONE_RIGHT)
-        { 
-            polarPlanComponent.addInstr(PolarPlanComponent::E_SLOT_FRONT_RIGHT, ComboModeInstrumentSelector.getText());
+        if(jsonParserGetStemNumber(IDX)==4)
+        {
+            switch(tempSceneconfig.mode)
+            {
+                     case E_SCENE_MODE_A : 
+                     {
+                             tempSceneconfig.slots[0] = E_SLOT_MIDLE_LLEFT;
+                             tempSceneconfig.slots[1] = E_SLOT_MIDLE_LEFT;
+                             tempSceneconfig.slots[2] = E_SLOT_MIDLE_RIGHT;
+                             tempSceneconfig.slots[3] = E_SLOT_MIDLE_RRIGHT;
+                             tempSceneconfig.slots[4] = E_SLOT_MIDLE_CENTER;
+                         break;
+                     }
+                     case E_SCENE_MODE_B : 
+                     {
+                             tempSceneconfig.slots[1] = E_SLOT_MIDLE_LLEFT;
+                             tempSceneconfig.slots[0] = E_SLOT_MIDLE_LEFT;
+                             tempSceneconfig.slots[3] = E_SLOT_MIDLE_RIGHT;
+                             tempSceneconfig.slots[2] = E_SLOT_MIDLE_RRIGHT;
+                         break;
+                     }
+                     case E_SCENE_MODE_C : 
+                     {
+                             tempSceneconfig.slots[3] = E_SLOT_MIDLE_LLEFT;
+                             tempSceneconfig.slots[2] = E_SLOT_MIDLE_LEFT;
+                             tempSceneconfig.slots[0] = E_SLOT_MIDLE_RIGHT;
+                             tempSceneconfig.slots[1] = E_SLOT_MIDLE_RRIGHT;                
+                         break;
+                     }
+                     case E_SCENE_MODE_ONE_CENTER :     
+                     {
+                         tempSceneconfig.slots[tempSceneconfig.mode_instrument] = E_SLOT_FRONT_CENTER;
+                         break;
+                     }
+                     case E_SCENE_MODE_ONE_LEFT :   
+                     {
+                         tempSceneconfig.slots[tempSceneconfig.mode_instrument] = E_SLOT_FRONT_LEFT;
+                         break;
+                     }
+                     case E_SCENE_MODE_ONE_RIGHT : 
+                     { 
+                         tempSceneconfig.slots[tempSceneconfig.mode_instrument] = E_SLOT_FRONT_RIGHT;
+                         break;
+                     }
+            }
         }
-        
+        if(jsonParserGetStemNumber(IDX)==5)
+        {
+            switch(tempSceneconfig.mode)
+            {
+                     case E_SCENE_MODE_A : 
+                     {
+                             tempSceneconfig.slots[0] = E_SLOT_MIDLE_LLEFT;
+                             tempSceneconfig.slots[1] = E_SLOT_MIDLE_LEFT;
+                             tempSceneconfig.slots[2] = E_SLOT_MIDLE_RIGHT;
+                             tempSceneconfig.slots[3] = E_SLOT_MIDLE_RRIGHT;
+                             tempSceneconfig.slots[4] = E_SLOT_MIDLE_CENTER;
+                         break;
+                     }
+                     case E_SCENE_MODE_B : 
+                     {
 
+                         break;
+                     }
+                     case E_SCENE_MODE_C : 
+                     {
+               
+                         break;
+                     }
+                     case E_SCENE_MODE_ONE_CENTER :     
+                     {
+                         tempSceneconfig.slots[tempSceneconfig.mode_instrument] = E_SLOT_FRONT_CENTER;
+                         break;
+                     }
+                     case E_SCENE_MODE_ONE_LEFT :   
+                     {
+                         tempSceneconfig.slots[tempSceneconfig.mode_instrument] = E_SLOT_FRONT_LEFT;
+                         break;
+                     }
+                     case E_SCENE_MODE_ONE_RIGHT : 
+                     { 
+                         tempSceneconfig.slots[tempSceneconfig.mode_instrument] = E_SLOT_FRONT_RIGHT;
+                         break;
+                     }
+            }
+        }
+
+    
         sceneconfig_save(tempSceneconfig, IDX);
+        polarPlanComponent.replot(tempSceneconfig,IDX);        
         repaint();
     }
+
 
 
     TextButton BUTTON_OK;
@@ -205,6 +292,8 @@ private:
     CustomLookAndFeel customLookAndFeel;
 
     Scene_config tempSceneconfig;
+
+	WndConfigCallback wndConfigCallback; 
 
     SafePointer<DialogWindow> dialogWindow;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WindowSceneConfig)

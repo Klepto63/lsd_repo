@@ -7,7 +7,6 @@ int librairy_size;
 
 int jsonParserLoad(int idx, s_metadata* metadata)
 {
-
 	if (idx < librairy_size) //todo checker si on a trouve les data dans le json
 	{
 		juce::String pathh  = PathGetAsset(PATH_SONG) +  jsonFile["library"][idx]["folder"];
@@ -23,6 +22,7 @@ int jsonParserLoad(int idx, s_metadata* metadata)
 		{
 			metadata->stem[i].name = pathh + jsonFile["library"][idx]["stems"][i]["name"];
 			metadata->stem[i].path = pathh + jsonFile["library"][idx]["stems"][i]["path"];
+			metadata->stem[i].img =  pathh + jsonFile["library"][idx]["stems"][i]["img"];
 		}
 
 		return 0;
@@ -35,13 +35,19 @@ int jsonParserGetNbSong()
 {
 	return librairy_size;
 }
-int   jsonParserGetInstrumentNumber(int idxsong)
+int jsonParserGetStemNumber(int idxsong)
 {
 	return jsonFile["library"][idxsong]["stem_nb"];
 }
-String jsonParserGetInstrumentList(int idxsong, int id)
+String jsonParserGetStemName(int idxsong, int id)
 {
 	String m = jsonFile["library"][idxsong]["stems"][id]["name"];
+	return m;
+}
+
+String jsonParserGetStemImgPath(int idxsong, int id)
+{
+	String m = ABS_PATH_ASSETS_IMG + jsonFile["library"][idxsong]["stems"][id]["img"];
 	return m;
 }
 

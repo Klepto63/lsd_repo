@@ -36,13 +36,16 @@ public:
         {
             leftbarupdated(v);
         });
+        sceneComponent.setSceneComponentOnChangeCallback([this](float v)
+        {
+            playerComponent.applyHightlight();
+        });
 
         addAndMakeVisible(&sceneConfigButton);
         sceneConfigButton.setButtonText("sceneConfigButton");
         sceneConfigButton.onClick = [this] { sceneConfigButtonClicked(); };
         sceneConfigButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
         Image sceneConfigButtonImgOFF = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SCENE_CONFIG)));
-
         sceneConfigButton.setImages(true,  //re-size to fit
                              true,  //rescale image
                              true,  //preserve proportion
@@ -51,6 +54,10 @@ public:
             sceneConfigButtonImgOFF, 1.0f, juce::Colours::transparentBlack, //image when down
             0.5f
         );
+        
+
+
+
 
         addAndMakeVisible(&bypass3DButton);
         bypass3DButton.setButtonText("bypass3DButton");
@@ -79,6 +86,8 @@ public:
                 currentIdSong = tableComponent.getRowId();
                 playerComponent.Master_changeState(PlayerComponent::Master_Stopped);
                 playerComponent.Master_loadAndPlay(currentIdSong);
+
+                sceneComponent.updateConfig(currentIdSong);
                 sceneComponent.event_notify(0);
             }
         }
@@ -91,7 +100,6 @@ public:
 
     void sceneConfigButtonClicked(void)
     {
-
         if(currentIdSong == -1)
         {
             //no song selected = no popup
@@ -121,6 +129,12 @@ public:
 		    	ComponentPeer::windowHasCloseButton, 0); //StyleFlags
             dw->setAlwaysOnTop(true);   
 		    dw->setCentreRelative(0.5, 0.5); 
+            dw->setCallback([this](float f)
+            {
+                sceneComponent.updateConfig(currentIdSong);
+                //playerComponent.updateConfig();
+            });
+
         }
         
     }
@@ -168,10 +182,10 @@ public:
         leftBarComponent.setBounds(0,0, l_leftbar, Height - h_playbar);
         playerComponent.setBounds(0, Height - h_playbar, Width, h_playbar);
 
-        sceneComponent.setBounds(l_leftbar,0,Width-l_leftbar, 0.4f * Height); //1035x50
-        tableComponent.setBounds(l_leftbar - 8,  0.4f * Height - 10,   Width-l_leftbar +17,    (1 - 0.4f) * Height   - h_playbar + 20);
-        //FakeCodaSlider.setBounds(100,Height - 0.5*h_playbar, 200,20);
+        sceneComponent.setBounds(l_leftbar,0,Width-l_leftbar, 0.3f * Height); //1035x50
 
+        tableComponent.setBounds(l_leftbar - 8,  0.3f * Height - 10,   Width-l_leftbar +17,    (1 - 0.3f) * Height   - h_playbar + 20);
+        //FakeCodaSlider.setBounds(100,Height - 0.5*h_playbar, 200,20);
 
         sceneConfigButton.setBounds(0.8f * Width - 2 * ICON_BUTTON_SIZE, Height - 0.5f * (h_playbar + ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
         bypass3DButton.setBounds(0.8f*Width,  Height - 0.5f * (h_playbar+ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
@@ -227,7 +241,6 @@ private:
             energySlider.setRotaryParameters(MathConstants<float>::pi * 1.5f, MathConstants<float>::pi * 2.5f, true);
             energySlider.setEnabled(true);
 
-        
 		    addAndMakeVisible(&recenterButton);
             recenterButton.setColour(juce::TextButton::buttonColourId, Colour(RECENTER_BUTTON));
             recenterButton.setColour(juce::ComboBox::outlineColourId, Colour(RECENTER_BUTTON));

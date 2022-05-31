@@ -138,8 +138,8 @@ private:
         g.setColour(Colour((uint32)COLOR_TEXT_TABLE));
         Font Gofont = Font(typeface);
         Gofont.setHeight(16);		
-		g.drawText ("Recording tracker :", Rectangle<int>(20, 0.37*height, getWidth(), 20), juce::Justification::left, false);	
-		g.drawText ("Configuration :", Rectangle<int>(20, 0.67*height, getWidth(), 20), juce::Justification::left, false);	
+		g.drawText ("Live mode :", Rectangle<int>(20, 0.37*height, getWidth(), 20), juce::Justification::left, false);	
+		g.drawText ("Settings :", Rectangle<int>(20, 0.67*height, getWidth(), 20), juce::Justification::left, false);	
         g.setColour(Colour((uint32)TEXT_RED));		
 		//g.drawText ("Headtracker : not connected", Rectangle<int>(20, height - 100, getWidth(), 150), juce::Justification::left, false);	
 
@@ -163,8 +163,6 @@ private:
 
 		Gofont.setHeight(18);	
 		g.drawText ("No device detected", Rectangle<int>(0, 0.48*height + 30, getWidth(), 20), juce::Justification::horizontallyCentred, false);	
-
-	
 	}
 
 	void load_leftbar(int vstate)
@@ -266,7 +264,7 @@ private:
 			dw->setVisible(true);
 			dw->setOpaque(true);
 			
-			dw->setOnChangeCallback([this](int v) //12
+			dw->setOnChangeCallback([this](int v)
 			{	//child
 				//do changes
 				load_leftbar(v);

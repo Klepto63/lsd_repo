@@ -16,15 +16,17 @@ void PlayerComponent::sliderDragEnded(Slider* slider)
         double v = musicSlider.getValue();
         musicSliderBlockTimer = false;
         AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
-        if (node != nullptr)
+        for(int ii = 0 ; ii  < MAX_INSTR ; ii++)
         {
-            if (auto* processor = node->getProcessor())
+            node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) (3+ii)); //3=player0
+            if (node != nullptr)
             {
-                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                if (auto* processor = node->getProcessor())
                 {
-                        plugin->setPosition(v);
-                    
+                    if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                    {
+                            plugin->setPosition(v);
+                    }
                 }
             }
         }
@@ -57,17 +59,27 @@ void PlayerComponent::sliderValueChanged(Slider* slider)
             isMuted = true;
         }
         updateVolumeButtonImage(isMuted, currentVolume);
+
+
+        AudioProcessorGraph::Node* node;
+        for(int ii = 0 ; ii  < MAX_INSTR ; ii++)
+        {
+            node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) (3+ii)); //3=player0
+            if (node != nullptr)
+            {
+                if (auto* processor = node->getProcessor())
+                {
+                    if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                    {
+                            float gain = (1.0f*currentVolume) / 90.0f;
+                            plugin->setGain((gain)); //1.0 = 0dB, 0.5 = -6dB, 2.0 = 6dB, etc.
+
+                    }
+                }
+            }
+        }
+
     }
-//
-    //if (slider == &energySlider)//1..10
-    //{
-    //    //glue reset
-    //    if (abs(energySlider.getValue() - 5) < 0.31 )
-    //    {
-    //        energySlider.setValue(5, dontSendNotification);
-    //    }
-    //}
-    
 }
 
 
@@ -84,21 +96,7 @@ void PlayerComponent::paint(juce::Graphics& g)
 void PlayerComponent::setAngle(float f)
 {
     AudioProcessorGraph::Node* node;
-    AudioProcessorGraph::Node* node2;
-    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 7); //7=dearPro1
-    if(node != nullptr)
-    {
-        if (auto* processor = node->getProcessor())
-            {
-                if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
-                {
-                    if (auto* param = plugin->getParameters()[1])
-                    {
-                        param->setValueNotifyingHost(0.25 + (f/2) + 0.15);   //0..1 == -180..180
-                    }
-                }
-            }
-    }
+
     node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 8); //7=dearPro1
     if (node != nullptr)
     {
@@ -127,6 +125,34 @@ void PlayerComponent::setAngle(float f)
             }
         }
     }
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 10); //7=dearPro1
+    if (node != nullptr)
+    {
+        if (auto* processor = node->getProcessor())
+        {
+            if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+            {
+                if (auto* param = plugin->getParameters()[1])
+                {
+                    param->setValueNotifyingHost(0.25 + (f/2)  );   //0..1 == -180..180
+                }
+            }
+        }
+    }
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 11); //7=dearPro1
+    if (node != nullptr)
+    {
+        if (auto* processor = node->getProcessor())
+        {
+            if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+            {
+                if (auto* param = plugin->getParameters()[1])
+                {
+                    param->setValueNotifyingHost(0.25 + (f/2)  );   //0..1 == -180..180
+                }
+            }
+        }
+    }    
 }
 
 void PlayerComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
@@ -223,6 +249,9 @@ void PlayerComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 
 }
 
+
+
+
 void PlayerComponent::timerCallback()
 {
     bool p = Master_isPlaying();
@@ -273,48 +302,25 @@ void PlayerComponent::Master_loadAndPlay(int idx)
     {
         playerTitlePlayingComponent.loadSongData(md);
         currentIdxPlaying = idx; //todo optimiser   
-
         AudioProcessorGraph::Node* node;
-        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
-        if (node != nullptr)
+        for(int ii = 0; ii < MAX_INSTR ; ii++)
         {
-            if (auto* processor = node->getProcessor())
+            node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) (3+ii)); //3=player0
+            if (node != nullptr)
             {
-                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                if (auto* processor = node->getProcessor())
                 {
-                    plugin->loadAndPlay(idx,0); //0 = stem 0
-                    playButton.setEnabled(true);
-                    //energySlider.setEnabled(true);  
-                    Master_changeState(Master_Starting);                                 
+                    if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                    {
+                        plugin->loadAndPlay(idx,ii); //0 = stem 0
+          
+                    }
                 }
             }
         }
 
-        AudioProcessorGraph::Node* node2;
-        node2 = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //4=player1
-        if (node2 != nullptr)
-        {
-            if (auto* processor = node2->getProcessor())
-            {
-                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
-                {
-                    plugin->loadAndPlay(idx,1); //0 = stem 0                                
-                }
-            }
-        }
-
-        AudioProcessorGraph::Node* node3;
-        node3 = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 5); //4=player1
-        if (node3 != nullptr)
-        {
-            if (auto* processor = node3->getProcessor())
-            {
-                if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
-                {
-                    plugin->loadAndPlay(idx,2); //0 = stem 0                                
-                }
-            }
-        }
+        playButton.setEnabled(true);
+        Master_changeState(Master_Starting);  
     }
     else
     {
@@ -335,46 +341,46 @@ void PlayerComponent::Master_changeState(Master_TransportState Master_newState)
             switch (Master_state)
             {
             case Master_Stopped:
+            {
                 updatePlayerButtonImage(false);
-                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
-                if (node != nullptr)
+                for(int ii = 0; ii < MAX_INSTR; ii++)
                 {
-                    if (auto* processor = node->getProcessor())
+                    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID)(3+ii)); //3=player0
+                    if (node != nullptr)
                     {
-                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        if (auto* processor = node->getProcessor())
                         {
-                            plugin->changeState(CustomPlayerProcessor::Stopped);
+                            if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                            {
+                                plugin->changeState(CustomPlayerProcessor::Stopped);
+                            }
                         }
                     }
                 }
-                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 4); //3=player0
-                if (node != nullptr)
-                {
-                    if (auto* processor = node->getProcessor())
-                    {
-                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
-                        {
-                            plugin->changeState(CustomPlayerProcessor::Stopped);
-                        }
-                    }
-                }                
+            }
                 break;
             case Master_Starting:
                 updatePlayerButtonImage(true);
-                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
-                if (node != nullptr)
+                for(int ii = 0; ii < MAX_INSTR; ii++)
                 {
-                    if (auto* processor = node->getProcessor())
+                    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) (3+ii)); //3=player0
+                    if (node != nullptr)
                     {
-                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        if (auto* processor = node->getProcessor())
                         {
-                            plugin->changeState(CustomPlayerProcessor::Starting);
-                            lengthDuration_s = plugin->getLength_s();
-                            minutes = ((int)(lengthDuration_s / 60));
-                            seconds = lengthDuration_s - (60 * minutes);
-                            LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
-                            lengthLabel.setText(LengthString, juce::dontSendNotification);
-                            musicSlider.setValue(0, dontSendNotification);
+                            if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                            {
+                                plugin->changeState(CustomPlayerProcessor::Starting);
+                                if(ii==0)
+                                {
+                                    lengthDuration_s = plugin->getLength_s();
+                                    minutes = ((int)(lengthDuration_s / 60));
+                                    seconds = lengthDuration_s - (60 * minutes);
+                                    LengthString = juce::String::formatted("%02d:%02d", minutes, seconds);
+                                    lengthLabel.setText(LengthString, juce::dontSendNotification);
+                                    musicSlider.setValue(0, dontSendNotification);
+                                }
+                            }
                         }
                     }
                 }
@@ -384,31 +390,51 @@ void PlayerComponent::Master_changeState(Master_TransportState Master_newState)
                 break;
             case Master_Stopping:
                 updatePlayerButtonImage(false);
-                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
-                if (node != nullptr)
+                for(int ii = 0; ii < MAX_INSTR; ii++)
                 {
-                    if (auto* processor = node->getProcessor())
+                    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) (3+ii)); //3=player0
+                    if (node != nullptr)
                     {
-                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                        if (auto* processor = node->getProcessor())
                         {
-                            plugin->changeState(CustomPlayerProcessor::Stopping);
+                            if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                            {
+                                plugin->changeState(CustomPlayerProcessor::Stopping);
+                            }
                         }
                     }
                 }
-                node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) 3); //3=player0
-                if (node != nullptr)
-                {
-                    if (auto* processor = node->getProcessor())
-                    {
-                        if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
-                        {
-                            plugin->changeState(CustomPlayerProcessor::Stopping);
-                        }
-                    }
-                }                
                 break;
             }
         }
+}
+
+void PlayerComponent::updateConfig(void)
+{
+    
+}
+
+void PlayerComponent::applyHightlight(void)
+{
+    AudioProcessorGraph::Node* node;
+    for(int ii = 0; ii < MAX_INSTR ; ii++)
+    {
+        node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) (8+ii)); //7=dearPro1
+        if (node != nullptr)
+        {
+            if (auto* processor = node->getProcessor())
+            {
+                if (auto* plugin = dynamic_cast<AudioPluginInstance*> (processor))
+                {
+                    if (auto* param = plugin->getParameters()[7]) //30
+                    {
+                        float v =  sceneconfig_get_hightlight(ii);
+                        param->setValueNotifyingHost(  v  );   //0..1 == -180..180
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool PlayerComponent::Master_isPlaying(void)
@@ -512,7 +538,29 @@ void PlayerComponent::muteButtonClicked(void)
         currentVolume = 0;
         volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
     }
+
+    if(Master_isPlaying())
+    {
+        AudioProcessorGraph::Node* node;
+        for(int ii = 0 ; ii  < MAX_INSTR ; ii++)
+        {
+            node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID) (3+ii)); //3=player0
+            if (node != nullptr)
+            {
+                if (auto* processor = node->getProcessor())
+                {
+                    if (auto* plugin = dynamic_cast<CustomPlayerProcessor*> (processor))
+                    {
+                            float gain = (1.0f*currentVolume) / 90.0f;
+                            plugin->setGain((gain)); //1.0 = 0dB, 0.5 = -6dB, 2.0 = 6dB, etc.
+
+                    }
+                }
+            }
+        }
+    }
 }
+
 
 void PlayerComponent::cubeButtonClicked(void)
 {
@@ -590,14 +638,12 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
         {
             mainProcessor->addConnection({ { VR3Node->nodeID,  channel }, { audioOutputNode->nodeID, channel } });
         }
-        //node->properties.set ("x", pos.x);
-        //node->properties.set ("y", pos.y);
-        //changed();
+
     }
 
-    //init parameter
+    //init parameters
     AudioProcessorGraph::Node* node;
-    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID)(ii + 7)); //vst3 dearvr pro
+    node = mainProcessor->getNodeForId((juce::AudioProcessorGraph::NodeID)(ii + MAX_INSTR + 2)); //vst3 dearvr pro
     if (node != nullptr)
     {
         if (auto* processor = node->getProcessor())
@@ -614,9 +660,6 @@ void PlayerComponent::addPluginCallback(std::unique_ptr<AudioPluginInstance> ins
 }
 
 
-
-
-
 /*
 Processors can be added to the graph as "nodes" using addNode(), and once added,
  you can connect any of their input or output channels to other nodes using addConnection().
@@ -629,15 +672,12 @@ void PlayerComponent::initialiseGraph(void)
     audioInputNode  = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioInputNode));
     audioOutputNode = mainProcessor->addNode (std::make_unique<AudioGraphIOProcessor> (AudioGraphIOProcessor::audioOutputNode));
 
-    //todolete
-    //slots.add(slot1Node);
-    //slots.add(slot2Node);
-
     slots.set(0, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(10))); //0 : id du player
     slots.set(1, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(11))); //0 : id du player
     slots.set(2, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(12))); //0 : id du player
     slots.set(3, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(13))); //0 : id du player    
-    for(int ii = 0; ii< 4; ii++)
+    slots.set(4, mainProcessor->addNode ( std::make_unique<CustomPlayerProcessor>(13))); //0 : id du player    
+    for(int ii = 0; ii< MAX_INSTR; ii++)
     {
         auto slot = slots.getUnchecked(0); //useless mais pour tester
         if (slot != nullptr)
@@ -662,7 +702,7 @@ void PlayerComponent::initialiseGraph(void)
     vstformatManager2.addDefaultFormats();
     vstformatManager3.addDefaultFormats();
     vstformatManager4.addDefaultFormats();
-
+    vstformatManager5.addDefaultFormats();
 
     OwnedArray<PluginDescription> pluginDescriptions;    //https://forum.juce.com/t/connect-to-a-vst-plugin/20929/6
     KnownPluginList plist;
@@ -703,6 +743,14 @@ void PlayerComponent::initialiseGraph(void)
                                                                 [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
                                                                 {
                                                                     addPluginCallback(std::move(instance), error,3);
+                                                                }
+                                                            );
+    vstformatManager5.createPluginInstanceAsync(         *pluginDescriptions[0],
+                                                            48000,
+                                                            1024,
+                                                                [this, dpiDisabler](std::unique_ptr<AudioPluginInstance> instance, const String& error)
+                                                                {
+                                                                    addPluginCallback(std::move(instance), error,4);
                                                                 }
                                                             );
 
