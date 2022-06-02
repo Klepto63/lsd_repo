@@ -41,13 +41,14 @@ void PlayerComponent::sliderValueChanged(Slider* slider)
     {
         currentVolume = 10*slider->getValue();
 
-        if (currentVolume < 85)
+        if (currentVolume < 75)
         {
-            volumeSlider.setColour(0x1001310, Colour((uint8_t)0x1d, (uint8_t)0xb9, (uint8_t)0x54, (float)currentVolume / 75));
+            volumeSlider.setColour(0x1001310, Colour((uint8_t)0xEE, (uint8_t)0xEE, (uint8_t)0xEE, (float)currentVolume / 55));
         }
         else
         {
-            volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 9*(currentVolume-50)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - 2 * (currentVolume - 85)), (float)1));
+            //volumeSlider.setColour(0x1001310, Colour((uint8_t)(0x1d + 9*(currentVolume-50)), (uint8_t)(0xb9 + 3*(currentVolume - 85)), (uint8_t)(0x54 - 2 * (currentVolume - 85)), (float)1));
+            volumeSlider.setColour(0x1001310, Colour( (uint8_t)(0xEE + (currentVolume/10)), (uint8_t)0xEE - 5*(currentVolume-75), (uint8_t)0xEE - 5*(currentVolume-75 ), (float) 1));
         }
 
         if (isMuted && (currentVolume!=0))
@@ -215,33 +216,42 @@ void PlayerComponent::resized()
     int Width = getWidth();
     int h_playbar = 100; //largeur playbar like spotify
     //energySlider.setBounds((getWidth() - 100) * 0.5f - 1, 5, 100, 80);
-    playButton.setBounds((Width - PLAY_BUTTON_SIZE) * 0.5f , 45 - 0.5* PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE); //aussi resized a updatePlayerButtonImage()
-    prevButton.setBounds((Width - NEXT_BUTTON_SIZE) * 0.5f - NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
-    nextButton.setBounds((Width - NEXT_BUTTON_SIZE) * 0.5f + NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE, NEXT_BUTTON_SIZE);
 
 
-    playerTitlePlayingComponent.setBounds(10, 10, 200, 80);
+    playButton.setBounds((Width - PLAY_BUTTON_SIZE) * 0.5f , 47 - 0.5* PLAY_BUTTON_SIZE - 6, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE);   //aussi resized a updatePlayerButtonImage()
 
 
-    int musicSliderSize = 0.25f*Width + 150;
+    prevButton.setBounds((Width - NEXT_BUTTON_SIZE_X) * 0.5f - NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE_X - 6, NEXT_BUTTON_SIZE_X, NEXT_BUTTON_SIZE_Y);
+    nextButton.setBounds((Width - NEXT_BUTTON_SIZE_X) * 0.5f + NEXT_BUTTON_SPACE, 45 - 0.5 * NEXT_BUTTON_SIZE_X - 6, NEXT_BUTTON_SIZE_X, NEXT_BUTTON_SIZE_Y);
+    repeatButton.setBounds((Width - NEXT_BUTTON_SIZE_X) * 0.5f - (3.0f * NEXT_BUTTON_SPACE), 45 - 0.5 * NEXT_BUTTON_SIZE_X - 6, NEXT_BUTTON_SIZE_X, NEXT_BUTTON_SIZE_Y);
+    randomButton.setBounds((Width - NEXT_BUTTON_SIZE_X) * 0.5f - (2.0f * NEXT_BUTTON_SPACE), 45 - 0.5 * NEXT_BUTTON_SIZE_X - 6 , NEXT_BUTTON_SIZE_X, NEXT_BUTTON_SIZE_Y);
+
+
+    playerTitlePlayingComponent.setBounds(20, 20, 200, 60);
+
+
+    int musicSliderSize = 0.30f*Width + 150;
 
     currentPositionLabel.setBounds(0.5 * (Width - musicSliderSize) - 40, 59, Width - 20, 40);
-    musicSlider.setBounds(0.5 * (Width - musicSliderSize), 58, musicSliderSize, 42);
     lengthLabel.setBounds(0.5 * (Width + musicSliderSize), 59, Width - 20, 40);
 
-
+    musicSlider.setBounds(0.5 * (Width - musicSliderSize), 72, musicSliderSize, 15);
 
     muteButton.setBounds(0.8f*Width + 2 * ICON_BUTTON_SIZE, 0.5f*(h_playbar-ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE); //aussi resized a updateMuteButtonImage()
-    volumeSlider.setBounds(0.8f*Width + 3 * ICON_BUTTON_SIZE, 0.5f*(h_playbar-ICON_BUTTON_SIZE), 0.15f*Width - 3 * ICON_BUTTON_SIZE , 20);
+
+
+    volumeSlider.setBounds(0.8f*Width + 3 * ICON_BUTTON_SIZE, 0.5f*(h_playbar-ICON_BUTTON_SIZE )+5, 0.15f*Width - 3 * ICON_BUTTON_SIZE , 15);
 
 
 
-
-    cubeButton.setBounds(Width - 200 - ICON_BUTTON_SIZE - 50, 45, ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
 
  
     DebugButton.setBounds(200,20,60,30);
     DebugButton2.setBounds(300,20,60,30);
+
+
+
+
 }
 
 void PlayerComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
@@ -290,6 +300,11 @@ void PlayerComponent::timerCallback()
         if(Master_state == Master_Playing)
         {
             Master_changeState(Master_Stopped);
+
+            if(repeatMode)
+            {
+                Master_loadAndPlay(currentIdxPlaying);
+            }
         }
     }
 }
@@ -318,8 +333,15 @@ void PlayerComponent::Master_loadAndPlay(int idx)
                 }
             }
         }
-
         playButton.setEnabled(true);
+        prevButton.setEnabled(true);
+        nextButton.setEnabled(true);
+        cubeButton.setEnabled(true);
+        randomButton.setEnabled(true);
+        repeatButton.setEnabled(true);
+        musicSlider.setVisible(true);
+        muteButton.setVisible(true);
+        volumeSlider.setVisible(true);
         Master_changeState(Master_Starting);  
     }
     else
@@ -461,8 +483,8 @@ void PlayerComponent::updatePlayerButtonImage(bool playing)
 {
     if (playing)
     {
-        Image img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PLAY_BUTTON)));
         Image img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PAUSE_BUTTON)));
+        Image img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PAUSE_BUTTON_ONCLICK)));
         playButton.setImages(true, true, true,
             img, 1.0f, juce::Colours::transparentBlack,
             img, 1.0f, juce::Colours::transparentBlack,
@@ -473,7 +495,7 @@ void PlayerComponent::updatePlayerButtonImage(bool playing)
     else
     {
         Image img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PLAY_BUTTON)));
-        Image img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PAUSE_BUTTON)));
+        Image img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_PLAY_BUTTON_ONCLICK)));
         playButton.setImages(true, true, true,
             img, 1.0f, juce::Colours::transparentBlack,
             img, 1.0f, juce::Colours::transparentBlack,
@@ -481,7 +503,7 @@ void PlayerComponent::updatePlayerButtonImage(bool playing)
             0.5f
         );
     }
-    playButton.setBounds((getWidth() - PLAY_BUTTON_SIZE) * 0.5f, 45 - 0.5 * PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE);
+    resized();
 }
 
 void PlayerComponent::updateVolumeButtonImage(bool isMuted, int sliderVolume)
@@ -513,7 +535,7 @@ void PlayerComponent::updateVolumeButtonImage(bool isMuted, int sliderVolume)
 
      muteButton.setImages(true, true, true,
          img, 1.0f, juce::Colours::transparentBlack,
-         img, 1.0f, juce::Colours::red,
+         img, 1.0f, juce::Colours::white,
          img2, 1.0f, juce::Colours::transparentBlack, //pas le pause
          0.5f
      );
@@ -525,17 +547,17 @@ void PlayerComponent::muteButtonClicked(void)
 {
     if (isMuted)
     {
-        updateVolumeButtonImage(false, currentVolume);
         isMuted = false;
         currentVolume = volumeBeforeMute;;
         volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
+        updateVolumeButtonImage(false, currentVolume);
     }
     else
     {
-        updateVolumeButtonImage(true, currentVolume);
         isMuted = true;
         volumeBeforeMute = currentVolume;
         currentVolume = 0;
+        updateVolumeButtonImage(true, currentVolume);
         volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
     }
 
@@ -562,12 +584,6 @@ void PlayerComponent::muteButtonClicked(void)
 }
 
 
-void PlayerComponent::cubeButtonClicked(void)
-{
-
-}
-
-
 void PlayerComponent::playButtonClicked()
 {
     if (Master_isPlaying())
@@ -580,35 +596,99 @@ void PlayerComponent::playButtonClicked()
     }
 }
 
+void PlayerComponent::repeatButtonClicked(void)
+{
+    Image img, img2;
+    if(!repeatMode)
+    {
+        repeatMode = true;
+        img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_REPEAT_BUTTON_CLICK)));
+        img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_REPEAT_BUTTON_CLICKON)));
+    }
+    else
+    {
+        img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_REPEAT_BUTTON)));
+        img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_REPEAT_BUTTON_ONCLICK)));
+        repeatMode = false;
+    }
+
+    repeatButton.setImages(true, true, true,
+        img, 1.0f, juce::Colours::transparentBlack,
+        img, 1.0f, juce::Colours::transparentBlack,
+        img2, 1.0f, juce::Colours::transparentBlack, //pas le pause
+        0.5f );
+    resized();
+}
+
+void PlayerComponent::randomButtonClicked(void)
+{
+    Image img, img2;
+    if(!randomMode)
+    {
+        randomMode = true;
+        img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_RANDOM_BUTTON_CLICK)));
+        img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_RANDOM_BUTTON_CLICKON)));
+    }
+    else
+    {
+        img = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_RANDOM_BUTTON)));
+        img2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_RANDOM_BUTTON_ONCLICK)));
+        randomMode = false;
+    }
+
+    randomButton.setImages(true, true, true,
+        img, 1.0f, juce::Colours::transparentBlack,
+        img, 1.0f, juce::Colours::transparentBlack,
+        img2, 1.0f, juce::Colours::transparentBlack, //pas le pause
+        0.5f );
+    resized();
+}
+
 
 void PlayerComponent::nextButtonClicked(void)
 {
-    
-    //if (currentIdxPlaying == jsonParserGetNbSong() - 1) //dernier son jou�, retour au premier
-    //{
-    //    Master_loadAndPlay(0);
-    //    currentIdxPlaying = 0;
-    //}
-    //else
-    //{
-    //    Master_loadAndPlay(++currentIdxPlaying);
-    //}
-    
+    Master_changeState(Master_Stopping);  
+    int nb = jsonParserGetNbSong();  
+    int a;
+    if(!randomMode)
+    {
+
+        if (currentIdxPlaying == (nb - 1)) //dernier son joué, retour au premier
+        {
+            currentIdxPlaying = 0;
+        }
+        else
+        {
+            currentIdxPlaying++;
+        }
+    }
+    else
+    {
+        do
+        {
+            a = rand() % nb;
+        } while (a == currentIdxPlaying);
+        currentIdxPlaying = a;
+    }
+
+    Master_loadAndPlay(currentIdxPlaying);
+    playerCallback(currentIdxPlaying);
 }
 
 void PlayerComponent::prevButtonClicked(void)
 {
+    Master_changeState(Master_Stopping);    
+    if (currentIdxPlaying == 0) //dernier son joué, retour au premier
+    {
+        currentIdxPlaying = jsonParserGetNbSong() - 1;
+        Master_loadAndPlay(currentIdxPlaying);
+    }
+    else
+    {
+        Master_loadAndPlay(--currentIdxPlaying);
+    }
     
-    //if (currentIdxPlaying == 0) //dernier son joué, retour au premier
-    //{
-    //    currentIdxPlaying = jsonParserGetNbSong() - 1;
-    //    Master_loadAndPlay(currentIdxPlaying);
-    //}
-    //else
-    //{
-    //    Master_loadAndPlay(--currentIdxPlaying);
-    //}
-    
+    playerCallback(currentIdxPlaying);
 }
 
 

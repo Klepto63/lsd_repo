@@ -15,6 +15,7 @@ using namespace juce;
 
 
 
+
 //==============================================================================
 /**
     A desktop window containing a plugin's GUI.
@@ -81,6 +82,8 @@ public:
         node->properties.set (getOpenProp (type), false);
         activeWindowList.removeObject (this);
     }
+
+
 
     static String getLastXProp (Type type)    { return "uiLastX_" + getTypeName (type); }
     static String getLastYProp (Type type)    { return "uiLastY_" + getTypeName (type); }
@@ -277,7 +280,6 @@ private:
 };
 
 
-
 //==============================================================================
 class CustomPlayerProcessor  : public ProcessorBase, public  juce::ChangeListener
 {
@@ -333,6 +335,8 @@ public:
 
     }
 */
+
+
 
     void reset() override
     {
@@ -415,6 +419,8 @@ public:
         return audioX.getCurrentPosition();
     }
 
+
+
     const juce::String getName() const override { return "Player"; }
     const int getId() const {return id;} 
 
@@ -476,7 +482,7 @@ private:
 
 
 
-
+typedef std::function<void (int)> PlayerCallback;
 
 
 
@@ -516,11 +522,43 @@ public:
         playButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
         playButton.setEnabled(false);
 
+        addAndMakeVisible(&repeatButton);
+        repeatButton.setButtonText("repeat");
+        repeatButton.onClick = [this] { repeatButtonClicked(); };
+        Image imgrepeatButton = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_REPEAT_BUTTON)));
+        Image imgrepeatButton2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_REPEAT_BUTTON_ONCLICK)));
+        repeatButton.setImages(true,  //resize to fit
+                             true,  //rescale image
+                             true,  //preserve proportion
+            imgrepeatButton, 1.0f, juce::Colours::transparentBlack,
+            imgrepeatButton, 1.0f, juce::Colours::transparentBlack,
+            imgrepeatButton2, 1.0f, juce::Colours::transparentBlack, //image when down
+            0.5f
+        );
+        repeatButton.setEnabled(false);
+
+        addAndMakeVisible(&randomButton);
+        randomButton.setButtonText("random");
+        randomButton.onClick = [this] { randomButtonClicked(); };
+        Image imgrandomButton = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_RANDOM_BUTTON)));
+        Image imgrandomButton2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_RANDOM_BUTTON_ONCLICK)));
+        randomButton.setImages(true,  //resize to fit
+                             true,  //rescale image
+                             true,  //preserve proportion
+            imgrandomButton, 1.0f, juce::Colours::transparentBlack,
+            imgrandomButton, 1.0f, juce::Colours::transparentBlack,
+            imgrandomButton2, 1.0f, juce::Colours::transparentBlack, //image when down
+            0.5f
+        );
+        randomButton.setEnabled(false);
+
         addAndMakeVisible(&muteButton);
         muteButton.setButtonText("Mute");
         updateVolumeButtonImage(false, 100);
         muteButton.onClick = [this] { muteButtonClicked(); };
         muteButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
+        muteButton.setVisible(false);
+
 
         addAndMakeVisible(&cubeButton);
         cubeButton.setButtonText("Scene");
@@ -531,10 +569,11 @@ public:
                              true,  //rescale image
                              true,  //preserve proportion
             imgcubeButton, 1.0f, juce::Colours::transparentBlack,
-            imgcubeButton, 1.0f, juce::Colours::white,
+            imgcubeButton, 1.0f, juce::Colours::transparentBlack,
             imgcubeButton2, 1.0f, juce::Colours::transparentBlack, //image when down
             0.5f
         );
+        cubeButton.setEnabled(false);
 
         addAndMakeVisible(&nextButton);
         nextButton.setButtonText("Next");
@@ -544,12 +583,13 @@ public:
                              true,  //rescale image
                              true,  //preserve proportion
             imgNextButton, 1.0f, juce::Colours::transparentBlack,
-            imgNextButton, 1.0f, juce::Colours::white,
+            imgNextButton, 1.0f, juce::Colours::transparentBlack,
             imgNextButton2, 1.0f, juce::Colours::transparentBlack, //image when down
             0.5f
         );
         nextButton.onClick = [this] { nextButtonClicked(); };
         nextButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
+        nextButton.setEnabled(false);
 
         addAndMakeVisible(&prevButton);
         prevButton.setButtonText("Prev");
@@ -559,17 +599,20 @@ public:
             true,  //rescale image
             true,  //preserve proportion
             imgPrevButton, 1.0f, juce::Colours::transparentBlack,
-            imgPrevButton, 1.0f, juce::Colours::white,
+            imgPrevButton, 1.0f, juce::Colours::transparentBlack,
             imgPrevButton2, 1.0f, juce::Colours::transparentBlack, //image when down
             0.5f
         );
         prevButton.onClick = [this] { prevButtonClicked(); };
         prevButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
+        prevButton.setEnabled(false);
+
         addAndMakeVisible(&currentPositionLabel);
         currentPositionLabel.setFont(12);
         addAndMakeVisible(&lengthLabel);
         lengthLabel.setJustificationType(Justification::centredLeft);
         lengthLabel.setFont(12);
+
         addAndMakeVisible(&musicSlider);
         musicSlider.hideTextBox(true);
         //musicSlider.setSliderStyle(Slider::LinearBar);
@@ -579,6 +622,7 @@ public:
         musicSlider.setColour(0x1001300, Colour(THUMB_COLOR));      //thumbColor (la boule)
         musicSlider.setColour(0x1001310, Colour(LIGNE_COLOR));      //ligneColor
         musicSlider.addListener(this);
+        musicSlider.setVisible(false);
 
         addAndMakeVisible(&volumeSlider);
         volumeSlider.hideTextBox(true);
@@ -587,8 +631,10 @@ public:
         volumeSlider.setValue(currentVolume / 10, juce::dontSendNotification);
         volumeSlider.setColour(0x1001200, Colour(BACKGROUND_COLOR)); //backgroundId
         volumeSlider.setColour(0x1001300, Colour(THUMB_COLOR));      //thumbColor (la boule)
-        volumeSlider.setColour(0x1001310, Colour(LIGNE_COLOR));      //ligneColor
+        volumeSlider.setColour(0x1001310, Colour(VOLUME_LIGNE_COLOR));      //ligneColor
         volumeSlider.addListener(this);
+        volumeSlider.setVisible(false);
+        
         addAndMakeVisible(&playerTitlePlayingComponent);
         setSize(200, 200);
 
@@ -620,7 +666,7 @@ public:
         Time::waitForMillisecondCounter(Time::getMillisecondCounter() + 1000);
 
         //====delai
-        
+        std::srand(std::time(nullptr)); 
 
         mainProcessorPlayer.setProcessor (mainProcessor.get()); //definie quel AudioProcessorGraph le player doit sortir
         setAudioChannels(0, 2);
@@ -657,6 +703,10 @@ public:
     void initialiseGraph();
     void addPluginCallback(std::unique_ptr<AudioPluginInstance> instance, const String& error, int ii);
 
+    void setPlayerCallback(PlayerCallback cb )
+    {
+        playerCallback = cb;
+    }
 
 
 private:
@@ -724,6 +774,9 @@ private:
     void nextButtonClicked(void);
     void prevButtonClicked(void);
     void cubeButtonClicked(void);
+    void repeatButtonClicked(void);
+    void randomButtonClicked(void);
+
 
     //==========================================================================
     Master_TransportState   Master_state;
@@ -731,7 +784,10 @@ private:
     int                     volumeBeforeMute;
     bool                    isMuted;
     bool                    musicSliderBlockTimer; //gestion drag drop timer
-    int                     currentVolume = 85;                   
+    int                     currentVolume = 75;                   
+
+    bool                    repeatMode = false;
+    bool                    randomMode = false;
 
 
     juce::ImageButton playButton;
@@ -739,6 +795,11 @@ private:
     juce::ImageButton prevButton;
     juce::ImageButton muteButton;
     juce::ImageButton cubeButton;
+
+    juce::ImageButton repeatButton;
+    juce::ImageButton randomButton;
+
+
     juce::Slider musicSlider;
     juce::Slider volumeSlider;
     juce::Label currentPositionLabel;
@@ -772,6 +833,7 @@ private:
     Node::Ptr slot2Node;    //dearVr
 
  
+    PlayerCallback playerCallback;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerComponent)
 };

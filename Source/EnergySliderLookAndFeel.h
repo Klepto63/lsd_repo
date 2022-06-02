@@ -31,12 +31,12 @@ public:
 
         auto angleratio = (angle - rotaryStartAngle) / (rotaryEndAngle - rotaryStartAngle);
         Colour c1 = Colour(ENERGY_SLIDER_RED_COLOR);
-        Colour c2 = Colour(ENERGY_SLIDER_BLUE_COLOR);
-        Colour c3 = c1.interpolatedWith(c2, angleratio).interpolatedWith(Colour(0xaaffffff), 1 - 2 * abs(angleratio - 0.5));
+        //Colour c2 = Colour(ENERGY_SLIDER_BLUE_COLOR);
+        //Colour c3 = c1.interpolatedWith(c2, angleratio).interpolatedWith(Colour(0xaaffffff), 1 - 2 * abs(angleratio - 0.5));
 
         //ellipse
-        g.setColour(c3.interpolatedWith(Colour(WP_LEFTBAR), 0.7));
-        g.drawEllipse(rx, ry, rw, rw, 3.0f);
+        g.setColour(c1.interpolatedWith(Colour(ENERGY_SLIDER_RED_COLOR), 1.0));
+        g.drawEllipse(rx, ry, rw, rw, 1.5f);
     
 
         g.setColour(Colour(WP_LEFTBAR));
@@ -56,10 +56,10 @@ public:
 
         juce::Path p;
         auto pointerLength = radius * 0.30f;
-        auto pointerThickness = 3.0f;
+        auto pointerThickness = 2.0f;
         p.addRectangle(-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
         p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
-        g.setColour(c3);
+        g.setColour(Colour(0xffdddddd));
         g.fillPath(p);
 	}
 

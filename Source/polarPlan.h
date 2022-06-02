@@ -144,9 +144,10 @@ public:
                 angle = inst[ii].rad + 90;
                 x = 0.5 + inst[ii].dist * (std::cos((angle) * 2 * 3.1415 / 360));
                 y = 0.88 - inst[ii].dist * (std::sin((angle) * 2 * 3.1415 / 360));
-                g.setColour(juce::Colours::red);
-                g.fillEllipse((w * x) - (10 * 0.5f), (h * y) - (10 * 0.5f), 10, 10);
-                g.setColour(Colour(juce::Colours::black));
+                g.setColour(Colour((uint32)POLAR_PLAN_LE_DOT));
+                g.fillEllipse((w * x) - (10 * 0.5f), (h * y) - (10 * 0.5f), 11, 11);
+                g.setFont(14);
+                g.setColour(Colour(juce::Colours::white));
     	        g.drawFittedText(inst[ii].name,  Rectangle<int>(w*x - 30, y*h - 30, 60, 20), juce::Justification::centred,10,1);                
             }
         }

@@ -39,16 +39,15 @@ public:
 			g.drawRect(80, 0, 90,50,25);
 			//g.fillAll(Colours::red);
 
-			g.drawImage(image, 0, 0, 80, 80, 0, 0, image.getWidth(), image.getHeight(), false);
+			g.drawImage(image, 0, 0, 60, 60, 0, 0, image.getWidth(), image.getHeight(), false);
 
 			g.setColour(Colour(0xffffffff));
-			g.setFont(16);
-			g.drawText(title, 90, 0, 150, 30, Justification::centredLeft);
-
+			g.setFont(15);
+			g.drawText(title, 82, 0, 150, 30, Justification::centredLeft);
 
 			g.setColour(Colour(0xffbbbbbb));
-			g.setFont(14);
-			g.drawText(composer, 90, 15, 150, 40, Justification::centredLeft);
+			g.setFont(13);
+			g.drawText(composer, 82, 15, 150, 40, Justification::centredLeft);
 
 		}
 	}

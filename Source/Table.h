@@ -21,7 +21,7 @@ public:
         table.addMouseListener(this, true);
         table.setModel(this);
         selectedRow = 99;
-        table.setRowHeight(30);
+        table.setRowHeight(50);
        
         table.setColour(ListBox::backgroundColourId, Colour(ROW_ALTERNATE_COLOR2));
         table.setOutlineThickness(0);
@@ -35,17 +35,20 @@ public:
                 columnXml->getIntAttribute("columnId"),
                 columnXml->getIntAttribute("width"),
                 50, 400,
-                TableHeaderComponent::defaultFlags);
+                TableHeaderComponent::notResizable);
         }
 
         // we could now change some initial settings..
         table.getHeader().setSortColumnId(1, true); // sort forwards by the ID column
         table.getHeader().setColumnVisible(7, false); // hide the "length" column until the user shows it
 
+        table.getHeader().setColour(0x1000100, juce::Colours::red);
+        //table.getHeader().setColour(0x1000100, juce::Colours::red);
+
         // un-comment this line to have a go of stretch-to-fit mode
         // table.getHeader().setStretchToFitActive (true);
 
-        table.setMultipleSelectionEnabled(true);
+        table.setMultipleSelectionEnabled(false);
 
     }
 
@@ -70,7 +73,8 @@ public:
 
     void setselectedRow(int i)
     {
-        selectedRow = i;
+        selectedRow = i; 
+        repaint();
     }
 
     void selectedRowsChanged(int lastRowSelected) override
@@ -101,6 +105,7 @@ public:
         }
 
         g.setColour(getLookAndFeel().findColour(ListBox::backgroundColourId));
+        //g.setColour(juce::Colours::red);
         g.fillRect(width - 1, 0, 1, height);
     }
 

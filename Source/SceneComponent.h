@@ -18,6 +18,7 @@ typedef enum
 {
         SCENE_TUTO_INIT = 0,            // please select a song
         SCENE_TUTO_2D,                  // you can enable 3D feature by cliking on inco ([])
+        SCENE_TUTO_2D_2,
         SCENE_TUTO_CONNECT,              // instruments are now in 3D place.
         SCENE_PLAYER_MODE,
 }SCENE_TUTO;
@@ -35,7 +36,7 @@ public:
         }
 
         setSize(600, 600);
-        setFramesPerSecond(1);
+        //setFramesPerSecond(1);
 
         sceneId = SCENE_TUTO_INIT;
         repaint();
@@ -161,7 +162,7 @@ public:
 
     void paint(juce::Graphics& g) override
     {
-        //g.fillAll(juce::Colours::black);
+        g.fillAll(juce::Colours::black);
         //g.setColour(getLookAndFeel().findColour(juce::Slider::thumbColourId));
         String m;
         int i =0;
@@ -176,7 +177,7 @@ public:
                 g.setFont(CODAFRONT_TEXT_SIZE_P1);
                 Gofont.setHeight(26);
 	            g.drawText ("Welcome to Coda demo player", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
-	            m << "Let's start by selecting a song..";	
+	            m << "Let's pick a song";	
                 Gofont.setHeight(18);
                 g.setFont(Gofont);
                 g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
@@ -189,7 +190,20 @@ public:
                 g.setFont(CODAFRONT_TEXT_SIZE_P1);
                 Gofont.setHeight(26);
     		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
-    		    m << "you can now enable 3D audio by clicling on the icone 2D";	
+    		    m << "Activate Audio 360 by clicking on the icon. TODO Control panel ";	
+                Gofont.setHeight(18);
+                g.setFont(Gofont);
+                g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
+                break;
+            }
+            case SCENE_TUTO_2D_2 :
+            {
+                g.fillAll(Colour((uint32)WP1_COLOR));
+                g.setColour(Colour((uint32)P1_COLOR));
+                g.setFont(CODAFRONT_TEXT_SIZE_P1);
+                Gofont.setHeight(26);
+    		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
+    		    m << "use the control button to edit spatial configuration ";	
                 Gofont.setHeight(18);
                 g.setFont(Gofont);
                 g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
@@ -202,7 +216,7 @@ public:
                 g.setFont(CODAFRONT_TEXT_SIZE_P1);
                 Gofont.setHeight(26);
     		    //g.drawText ("Enable 3D audio", Rectangle<int>(0, 0, getWidth(), 150), juce::Justification::centred, true);
-    		    m << "Time to connect presquel ! If you don't have one, you can buy one at. Meanwhile, simulate by";	
+    		    m << "We can now connect the headtracker for full experience. If you don't have one, you can buy one at. Meanwhile, simulate by";	
                 Gofont.setHeight(18);
                 g.setFont(Gofont);
                 g.drawFittedText(m,  Rectangle<int>(100, 75, getWidth()-200, 150), juce::Justification::centred,10,1);
@@ -235,11 +249,11 @@ public:
                     {
                         if(highglightmode != -1)
                         {
-                            opacity = ButtonActive[ii] == 2 ? 0.98f : 0.45f;    
+                            opacity = ButtonActive[ii] == 2 ? 1.0f : 0.40f;    
                         }
                         else 
                         {
-                            opacity = 0.80f;
+                            opacity = 0.90f;
                         }
                         ButtonSlot[ii].setImages(false,
                             true,

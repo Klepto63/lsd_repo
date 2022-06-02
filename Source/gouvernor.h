@@ -30,6 +30,13 @@ public:
         //hyperlinkButton.setURL(URL("www.studio-coda.fr"));
 
         addAndMakeVisible(&playerComponent);
+        playerComponent.setPlayerCallback([this](int v)
+        {
+            currentIdSong = v;
+            tableComponent.setselectedRow(currentIdSong);
+        });
+
+
         addAndMakeVisible(&leftBarComponent);
         addAndMakeVisible(&sceneComponent);
         leftBarComponent.setletbarCallback([this](int v)
@@ -46,18 +53,16 @@ public:
         sceneConfigButton.onClick = [this] { sceneConfigButtonClicked(); };
         sceneConfigButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
         Image sceneConfigButtonImgOFF = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SCENE_CONFIG)));
+        Image sceneConfigButtonImgOFF2 = ImageFileFormat::loadFrom(File::File(PathGetAsset(ASSET_SCENE_CONFIG_ONCLICK)));
         sceneConfigButton.setImages(true,  //re-size to fit
                              true,  //rescale image
                              true,  //preserve proportion
             sceneConfigButtonImgOFF, 1.0f, juce::Colours::transparentBlack,
-            sceneConfigButtonImgOFF, 1.0f, juce::Colours::red,
-            sceneConfigButtonImgOFF, 1.0f, juce::Colours::transparentBlack, //image when down
+            sceneConfigButtonImgOFF, 1.0f, juce::Colours::transparentBlack,
+            sceneConfigButtonImgOFF2, 1.0f, juce::Colours::transparentBlack, //image when down
             0.5f
         );
-        
-
-
-
+        sceneConfigButton.setEnabled(false);
 
         addAndMakeVisible(&bypass3DButton);
         bypass3DButton.setButtonText("bypass3DButton");
@@ -69,27 +74,31 @@ public:
                              true,  //rescale image
                              true,  //preserve proportion
             bypass3DButtonImg, 1.0f, juce::Colours::transparentBlack,
-            bypass3DButtonImg, 1.0f, juce::Colours::red,
+            bypass3DButtonImg, 1.0f, juce::Colours::transparentBlack,
             bypass3DButtonImg, 1.0f, juce::Colours::transparentBlack, //image when down
             0.5f
         );
+        bypass3DButton.setEnabled(false);
 
         setSize(1300, 800);
     }
 
+    void mouseDown(const MouseEvent& event)
+    {
+        tableComponent.setselectedRow((int) tableComponent.getRowId());
+    }
+
     void mouseDoubleClick(const MouseEvent& event)
     {
-        if(1)
+        if (currentIdSong != tableComponent.getRowId()  || playerComponent.Master_isPlaying()==false)
         {
-            if (currentIdSong != tableComponent.getRowId()  || playerComponent.Master_isPlaying()==false)
-            {
-                currentIdSong = tableComponent.getRowId();
-                playerComponent.Master_changeState(PlayerComponent::Master_Stopped);
-                playerComponent.Master_loadAndPlay(currentIdSong);
-
-                sceneComponent.updateConfig(currentIdSong);
-                sceneComponent.event_notify(0);
-            }
+            currentIdSong = tableComponent.getRowId();
+            playerComponent.Master_changeState(PlayerComponent::Master_Stopped);
+            playerComponent.Master_loadAndPlay(currentIdSong);
+            sceneComponent.updateConfig(currentIdSong);
+            sceneComponent.event_notify(0);
+            sceneConfigButton.setEnabled(true);
+            bypass3DButton.setEnabled(true);
         }
     }
 
@@ -187,8 +196,15 @@ public:
         tableComponent.setBounds(l_leftbar - 8,  0.3f * Height - 10,   Width-l_leftbar +17,    (1 - 0.3f) * Height   - h_playbar + 20);
         //FakeCodaSlider.setBounds(100,Height - 0.5*h_playbar, 200,20);
 
-        sceneConfigButton.setBounds(0.8f * Width - 2 * ICON_BUTTON_SIZE, Height - 0.5f * (h_playbar + ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
-        bypass3DButton.setBounds(0.8f*Width,  Height - 0.5f * (h_playbar+ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
+        //sceneConfigButton.setBounds(0.8f * Width - 2 * ICON_BUTTON_SIZE, Height - 0.5f * (h_playbar + ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
+        //bypass3DButton.setBounds(0.8f*Width,  Height - 0.5f * (h_playbar+ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
+
+        //sceneConfigButton.setBounds(0.955f*Width,  Height - 0.5f * (h_playbar+ICON_BUTTON_SIZE), ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
+
+
+        sceneConfigButton.setBounds((Width - NEXT_BUTTON_SIZE_X) * 0.5f + (2.0f * NEXT_BUTTON_SPACE), Height - 0.5f * (h_playbar + ICON_BUTTON_SIZE + 7 ) - 6, ICON_BUTTON_SIZE, ICON_BUTTON_SIZE);
+        bypass3DButton.setBounds((Width - NEXT_BUTTON_SIZE_X) * 0.5f + (3.0f * NEXT_BUTTON_SPACE), Height - 0.5f * (h_playbar + ICON_BUTTON_SIZE + 13) - 6, ICON_BUTTON_SIZE+5, ICON_BUTTON_SIZE+5);
+
 
         int size = 190;
         energySlider.setBounds(0.5f*(l_leftbar-size),40,size,size);

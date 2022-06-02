@@ -235,7 +235,7 @@ void PopUpEnterComponent::ButtonD_callback(void)
 //==============================================================================
 void PopUpEnterComponent::paint (juce::Graphics& g)
 {
-    g.fillAll(Colour((uint32)WP1_COLOR));
+    g.fillAll(Colour((uint32)WP_POPUP));
     String m;
     int h = getHeight();
     int w = getWidth();

@@ -258,7 +258,6 @@ private:
 		if(shouldPopup)
 		{
 			String name = "Studio-Coda 1.0.0";
-			Colour colour = Colour(WP2_COLOR);
 			dw = new PopUpEnterComponent(POPUP_CONNECT_PRESQUEL);
 			dw->setName("Connect device");
 			dw->setVisible(true);

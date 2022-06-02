@@ -16,7 +16,9 @@
 //#40bb91 ver style  https://www.peko-step.com/fr/tool/tfcolor.html
 //rouge style 0xffff3054
 //------------------------------------ POPUP1
-#define WP1_COLOR	  0xff111111
+#define WP1_COLOR	  0xff17171A                      //0xff111111
+#define WP_POPUP      0xff000000
+
 #define P1_COLOR      0xffffffff        //couleur text boutton custom
 #define BUTTON_CUSTUM_COLOR 0xff121212  //couleur boutton custom
 #define BUTTON_COLOR1 0xff181818
@@ -27,36 +29,39 @@
 #define SCENE_COMPONENT_WP2     0xffff0000
 #define SCENE_COMPONENT_LABEL   0xff9999AA
 
-//------------------------------------- GOUVERNOR
-#define WP2_COLOR     0xff111111
+#define POLAR_PLAN_LE_DOT       0xff00AAAA      
 
 //--------------------------------------- SLIDER MUSIC
-#define BACKGROUND_COLOR 0xff535353
-#define THUMB_COLOR      0xc8ffffff
-#define LIGNE_COLOR      0xffff3054//0xff1db954    //OLD VERT
+#define BACKGROUND_COLOR     0xff565659
+#define THUMB_COLOR          0x00000000                   //0xc8ffffff
+#define LIGNE_COLOR          0xff00ffff       //rouge 0xffff3054//0xff1db954    //OLD VERT
+#define VOLUME_LIGNE_COLOR   0xffEEEEEE
+
 
 
 //--------------------------------------- TABLE
-#define SELECTED_ROW_COLOR   0xff40bb91 // remetttre0x991db954                   //0x10ffffff
-#define SELECTED_ROW_COLOR   0xffff3054  //remetttre 0x991db954                   //0x10ffffff
+#define SELECTED_ROW_COLOR   0xAA555555    // remetttre0x991db954                   //0x10ffffff
+//#define SELECTED_ROW_COLOR   0xffff3054  //remetttre 0x991db954                   //0x10ffffff
 #define ROW_ALTERNATE_COLOR  0xff181818
 #define ROW_ALTERNATE_COLOR2 0xff121212
-#define COLOR_TEXT_TABLE     0xffbbbbbb
+#define COLOR_TEXT_TABLE     0xffcccccc
 
 //--------------------------------------- PLAYBAR
-#define WP_PLAYER 0xff181818
-#define PLAY_BUTTON_SIZE  37
-#define NEXT_BUTTON_SIZE  20
-#define NEXT_BUTTON_SPACE 90
-#define ICON_BUTTON_SIZE  20
+#define WP_PLAYER       0xff202022     //0xff222226 TIDAL            //   0xff181818
+#define PLAY_BUTTON_SIZE  35
 
-#define ENERGY_SLIDER_RED_COLOR      0xaa39eeea
-#define ENERGY_SLIDER_BLUE_COLOR     0xaa1db954
+#define NEXT_BUTTON_SIZE_X  18
+#define NEXT_BUTTON_SIZE_Y  20
+#define NEXT_BUTTON_SPACE 55
+#define ICON_BUTTON_SIZE  24
+
+#define ENERGY_SLIDER_RED_COLOR      0xaaffffff
+//#define ENERGY_SLIDER_BLUE_COLOR     0xffeeeeee
 
 //#define WP_PLAYER   0xff0000ff
 
 //--------------------- LEFTBAR
-#define WP_LEFTBAR 0xFF000000
+#define WP_LEFTBAR 0xFF000000//0xff242528                  // 0xFF000000
 
 #define TEXT_RED   0xA0FF5544 
 

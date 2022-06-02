@@ -21,6 +21,16 @@ juce::String PathGetAsset(PATH_GET_ASSET a)
         ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/pauseButton.png";
         break;
     }
+    case ASSET_PLAY_BUTTON_ONCLICK:
+    {
+        ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/playButton_oc.png";
+        break;
+    }
+    case ASSET_PAUSE_BUTTON_ONCLICK:
+    {
+        ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/pauseButton_oc.png";
+        break;
+    }
     case ASSET_SOUND_MUTED:
     {
         ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/soundMuted.png";
@@ -54,6 +64,11 @@ juce::String PathGetAsset(PATH_GET_ASSET a)
     case ASSET_SCENE_CONFIG : 
     {
         ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/sceneConfig.png";        
+        break;
+    }
+    case ASSET_SCENE_CONFIG_ONCLICK : 
+    {
+        ret = "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/sceneConfig_oc.png";        
         break;
     }
     case ASSET_3DBUTTON_OFF : 
@@ -134,6 +149,46 @@ juce::String PathGetAsset(PATH_GET_ASSET a)
     case IMAGE_3D_GRID :
     {
         ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/images/gridd_.png";
+        break;
+    }
+    case ASSET_REPEAT_BUTTON : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/repeatButton.png";
+        break;
+    }
+    case ASSET_RANDOM_BUTTON : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/randomButton.png";
+        break;
+    }
+    case ASSET_REPEAT_BUTTON_ONCLICK : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/repeatButton_oc.png";
+        break;
+    }
+    case ASSET_RANDOM_BUTTON_ONCLICK : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/randomButton_oc.png";
+        break;
+    }
+    case ASSET_RANDOM_BUTTON_CLICKON : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/randomButton_co.png";
+        break;
+    }
+    case ASSET_RANDOM_BUTTON_CLICK : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/randomButton_c.png";
+        break;
+    }
+    case ASSET_REPEAT_BUTTON_CLICK :
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/repeatButton_c.png";
+        break;
+    }
+    case ASSET_REPEAT_BUTTON_CLICKON : 
+    {
+        ret =  "C:/Users/Alex/Desktop/Coda2022/lsd_repo/Coda2022/Assets/icons/repeatButton_co.png";
         break;
     }
     default:
